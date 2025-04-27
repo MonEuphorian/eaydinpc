@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hack Simülatörü</title>
     <style>
         /* Temel stiller */
@@ -313,28 +313,138 @@
         /* Mobil uyumluluk için */
         @media (max-width: 767px) {
             .monitor {
-                width: 30px;
-                height: 30px;
-                font-size: 16px;
-                margin: 0 3px;
+                width: 25px;
+                height: 25px;
+                font-size: 14px;
+                margin: 0 2px;
+                border-width: 2px;
             }
             
             .miniShield {
                 width: 20px;
                 height: 20px;
+                border-width: 1px;
+            }
+            
+            .miniShield:after {
+                font-size: 12px;
             }
             
             .screenTitle {
-                font-size: 32px;
+                font-size: 28px;
             }
             
             .screenText {
-                font-size: 18px;
+                font-size: 16px;
             }
             
             .bigBtn {
-                padding: 12px 24px;
-                font-size: 18px;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            
+            #timer {
+                font-size: 28px;
+                margin: 10px 0;
+            }
+            
+            #cpu {
+                width: 120px;
+                height: 90px;
+                margin-top: 15px;
+            }
+            
+            #shield {
+                width: 60px;
+                height: 60px;
+                margin: 10px auto;
+            }
+            
+            #shieldIcon {
+                width: 40px;
+                height: 40px;
+            }
+            
+            #usb {
+                width: 50px;
+                height: 70px;
+                margin-bottom: 15px;
+            }
+            
+            #usbContainer {
+                margin: 15px 0;
+            }
+            
+            .btn {
+                padding: 8px 15px;
+                font-size: 14px;
+                margin: 0 5px;
+            }
+            
+            .wire {
+                width: 3px;
+            }
+            
+            /* Monitörler arasındaki mesafe */
+            .monitorRow {
+                margin: 15px 0;
+            }
+            
+            /* Oyun elementlerini daha yakın konumlandır */
+            #gameContainer {
+                justify-content: center;
+                padding: 10px 0;
+            }
+        }
+        
+        /* Daha küçük ekranlar için (telefonlar) */
+        @media (max-width: 480px) {
+            .monitor {
+                width: 22px;
+                height: 22px;
+                font-size: 12px;
+                margin: 0 1px;
+                border-width: 2px;
+            }
+            
+            .miniShield {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .miniShield:after {
+                font-size: 10px;
+            }
+            
+            .screenTitle {
+                font-size: 24px;
+            }
+            
+            .screenText {
+                font-size: 14px;
+            }
+            
+            #timer {
+                font-size: 24px;
+            }
+            
+            .monitorRow {
+                margin: 10px 0;
+                width: 95%;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                margin: 0 3px;
+            }
+            
+            #connectBtn {
+                min-width: 100px;
+            }
+            
+            .arrowBtn {
+                width: 40px;
             }
         }
         
@@ -409,6 +519,21 @@
             0% { opacity: 0.7; }
             50% { opacity: 1; }
             100% { opacity: 0.7; }
+        }
+        
+        /* Dokunmatik cihazlar için daha büyük tıklama alanları */
+        @media (pointer: coarse) {
+            .btn {
+                min-height: 44px; /* Dokunmatik için önerilen minimum dokunma alanı */
+            }
+            
+            #usb {
+                min-height: 60px;
+            }
+            
+            .monitor {
+                touch-action: manipulation; /* Çift dokunma zoom'u engelle */
+            }
         }
     </style>
 </head>
@@ -499,6 +624,9 @@
             createWires();
             // Pencere boyutu değiştiğinde kabloları yeniden konumlandır
             window.addEventListener('resize', updateWirePositions);
+            
+            // Mobil cihaz kontrolü ve optimizasyonları
+            checkIfMobile();
         };
         
         // Oyun değişkenleri
@@ -1132,6 +1260,118 @@
             wires.forEach(wire => {
                 if (!wire.classList.contains('success')) {
                     wire.classList.remove('active');
+                }
+            });
+        }
+        
+        // Mobil cihaz kontrolü
+        function checkIfMobile() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+            
+            if (isMobile) {
+                // Mobil için touch olayları ekleyelim
+                addTouchEvents();
+                
+                // Kabloları mobil için optimize et
+                optimizeForMobile();
+                
+                // Orientasyon değişikliğini izle
+                window.addEventListener('orientationchange', handleOrientationChange);
+            }
+        }
+        
+        // Orientasyon değişikliğini yönet
+        function handleOrientationChange() {
+            // Orientasyon değişikliğinden sonra kısa bir gecikme ile yeniden düzenle
+            setTimeout(() => {
+                updateWirePositions();
+                optimizeForMobile();
+                
+                // Yatay modda layout'u daha iyi hale getir
+                if (window.innerWidth > window.innerHeight) {
+                    // Yatay mod - daha kompakt görünüm
+                    document.querySelectorAll('.monitorRow').forEach(row => {
+                        row.style.margin = '10px 0';
+                    });
+                    
+                    document.getElementById('timer').style.margin = '5px 0';
+                    document.getElementById('shield').style.margin = '5px auto';
+                    document.getElementById('cpu').style.marginTop = '10px';
+                } else {
+                    // Dikey mod - normal görünüm
+                    if (window.innerWidth < 480) {
+                        document.querySelectorAll('.monitorRow').forEach(row => {
+                            row.style.margin = '10px 0';
+                        });
+                    } else {
+                        document.querySelectorAll('.monitorRow').forEach(row => {
+                            row.style.margin = '15px 0';
+                        });
+                    }
+                }
+            }, 300); // Küçük bir gecikme ile yeniden düzenle
+        }
+        
+        // Touch olayları ekle
+        function addTouchEvents() {
+            // USB butonuna dokunma olayı
+            usb.addEventListener('touchstart', function(e) {
+                e.preventDefault(); // Varsayılan dokunma davranışını engelle
+                if (!gameStarted || gameOver) return;
+                
+                if (!spinning) {
+                    startSpinning();
+                } else {
+                    stopSpinning();
+                }
+            });
+            
+            // Sol, sağ ve bağlan butonları için touch olayları
+            leftBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                if (!gameStarted || gameOver || spinning) return;
+                
+                selectedMonitorIndex = (selectedMonitorIndex - 1 + 10) % 10;
+                updateMonitorSelection();
+            });
+            
+            rightBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                if (!gameStarted || gameOver || spinning) return;
+                
+                selectedMonitorIndex = (selectedMonitorIndex + 1) % 10;
+                updateMonitorSelection();
+            });
+            
+            connectBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                if (!gameStarted || gameOver || spinning) return;
+                
+                lockSelectedMonitor();
+            });
+        }
+        
+        // Mobil cihazlar için optimize et
+        function optimizeForMobile() {
+            // Performans iyileştirmeleri
+            const wires = document.querySelectorAll('.wire');
+            wires.forEach(wire => {
+                wire.style.boxShadow = '0 0 3px #ff00aa'; // Gölgeleri azalt (performans için)
+            });
+            
+            // Oyun ekranları için metin boyutlarını uyarla
+            const gameScreens = document.querySelectorAll('.gameScreen');
+            gameScreens.forEach(screen => {
+                const title = screen.querySelector('.screenTitle');
+                const text = screen.querySelector('.screenText');
+                
+                if (title && window.innerWidth < 480) {
+                    title.style.fontSize = '24px';
+                }
+                
+                if (text && window.innerWidth < 480) {
+                    text.style.fontSize = '14px';
+                    text.style.maxWidth = '90%';
                 }
             });
         }
