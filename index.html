@@ -198,6 +198,13 @@
             color: #00d9ff;
         }
         
+        /* Sadece normal boyutlar için */
+        @media (min-width: 768px) {
+            #usbIcon {
+                font-size: 40px;
+            }
+        }
+        
         .controls {
             display: flex;
             justify-content: center;
@@ -394,12 +401,12 @@
         @media (max-width: 767px) {
             body {
                 font-size: 16px;
-                padding-bottom: 120px; /* Daha az boşluk */
+                padding-bottom: 250px; /* Daha büyük USB için ek boşluk */
             }
             
             #gameContainer {
                 justify-content: flex-start;
-                padding: 20px 0 120px 0; /* Alt boşluğu azalttım */
+                padding: 20px 0 250px 0; /* Alt kısma ek boşluk */
                 min-height: 100vh;
                 height: auto;
             }
@@ -442,19 +449,23 @@
             }
             
             #usb {
-                width: 60px; /* 80px'ten 60px'e düşürdüm */
-                height: 75px; /* 100px'ten 75px'e düşürdüm */
-                margin-bottom: 0;
+                width: 160px; /* İki katına çıkardık */
+                height: 200px; /* İki katına çıkardık */
+                margin-bottom: 5px;
+            }
+            
+            #usbIcon {
+                font-size: 80px; /* İkon boyutunu da iki katına çıkardık */
             }
             
             .side-controls {
-                margin: 0 10px; /* Daha az boşluk */
+                margin: 0 20px; /* Daha büyük USB için yan boşlukları da arttırdık */
             }
             
             .arrowBtn {
-                width: 45px; /* 65px'ten 45px'e düşürdüm */
-                height: 45px; /* 65px'ten 45px'e düşürdüm */
-                font-size: 18px; /* 30px'ten 18px'e düşürdüm */
+                width: 65px;
+                height: 65px;
+                font-size: 30px;
                 border-width: 3px;
                 box-shadow: 0 0 15px rgba(255, 0, 170, 0.7);
             }
@@ -466,14 +477,14 @@
                 left: 0;
                 right: 0;
                 background-color: rgba(3, 19, 33, 0.95);
-                padding: 10px 0 15px 0;
+                padding: 15px 0;
                 z-index: 50;
                 border-top: 2px solid rgba(0, 217, 255, 0.3);
                 box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
             }
             
             .controls {
-                margin-top: 7px; /* USB ve CONNECT arası 7px */
+                margin-top: 5px;
             }
             
             .btn {
@@ -484,9 +495,9 @@
             
             #connectBtn {
                 min-width: 180px;
-                margin-top: 0;
-                padding: 10px 0;
-                font-size: 18px;
+                margin-top: 5px;
+                padding: 12px 0;
+                font-size: 20px;
                 border-width: 3px;
                 box-shadow: 0 0 15px rgba(0, 217, 255, 0.7);
             }
@@ -509,7 +520,7 @@
             
             #codeRow {
                 margin-top: 40px;
-                margin-bottom: 20px; /* Artık sabit kontrol butonları olduğu için */
+                margin-bottom: 10px; /* USB ile arasındaki boşluğu 10px'e düşürdük */
             }
             
             /* Seçili kutu mobilde daha belirgin */
@@ -528,11 +539,11 @@
         /* Daha küçük ekranlar için (telefonlar) */
         @media (max-width: 480px) {
             body {
-                padding-bottom: 100px;
+                padding-bottom: 200px;
             }
             
             #gameContainer {
-                padding: 20px 0 100px 0;
+                padding: 20px 0 200px 0;
             }
             
             .monitor {
@@ -579,7 +590,7 @@
             
             #codeRow {
                 margin-top: 30px;
-                margin-bottom: 20px;
+                margin-bottom: 10px; /* USB ile arasındaki boşluğu 10px'e düşürdük */
             }
             
             .btn {
@@ -590,25 +601,28 @@
             
             #connectBtn {
                 min-width: 150px;
-                margin-top: 0;
-                padding: 8px 0;
-                font-size: 16px;
+                margin-top: 5px;
+                font-size: 18px;
                 border-width: 3px;
             }
             
             #usb {
-                width: 50px;  /* 70px'ten 50px'e düşürdüm */
-                height: 65px; /* 85px'ten 65px'e düşürdüm */
+                width: 120px; /* Küçük ekranlarda biraz daha küçültüyoruz ama yine de büyük */
+                height: 150px;
+            }
+            
+            #usbIcon {
+                font-size: 60px;
             }
             
             .side-controls {
-                margin: 0 8px;
+                margin: 0 15px;
             }
             
             .arrowBtn {
-                width: 40px; /* 55px'ten 40px'e düşürdüm */
-                height: 40px; /* 55px'ten 40px'e düşürdüm */
-                font-size: 18px; /* 26px'ten 18px'e düşürdüm */
+                width: 55px;
+                height: 55px;
+                font-size: 26px;
                 border-width: 3px;
             }
             
@@ -617,11 +631,7 @@
             }
             
             #usbContainer {
-                padding: 8px 0 12px 0;
-            }
-            
-            .controls {
-                margin-top: 7px; /* USB ve CONNECT arası 7px */
+                padding: 10px 0;
             }
         }
         
