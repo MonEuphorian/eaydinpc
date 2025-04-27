@@ -156,7 +156,7 @@
             align-items: center;
             width: 100%;
             max-width: 400px;
-            margin: 25px auto;
+            margin: 25px auto 0;
             position: relative;
         }
         
@@ -165,7 +165,7 @@
             width: 100%;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         
         .side-controls {
@@ -202,6 +202,7 @@
             display: flex;
             justify-content: center;
             width: 100%;
+            margin-top: 10px;
         }
         
         .btn {
@@ -229,6 +230,8 @@
             color: #00d9ff;
             text-transform: uppercase;
             letter-spacing: 2px;
+            font-size: 20px;
+            padding: 12px 25px;
         }
         
         #connectBtn:hover {
@@ -391,12 +394,14 @@
         @media (max-width: 767px) {
             body {
                 font-size: 16px;
+                padding-bottom: 180px; /* Sabit kontrol alanı için ek boşluk */
             }
             
             #gameContainer {
-                justify-content: space-evenly;
-                padding: 20px 0;
-                height: 100vh;
+                justify-content: flex-start;
+                padding: 20px 0 180px 0; /* Alt kısma ek boşluk */
+                min-height: 100vh;
+                height: auto;
             }
             
             .monitor {
@@ -439,7 +444,7 @@
             #usb {
                 width: 80px;
                 height: 100px;
-                margin-bottom: 0;
+                margin-bottom: 5px;
             }
             
             .side-controls {
@@ -447,13 +452,28 @@
             }
             
             .arrowBtn {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
+                width: 65px;
+                height: 65px;
+                font-size: 30px;
+                border-width: 3px;
+                box-shadow: 0 0 15px rgba(255, 0, 170, 0.7);
             }
             
             #usbContainer {
-                margin: 30px auto;
+                margin: 0;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background-color: rgba(3, 19, 33, 0.95);
+                padding: 15px 0;
+                z-index: 50;
+                border-top: 2px solid rgba(0, 217, 255, 0.3);
+                box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+            }
+            
+            .controls {
+                margin-top: 5px;
             }
             
             .btn {
@@ -464,8 +484,11 @@
             
             #connectBtn {
                 min-width: 180px;
-                margin-top: 20px;
+                margin-top: 5px;
                 padding: 12px 0;
+                font-size: 20px;
+                border-width: 3px;
+                box-shadow: 0 0 15px rgba(0, 217, 255, 0.7);
             }
             
             .wire {
@@ -474,17 +497,19 @@
             
             /* Monitörler arasındaki mesafe */
             .monitorRow {
-                margin: 30px 0;
+                margin: 20px 0;
                 max-width: 90%;
             }
             
             /* Monitör satırları arasında daha fazla mesafe */
             #passwordRow {
-                margin-bottom: 60px;
+                margin-bottom: 40px;
+                margin-top: 20px;
             }
             
             #codeRow {
-                margin-top: 60px;
+                margin-top: 40px;
+                margin-bottom: 20px; /* Artık sabit kontrol butonları olduğu için */
             }
             
             /* Seçili kutu mobilde daha belirgin */
@@ -502,6 +527,14 @@
         
         /* Daha küçük ekranlar için (telefonlar) */
         @media (max-width: 480px) {
+            body {
+                padding-bottom: 150px;
+            }
+            
+            #gameContainer {
+                padding: 20px 0 150px 0;
+            }
+            
             .monitor {
                 width: 30px;
                 height: 30px;
@@ -534,17 +567,19 @@
             }
             
             .monitorRow {
-                margin: 20px 0;
+                margin: 15px 0;
                 width: 95%;
             }
             
             /* Monitör satırları arasında daha fazla mesafe */
             #passwordRow {
-                margin-bottom: 50px;
+                margin-bottom: 30px;
+                margin-top: 15px;
             }
             
             #codeRow {
-                margin-top: 50px;
+                margin-top: 30px;
+                margin-bottom: 20px;
             }
             
             .btn {
@@ -555,7 +590,9 @@
             
             #connectBtn {
                 min-width: 150px;
-                margin-top: 15px;
+                margin-top: 5px;
+                font-size: 18px;
+                border-width: 3px;
             }
             
             #usb {
@@ -568,13 +605,18 @@
             }
             
             .arrowBtn {
-                width: 45px;
-                height: 45px;
-                font-size: 20px;
+                width: 55px;
+                height: 55px;
+                font-size: 26px;
+                border-width: 3px;
             }
             
             .wire {
                 width: 3px;
+            }
+            
+            #usbContainer {
+                padding: 10px 0;
             }
         }
         
