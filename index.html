@@ -119,7 +119,7 @@
         }
         
         .code-monitor {
-            color: #ff00aa;
+            color: #00d9ff; /* Fuşya yerine cyan renk */
         }
         
         /* Kalkanlar (ara katman) */
@@ -277,6 +277,8 @@
         /* Aktif monitör vurgusu */
         .monitor.selected {
             box-shadow: 0 0 15px #ff00aa;
+            border-color: #ff00aa;
+            /* İçerik rengini değiştirmiyoruz, sadece çevresini vurguluyoruz */
         }
         
         /* Kilitlenmiş monitör */
@@ -284,10 +286,27 @@
             border-color: #00ff00;
         }
         
-        /* Doğru değer */
-        .monitor.correct {
-            color: #00ff00;
+        /* Doğru değer ve kilitli */
+        .monitor.locked.correct {
+            color: #00ff00; /* Saf yeşil */
             text-shadow: 0 0 10px #00ff00;
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+        }
+        
+        /* Slot makinası durduktan sonra doğru değer geldiğinde kutucuğun stilini değiştir */
+        .monitor.correct-value {
+            color: #00d9ff; /* Su yeşili (cyan) rengi */
+            text-shadow: 0 0 10px #00d9ff;
+            border-color: #00d9ff;
+        }
+        
+        /* Hem seçili hem de doğru değer içeren monitor */
+        .monitor.selected.correct-value {
+            color: #00d9ff; /* İçerik cyan kalır */
+            box-shadow: 0 0 15px #ff00aa; /* Dış hat fuşya kalır */
+            border-color: #ff00aa; /* Kenar fuşya */
+            text-shadow: 0 0 10px #00d9ff; /* İçerik gölgesi cyan */
         }
         
         /* Kilitleme animasyonu */
@@ -501,6 +520,17 @@
             width: 5px; /* Başarılı kablo biraz kalın */
         }
         
+        /* Matriks yeşili ikon için stil */
+        .miniShield.matrix-green {
+            border-color: #00ff00; /* Matriks yeşili sınır */
+            box-shadow: 0 0 8px #00ff00; /* Matriks yeşili glow efekti */
+        }
+        
+        .miniShield.matrix-green:after {
+            color: #00ff00; /* Matriks yeşili içerik */
+            text-shadow: 0 0 8px #00ff00;
+        }
+        
         @keyframes wire-pulse {
             0% { opacity: 0.7; }
             50% { opacity: 1; }
@@ -558,16 +588,16 @@
         
         <!-- Üst monitör sırası (PASSWORD) -->
         <div class="monitorRow" id="passwordRow">
-            <div class="monitor password-monitor" data-index="0">*</div>
-            <div class="monitor password-monitor" data-index="1">P</div>
-            <div class="monitor password-monitor" data-index="2">A</div>
-            <div class="monitor password-monitor" data-index="3">S</div>
-            <div class="monitor password-monitor" data-index="4">S</div>
-            <div class="monitor password-monitor" data-index="5">W</div>
-            <div class="monitor password-monitor" data-index="6">O</div>
-            <div class="monitor password-monitor" data-index="7">R</div>
-            <div class="monitor password-monitor" data-index="8">D</div>
-            <div class="monitor password-monitor" data-index="9">*</div>
+            <div class="monitor password-monitor" data-index="0">?</div>
+            <div class="monitor password-monitor" data-index="1">?</div>
+            <div class="monitor password-monitor" data-index="2">?</div>
+            <div class="monitor password-monitor" data-index="3">?</div>
+            <div class="monitor password-monitor" data-index="4">?</div>
+            <div class="monitor password-monitor" data-index="5">?</div>
+            <div class="monitor password-monitor" data-index="6">?</div>
+            <div class="monitor password-monitor" data-index="7">?</div>
+            <div class="monitor password-monitor" data-index="8">?</div>
+            <div class="monitor password-monitor" data-index="9">?</div>
         </div>
         
         <!-- Alt monitör sırası (Kod Modülleri) -->
@@ -608,7 +638,107 @@
             
             // Mobil cihaz kontrolü ve optimizasyonları
             checkIfMobile();
+            
+            // Olay dinleyicilerini ayarla
+            setupEventListeners();
         };
+        
+        // Tüm olay dinleyicilerini ayarlama
+        function setupEventListeners() {
+            // Oyun başlatma/yeniden başlatma butonları
+            startButton.addEventListener('click', initGame);
+            restartButton.addEventListener('click', initGame);
+            playAgainButton.addEventListener('click', initGame);
+            
+            // USB'ye tıklama için olay dinleyicisi
+            usb.addEventListener('click', function() {
+                if (!gameStarted || gameOver) return;
+                
+                if (!spinning) {
+                    startSpinning();
+                } else {
+                    stopSpinning();
+                }
+            });
+            
+            // Sol ok tuşu - Dönüşsüz, matris yeşili kutular da seçilebilir
+            leftBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (!gameStarted || gameOver) return;
+                // Spinning kontrolü kaldırıldı, döngü sırasında da çalışabilir
+                
+                // 1. kutudan sola gidilmesini engelle
+                if (selectedMonitorIndex === 0) {
+                    return; // 1. kutudaysa hareketi engelle
+                }
+                
+                // Normal olarak bir sola git
+                selectedMonitorIndex = selectedMonitorIndex - 1;
+                updateMonitorSelection();
+            });
+            
+            // Sağ ok tuşu - Dönüşsüz, matris yeşili kutular da seçilebilir
+            rightBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (!gameStarted || gameOver) return;
+                // Spinning kontrolü kaldırıldı, döngü sırasında da çalışabilir
+                
+                // Son kutudan sağa gidilmesini engelle
+                if (selectedMonitorIndex === 9) {
+                    return; // Son kutudaysa hareketi engelle
+                }
+                
+                // Normal olarak bir sağa git
+                selectedMonitorIndex = selectedMonitorIndex + 1;
+                updateMonitorSelection();
+            });
+            
+            // Connect butonu - Sadece döngü durduğunda çalışsın
+            connectBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (!gameStarted || gameOver) return;
+                
+                // Döngü devam ederken connect butonunu engelle
+                if (spinning) {
+                    return; // Döngü devam ediyorsa işlemi engelle
+                }
+                
+                // İşlemde olup olmadığını kontrol et
+                if (isConnectProcessing) {
+                    return; // Zaten bir işlem yapılıyorsa engelle
+                }
+                
+                lockSelectedMonitor();
+            });
+            
+            // Klavye kontrolleri
+            window.addEventListener('keydown', function(e) {
+                if (!gameStarted || gameOver) return;
+                
+                switch(e.key) {
+                    case 'ArrowLeft':
+                        // Spinning kontrolü kaldırıldı
+                        leftBtn.click(); // Sol buton kodunu kullan
+                        break;
+                    case 'ArrowRight':
+                        // Spinning kontrolü kaldırıldı
+                        rightBtn.click(); // Sağ buton kodunu kullan
+                        break;
+                    case 'Enter':
+                    case ' ':
+                        if (spinning) return; // Connect için döngü kontrolü hala aktif
+                        connectBtn.click(); // Connect buton kodunu kullan
+                        break;
+                    case 'Escape':
+                        if (!spinning) {
+                            startSpinning();
+                        } else {
+                            stopSpinning();
+                        }
+                        break;
+                }
+            });
+        }
         
         // Oyun değişkenleri
         let gameStarted = false;
@@ -623,10 +753,11 @@
         let passwordModulesLocked = Array(10).fill(false);
         let scorePoints = 0;
         let timeLimit = false; // Süre sınırını kapat
+        let isConnectProcessing = false; // Connect butonunun işlemde olup olmadığını takip eden değişken
         
         // Doğru kod ve şifreler
         const correctCodes = ['Y', 'K', '3', 'C', '0', 'F', 'B', 'X', 'V', '9'];
-        const correctPasswords = ['*', 'P', 'A', 'S', 'S', 'W', 'O', 'R', 'D', '*'];
+        const correctPasswords = ['?', '?', '?', '?', '?', '?', '?', '?', '?', '?'];
         
         // Rastgele karakter oluşturma
         function getRandomChar() {
@@ -682,11 +813,11 @@
             // Tüm modülleri sıfırla
             codeMonitors.forEach(monitor => {
                 monitor.textContent = '?';
-                monitor.classList.remove('selected', 'locked', 'correct', 'just-locked');
+                monitor.classList.remove('selected', 'locked', 'correct', 'just-locked', 'correct-value');
             });
             
             passwordMonitors.forEach(monitor => {
-                monitor.classList.remove('selected', 'locked', 'correct', 'just-locked');
+                monitor.classList.remove('selected', 'locked', 'correct', 'just-locked', 'correct-value');
             });
             
             miniShields.forEach(shield => {
@@ -768,40 +899,20 @@
             // Tüm seçimleri kaldır
             currentRow.forEach(monitor => {
                 monitor.classList.remove('selected');
+                // Renk tutarlılığı için correct-value sınıfını korumalıyız, onu kaldırmıyoruz
             });
             
             // Tüm kabloları deaktif yap
             resetWireActiveStatus();
             
-            // Yeni seçili monitörü işaretle (kilitlenmemiş olanı bul)
-            let found = false;
-            for (let i = 0; i < 10; i++) {
-                const index = (selectedMonitorIndex + i) % 10;
-                if (!lockedArray[index]) {
-                    selectedMonitorIndex = index;
-                    currentRow[index].classList.add('selected');
-                    
-                    // İlgili kabloyu aktif yap
-                    if (currentStage === 1) {
-                        const wire = document.getElementById(`wire-${index}`);
-                        if (wire && !wire.classList.contains('success')) {
-                            wire.classList.add('active');
-                        }
-                    }
-                    
-                    found = true;
-                    break;
-                }
-            }
+            // Yeni seçili monitörü işaretle
+            currentRow[selectedMonitorIndex].classList.add('selected');
             
-            // Eğer hiç kilitlenmemiş monitör kalmadıysa ve tüm modüller kilitliyse
-            if (!found && lockedArray.every(locked => locked)) {
-                // Aşama 1'den 2'ye geçiş
-                if (currentStage === 1) {
-                    startStage2();
-                } else {
-                    // Oyun kazanıldı
-                    endGame(true);
+            // İlgili kabloyu aktif yap
+            if (currentStage === 1) {
+                const wire = document.getElementById(`wire-${selectedMonitorIndex}`);
+                if (wire) {
+                    wire.classList.add('active');
                 }
             }
         }
@@ -810,54 +921,49 @@
         function startSpinning() {
             if (spinning) return; // Zaten dönüyor
             
+            // Connect işlem flag'ini resetle çünkü döngü yeniden başlıyor
+            isConnectProcessing = false;
+            
             spinning = true;
             usb.classList.add('active');
             
             const row = currentStage === 1 ? codeMonitors : passwordMonitors;
             const lockedArray = currentStage === 1 ? codeModulesLocked : passwordModulesLocked;
             
-            // Daha düzenli döndürme hızı - yavaşlatılmış versiyon
-            const spinDuration = 4000; // toplam 4 saniye dönsün (2 katına çıkarıldı)
-            const spinInterval = 100; // 100ms aralıklarla güncelle (2 katına çıkarıldı)
-            const iterations = spinDuration / spinInterval;
-            let currentIteration = 0;
+            // Slot başlarken tüm kutucuklardan doğru değer vurgusunu kaldır (rengi fuşyaya döndür)
+            row.forEach((monitor) => {
+                if (!monitor.classList.contains('locked')) {
+                    monitor.classList.remove('correct-value');
+                }
+            });
             
+            // Tüm kalkanları sıfırla - slot başlangıcında
+            document.querySelectorAll('.miniShield').forEach(shield => {
+                shield.classList.remove('matrix-green');
+            });
+            
+            // Karakter değişimi için döngü - otomatik durma özelliği kaldırıldı
             spinningInterval = setInterval(() => {
                 // Kilitlenmemiş modülleri güncelle
                 row.forEach((monitor, index) => {
                     if (!lockedArray[index]) {
-                        // Yavaşlama efekti ekle (döngü sonuna doğru yavaşlasın)
-                        if (Math.random() < (currentIteration / iterations)) {
-                            // İhtimal yükseldikçe değişim azalsın
-                            if (Math.random() > 0.7) {
-                                monitor.textContent = getRandomChar();
-                            }
-                        } else {
-                            // Değişim hızını yarıya indirmek için ek rastgele kontrol
-                            if (Math.random() > 0.5) {
-                                monitor.textContent = getRandomChar();
-                            }
+                        // Değişim hızını yarıya indirmek için ek rastgele kontrol
+                        if (Math.random() > 0.5) {
+                            monitor.textContent = getRandomChar();
                         }
                         
-                        // Doğru değere yaklaşma şansını arttır
+                        // Doğru değere yaklaşma şansını arttır - küçük bir şans
                         const correctValue = currentStage === 1 ? 
                             correctCodes[index] : correctPasswords[index];
                         
-                        // Döngü sonuna doğru doğru değere yaklaşsın
-                        if (Math.random() < (currentIteration / iterations) * 0.5) {
+                        if (Math.random() < 0.05) { // %5 ihtimalle doğru değeri göster
                             monitor.textContent = correctValue;
                         }
                     }
                 });
-                
-                currentIteration++;
-                
-                // Animasyon tamamlandığında
-                if (currentIteration >= iterations) {
-                    clearInterval(spinningInterval);
-                    stopSpinning();
-                }
-            }, spinInterval);
+            }, 100); // 100ms aralıklarla güncelleme
+            
+            // NOT: Otomatik durma kodu kaldırıldı
         }
         
         // Döndürmeyi durdur ve ipuçlarını göster
@@ -875,104 +981,129 @@
             const row = currentStage === 1 ? codeMonitors : passwordMonitors;
             const correctValues = currentStage === 1 ? correctCodes : correctPasswords;
             
-            // Kalkanların mekanik etkisi yok - aktivasyon kaldırıldı
-            
-            // Zorluk seviyesine göre bazı doğru karakterleri yanlış değerlerle değiştir
+            // Kutucukların içeriğini rastgele değerlerle doldur, doğru değerleri değiştirme
             row.forEach((monitor, index) => {
                 if (!monitor.classList.contains('locked')) {
-                    if (monitor.textContent === correctValues[index]) {
-                        // Doğru karakteri koruma olasılığı (zorluk seviyesine bağlı)
-                        const difficulty = currentStage === 1 ? 0.6 : 0.4; // 1. aşama daha kolay
-                        if (Math.random() > difficulty) {
+                    // "correct-value" sınıfını tamamen kaldır, kutuların rengini değiştirmeyelim
+                    monitor.classList.remove('correct-value');
+                    
+                    // Rastgele değer ata veya doğru değeri koru, ama görünümü değiştirme
+                    if (monitor.textContent !== correctValues[index]) {
+                        monitor.textContent = getRandomChar();
+                        // Doğru karakterle aynı olmamasını sağla
+                        while (monitor.textContent === correctValues[index]) {
                             monitor.textContent = getRandomChar();
-                            // Doğru karakterle aynı olmamasını sağla
-                            while (monitor.textContent === correctValues[index]) {
-                                monitor.textContent = getRandomChar();
-                            }
                         }
                     }
                 }
             });
+            
+            // İkili grupların doğruluğunu kontrol et ve ilgili kalkanları güncelle
+            checkPairCorrectness();
+        }
+        
+        // İkili grupların doğruluğunu kontrol et ve ilgili kalkanları güncelle
+        function checkPairCorrectness() {
+            const row = currentStage === 1 ? codeMonitors : passwordMonitors;
+            const correctValues = currentStage === 1 ? correctCodes : correctPasswords;
+            
+            // Önce tüm kalkanları temizle
+            document.querySelectorAll('.miniShield').forEach(shield => {
+                shield.classList.remove('matrix-green');
+            });
+            
+            // Her kalkan için kontrolü yap
+            // shield-0: 0. kutu veya 1. kutu
+            // shield-1: 1. kutu veya 2. kutu 
+            // shield-2: 2. kutu veya 3. kutu
+            // ...vb.
+            
+            for (let i = 0; i < 9; i++) {
+                const shieldId = `shield-${i}`;
+                const shield = document.getElementById(shieldId);
+                
+                if (!shield) continue; // Kalkan bulunamazsa atla
+                
+                // Kalkanla ilişkili kutular - kalkan numarası ve kalkan numarası+1
+                const firstBoxIndex = i;
+                const secondBoxIndex = i + 1;
+                
+                // İki kutudan en az birinde doğru değer var mı kontrol et
+                const firstMatches = !row[firstBoxIndex].classList.contains('locked') && 
+                    row[firstBoxIndex].textContent === correctValues[firstBoxIndex];
+                const secondMatches = !row[secondBoxIndex].classList.contains('locked') && 
+                    row[secondBoxIndex].textContent === correctValues[secondBoxIndex];
+                
+                // Eğer ikisinden en az biri doğru ise ve kilitli değilse kalkanı yeşil yap
+                if (firstMatches || secondMatches) {
+                    console.log(`Kalkan ${shieldId} yeşil olacak, çünkü ${firstBoxIndex+1} veya ${secondBoxIndex+1} kutusunda doğru değer var`);
+                    shield.classList.add('matrix-green');
+                }
+            }
         }
         
         // Seçili monitörü kilitle
         function lockSelectedMonitor() {
-            if (!gameStarted || gameOver || spinning) return;
+            if (!gameStarted || gameOver || spinning || isConnectProcessing) return;
+            
+            // Connect butonunun yeniden kullanılmasını engellemek için flag'i aktif et
+            isConnectProcessing = true;
             
             const row = currentStage === 1 ? codeMonitors : passwordMonitors;
             const lockedArray = currentStage === 1 ? codeModulesLocked : passwordModulesLocked;
             const correctValues = currentStage === 1 ? correctCodes : correctPasswords;
             
-            // Doğru karakter mi kontrolü ve puan ekleme
+            // Doğru karakter mi kontrolü
             if (row[selectedMonitorIndex].textContent === correctValues[selectedMonitorIndex]) {
-                scorePoints += 10;
-                row[selectedMonitorIndex].classList.add('correct');
+                // Doğru karakter ise kilitle
+                row[selectedMonitorIndex].classList.add('locked');
+                lockedArray[selectedMonitorIndex] = true;
                 
-                // İlgili kabloyu başarılı olarak işaretle
-                if (currentStage === 1) {
-                    const wire = document.getElementById(`wire-${selectedMonitorIndex}`);
-                    if (wire) {
-                        wire.classList.remove('active');
-                        wire.classList.add('success');
-                    }
-                }
-            }
-            
-            // Seçili monitörü kilitle
-            row[selectedMonitorIndex].classList.add('locked');
-            lockedArray[selectedMonitorIndex] = true;
-            
-            // Kilitleme animasyonu
-            row[selectedMonitorIndex].classList.add('just-locked');
-            setTimeout(() => {
-                row[selectedMonitorIndex].classList.remove('just-locked');
-            }, 500);
-            
-            // Sonraki seçilebilir monitörü bul
-            updateMonitorSelection();
-            
-            // Tüm monitörler kilitlendi mi kontrol et
-            if (lockedArray.every(locked => locked)) {
-                // Aşama 1'den 2'ye geçiş
-                if (currentStage === 1) {
-                    startStage2();
-                } else {
-                    // Oyun kazanıldı
+                scorePoints += 10;
+                row[selectedMonitorIndex].classList.add('correct'); // Yeşil renk için
+                
+                // Kilitleme animasyonu
+                row[selectedMonitorIndex].classList.add('just-locked');
+                setTimeout(() => {
+                    row[selectedMonitorIndex].classList.remove('just-locked');
+                    
+                    // İşlem tamamlandığında flag'i resetle
+                    setTimeout(() => {
+                        isConnectProcessing = false;
+                    }, 200); // Minimum 200ms bekle
+                }, 500);
+                
+                // İkili grupları tekrar kontrol et
+                checkPairCorrectness();
+                
+                // Tüm monitörler kilitlendi mi kontrol et
+                if (lockedArray.every(locked => locked)) {
+                    // Aşama 1 tamamlandığında oyunu bitir
                     endGame(true);
                 }
-            }
-        }
-        
-        // Aşama 2'yi başlat
-        function startStage2() {
-            currentStage = 2;
-            if (timeLimit) {
-                timer = 60; // Yeni bir 60 saniye başlat (süre sınırı açıksa)
-            }
-            selectedMonitorIndex = 0;
-            spinning = false;
-            
-            // Geçiş efekti
-            const transitionOverlay = document.createElement('div');
-            transitionOverlay.className = 'transition-overlay';
-            transitionOverlay.innerHTML = '<div class="transition-text">AŞAMA 1 TAMAMLANDI!<br>AŞAMA 2 BAŞLIYOR...</div>';
-            document.body.appendChild(transitionOverlay);
-            
-            // 2 saniye sonra geçiş ekranını kaldır
-            setTimeout(() => {
-                transitionOverlay.style.opacity = 0;
+                
+                // Sağdaki bir sonraki kilitlenmemiş monitöre git
+                let nextIndex = (selectedMonitorIndex + 1) % 10;
+                let count = 0;
+                
+                while (lockedArray[nextIndex] && count < 10) {
+                    nextIndex = (nextIndex + 1) % 10;
+                    count++;
+                }
+                
+                if (count < 10) {
+                    selectedMonitorIndex = nextIndex;
+                    updateMonitorSelection();
+                }
+            } else {
+                // Doğru karakter değilse, döngüyü tekrar başlat
+                startSpinning();
+                
+                // İşlem tamamlandığında flag'i resetle
                 setTimeout(() => {
-                    document.body.removeChild(transitionOverlay);
-                    
-                    // Kalkanları sıfırla
-                    miniShields.forEach(shield => {
-                        shield.classList.remove('active');
-                    });
-                    
-                    // Şifre modüllerini aktifleştir
-                    passwordMonitors[0].classList.add('selected');
-                }, 1000);
-            }, 2000);
+                    isConnectProcessing = false;
+                }, 500); // Minimum 500ms bekle
+            }
         }
         
         // Oyunu bitir
@@ -1026,66 +1157,6 @@
             
             return correct;
         }
-        
-        // Olay dinleyicileri
-        startButton.addEventListener('click', initGame);
-        restartButton.addEventListener('click', initGame);
-        playAgainButton.addEventListener('click', initGame);
-        
-        // USB'ye tıklama için olay dinleyicisi
-        usb.addEventListener('click', function() {
-            if (!gameStarted || gameOver) return;
-            
-            if (!spinning) {
-                startSpinning();
-            } else {
-                stopSpinning();
-            }
-        });
-        
-        // Sol ok tuşu
-        leftBtn.addEventListener('click', function() {
-            if (!gameStarted || gameOver || spinning) return;
-            
-            selectedMonitorIndex = (selectedMonitorIndex - 1 + 10) % 10;
-            updateMonitorSelection();
-        });
-        
-        // Sağ ok tuşu
-        rightBtn.addEventListener('click', function() {
-            if (!gameStarted || gameOver || spinning) return;
-            
-            selectedMonitorIndex = (selectedMonitorIndex + 1) % 10;
-            updateMonitorSelection();
-        });
-        
-        // Connect butonu
-        connectBtn.addEventListener('click', function() {
-            if (!gameStarted || gameOver || spinning) return;
-            
-            lockSelectedMonitor();
-        });
-        
-        // Klavye kontrolleri
-        window.addEventListener('keydown', function(e) {
-            if (!gameStarted || gameOver) return;
-            
-            switch(e.key) {
-                case 'ArrowLeft':
-                    leftBtn.click();
-                    break;
-                case 'ArrowRight':
-                    rightBtn.click();
-                    break;
-                case 'Enter':
-                case ' ':
-                    connectBtn.click();
-                    break;
-                case 'Escape':
-                    usb.click();
-                    break;
-            }
-        });
         
         // ===== Kablo Fonksiyonları =====
         
@@ -1229,7 +1300,8 @@
         function resetWires() {
             const wires = document.querySelectorAll('.wire');
             wires.forEach(wire => {
-                wire.classList.remove('active', 'success');
+                wire.classList.remove('active');
+                // success sınıfı kaldırıldı, tüm kablolar fuşya renginde kalacak
             });
             
             // Mini kalkanları sıfırlamaya gerek yok, artık sadece görsel öğeler
@@ -1239,9 +1311,8 @@
         function resetWireActiveStatus() {
             const wires = document.querySelectorAll('.wire');
             wires.forEach(wire => {
-                if (!wire.classList.contains('success')) {
-                    wire.classList.remove('active');
-                }
+                wire.classList.remove('active');
+                // success sınıfı kontrol etme işlemi kaldırıldı
             });
         }
         
