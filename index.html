@@ -323,13 +323,25 @@
             box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
         }
         
+        /* Seçili kutu için animasyon */
+        @keyframes selected-pulse {
+            0% { box-shadow: 0 0 15px #00d9ff, 0 0 25px #00d9ff; }
+            50% { box-shadow: 0 0 20px #ffffff, 0 0 30px #00d9ff; }
+            100% { box-shadow: 0 0 15px #00d9ff, 0 0 25px #00d9ff; }
+        }
+        
         /* Aktif monitör vurgusu */
         .monitor.selected {
-            box-shadow: 0 0 8px #00d9ff;
-            border-color: #00d9ff;
-            background-color: rgba(0, 217, 255, 0.1);
-            z-index: 10;
+            box-shadow: 0 0 15px #00d9ff, 0 0 25px #00d9ff;
+            border-color: #ffffff;
+            border-width: 3px;
+            background-color: rgba(0, 217, 255, 0.3);
+            z-index: 20; /* Diğer monitörlerin üzerinde görünmesi için z-index artırıldı */
             position: relative;
+            transform: scale(1.1); /* Biraz daha büyük göster */
+            outline: 2px solid white; /* Beyaz bir dış çizgi ekle */
+            outline-offset: 2px; /* Dış çizgiyi biraz dışarı çıkart */
+            animation: selected-pulse 1.5s infinite; /* Seçili kutu animasyonu */
         }
         
         /* Monitör üzerindeki işaretçi - Kaldırıldı */
@@ -357,6 +369,7 @@
             text-shadow: 0 0 10px #00ff00;
             border-color: #00ff00;
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+            z-index: 15; /* Seçilmemiş kutulardan daha yüksek ama seçili kutunun altında */
         }
         
         /* Slot makinası durduktan sonra doğru değer geldiğinde kutucuğun stilini değiştir */
@@ -369,10 +382,13 @@
         /* Hem seçili hem de doğru değer içeren monitor */
         .monitor.selected.correct-value {
             color: #00d9ff;
-            box-shadow: 0 0 8px #00d9ff;
-            border-color: #00d9ff;
+            box-shadow: 0 0 15px #00d9ff, 0 0 25px #00d9ff;
+            border-color: #ffffff;
             text-shadow: 0 0 5px #00d9ff;
-            background-color: rgba(0, 217, 255, 0.1);
+            background-color: rgba(0, 217, 255, 0.3);
+            outline: 2px solid white; /* Beyaz bir dış çizgi ekle */
+            outline-offset: 2px; /* Dış çizgiyi biraz dışarı çıkart */
+            animation: selected-pulse 1.5s infinite; /* Seçili kutu animasyonu */
         }
         
         /* Kilitleme animasyonu */
@@ -529,14 +545,29 @@
             
             /* Seçili kutu mobilde daha belirgin */
             .monitor.selected {
-                box-shadow: 0 0 12px #00d9ff;
+                box-shadow: 0 0 15px #00d9ff, 0 0 25px #00d9ff;
                 border-width: 3px;
+                transform: scale(1.15);
+                outline: 2px solid white; /* Beyaz bir dış çizgi ekle */
+                outline-offset: 2px; /* Dış çizgiyi biraz dışarı çıkart */
             }
             
             /* Doğru değere sahip kilitli kutular daha belirgin */
             .monitor.locked.correct {
                 box-shadow: 0 0 12px #00ff00;
                 border-width: 3px;
+                z-index: 15;
+            }
+            
+            /* Seçili kilitli kutular - mobil ek stil */
+            .monitor.selected.locked.correct {
+                border-color: #ffffff;
+                box-shadow: 0 0 15px #00d9ff, 0 0 25px #00d9ff;
+                z-index: 20;
+                transform: scale(1.15);
+                background-color: rgba(0, 217, 255, 0.3);
+                outline: 2px solid white; /* Beyaz bir dış çizgi ekle */
+                outline-offset: 2px; /* Dış çizgiyi biraz dışarı çıkart */
             }
         }
         
