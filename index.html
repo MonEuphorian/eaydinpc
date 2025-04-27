@@ -436,16 +436,27 @@
             }
             
             .monitor {
-                width: 35px;
-                height: 35px;
-                font-size: 28px; /* Font boyutunu 28px'e çıkardık */
-                margin: 0 3px; /* Boşluğu azalttık */
+                width: 38px;
+                height: 38px;
+                font-size: 30px !important; /* Font boyutunu önemli ölçüde arttırıyoruz ve !important ekliyoruz */
+                margin: 0 2px; /* Boşluğu biraz daha azalttık */
                 border-width: 2px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 text-shadow: 0 0 4px currentColor; /* Metin gölgesini artırdık */
                 font-weight: bold; /* Font kalınlığını artırdık */
+                overflow: hidden; /* Taşmaları engellemek için */
+            }
+            
+            /* Monitör içindeki yazıların boyutuna özel kural */
+            .monitor span, .monitor div {
+                font-size: 30px !important;
+            }
+            
+            /* Doğrudan text içeriğine etki eden style */
+            .code-monitor, .password-monitor {
+                font-size: 30px !important;
             }
             
             .miniShield {
@@ -601,22 +612,28 @@
             }
             
             .monitor {
-                width: 30px;
-                height: 30px;
-                font-size: 24px; /* Font boyutunu 24px'e çıkardık */
-                margin: 0 3px; /* Margin'i azalttık */
+                width: 32px;
+                height: 32px;
+                font-size: 26px !important; /* Font boyutunu önemli ölçüde arttırıyoruz ve !important ekliyoruz */
+                margin: 0 2px; /* Margin'i biraz daha azalttık */
                 border-width: 2px;
                 text-shadow: 0 0 5px currentColor; /* Metin gölgesini artırdık */
                 font-weight: bold; /* Font kalınlığını koruyoruz */
+                line-height: 1; /* Line-height'i azalttık */
+                padding: 0; /* Padding'i sıfırladık */
             }
             
-            /* Harflerin daha belirgin olması için monitörlerdeki içerik renklerini daha parlak yapalım */
-            .code-monitor {
+            /* Monitör içindeki yazıların boyutuna özel kural */
+            .monitor span, .monitor div {
+                font-size: 26px !important;
+            }
+            
+            .password-monitor {
                 color: #00ffff; /* Daha parlak cyan renk */
                 text-shadow: 0 0 5px #00ffff; /* Belirgin gölge */
             }
             
-            .password-monitor {
+            .code-monitor {
                 color: #00ffff; /* Daha parlak cyan renk */
                 text-shadow: 0 0 5px #00ffff; /* Belirgin gölge */
             }
