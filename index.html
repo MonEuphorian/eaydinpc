@@ -394,12 +394,12 @@
         @media (max-width: 767px) {
             body {
                 font-size: 16px;
-                padding-bottom: 180px; /* Sabit kontrol alanı için ek boşluk */
+                padding-bottom: 120px; /* Daha az boşluk */
             }
             
             #gameContainer {
                 justify-content: flex-start;
-                padding: 20px 0 180px 0; /* Alt kısma ek boşluk */
+                padding: 20px 0 120px 0; /* Alt boşluğu azalttım */
                 min-height: 100vh;
                 height: auto;
             }
@@ -442,19 +442,19 @@
             }
             
             #usb {
-                width: 80px;
-                height: 100px;
-                margin-bottom: 5px;
+                width: 60px; /* 80px'ten 60px'e düşürdüm */
+                height: 75px; /* 100px'ten 75px'e düşürdüm */
+                margin-bottom: 0;
             }
             
             .side-controls {
-                margin: 0 15px;
+                margin: 0 10px; /* Daha az boşluk */
             }
             
             .arrowBtn {
-                width: 65px;
-                height: 65px;
-                font-size: 30px;
+                width: 45px; /* 65px'ten 45px'e düşürdüm */
+                height: 45px; /* 65px'ten 45px'e düşürdüm */
+                font-size: 18px; /* 30px'ten 18px'e düşürdüm */
                 border-width: 3px;
                 box-shadow: 0 0 15px rgba(255, 0, 170, 0.7);
             }
@@ -466,14 +466,14 @@
                 left: 0;
                 right: 0;
                 background-color: rgba(3, 19, 33, 0.95);
-                padding: 15px 0;
+                padding: 10px 0 15px 0;
                 z-index: 50;
                 border-top: 2px solid rgba(0, 217, 255, 0.3);
                 box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
             }
             
             .controls {
-                margin-top: 5px;
+                margin-top: 7px; /* USB ve CONNECT arası 7px */
             }
             
             .btn {
@@ -484,9 +484,9 @@
             
             #connectBtn {
                 min-width: 180px;
-                margin-top: 5px;
-                padding: 12px 0;
-                font-size: 20px;
+                margin-top: 0;
+                padding: 10px 0;
+                font-size: 18px;
                 border-width: 3px;
                 box-shadow: 0 0 15px rgba(0, 217, 255, 0.7);
             }
@@ -528,11 +528,11 @@
         /* Daha küçük ekranlar için (telefonlar) */
         @media (max-width: 480px) {
             body {
-                padding-bottom: 150px;
+                padding-bottom: 100px;
             }
             
             #gameContainer {
-                padding: 20px 0 150px 0;
+                padding: 20px 0 100px 0;
             }
             
             .monitor {
@@ -590,24 +590,25 @@
             
             #connectBtn {
                 min-width: 150px;
-                margin-top: 5px;
-                font-size: 18px;
+                margin-top: 0;
+                padding: 8px 0;
+                font-size: 16px;
                 border-width: 3px;
             }
             
             #usb {
-                width: 70px;
-                height: 85px;
+                width: 50px;  /* 70px'ten 50px'e düşürdüm */
+                height: 65px; /* 85px'ten 65px'e düşürdüm */
             }
             
             .side-controls {
-                margin: 0 10px;
+                margin: 0 8px;
             }
             
             .arrowBtn {
-                width: 55px;
-                height: 55px;
-                font-size: 26px;
+                width: 40px; /* 55px'ten 40px'e düşürdüm */
+                height: 40px; /* 55px'ten 40px'e düşürdüm */
+                font-size: 18px; /* 26px'ten 18px'e düşürdüm */
                 border-width: 3px;
             }
             
@@ -616,7 +617,11 @@
             }
             
             #usbContainer {
-                padding: 10px 0;
+                padding: 8px 0 12px 0;
+            }
+            
+            .controls {
+                margin-top: 7px; /* USB ve CONNECT arası 7px */
             }
         }
         
