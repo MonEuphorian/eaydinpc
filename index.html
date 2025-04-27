@@ -893,11 +893,11 @@
                 }
             });
             
-            // Sol ok tuşu - Dönüşsüz, matris yeşili kutular da seçilebilir
+            // Sol ok tuşu - Döngü sırasında da çalışacak şekilde düzeltildi
             leftBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (!gameStarted || gameOver) return;
-                // Spinning kontrolü kaldırıldı, döngü sırasında da çalışabilir
+                // Spinning kontrolü tamamen kaldırıldı
                 
                 // 1. kutudan sola gidilmesini engelle
                 if (selectedMonitorIndex === 0) {
@@ -909,11 +909,11 @@
                 updateMonitorSelection();
             });
             
-            // Sağ ok tuşu - Dönüşsüz, matris yeşili kutular da seçilebilir
+            // Sağ ok tuşu - Döngü sırasında da çalışacak şekilde düzeltildi
             rightBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (!gameStarted || gameOver) return;
-                // Spinning kontrolü kaldırıldı, döngü sırasında da çalışabilir
+                // Spinning kontrolü tamamen kaldırıldı
                 
                 // Son kutudan sağa gidilmesini engelle
                 if (selectedMonitorIndex === 9) {
@@ -949,11 +949,11 @@
                 
                 switch(e.key) {
                     case 'ArrowLeft':
-                        // Spinning kontrolü kaldırıldı
+                        // Spinning kontrolü tamamen kaldırıldı
                         leftBtn.click(); // Sol buton kodunu kullan
                         break;
                     case 'ArrowRight':
-                        // Spinning kontrolü kaldırıldı
+                        // Spinning kontrolü tamamen kaldırıldı
                         rightBtn.click(); // Sağ buton kodunu kullan
                         break;
                     case 'Enter':
@@ -1624,26 +1624,50 @@
                 }
             });
             
-            // Sol, sağ ve bağlan butonları için touch olayları
+            // Sol, sağ ve bağlan butonları için touch olayları - Döngü kontrolü kaldırıldı
             leftBtn.addEventListener('touchstart', function(e) {
                 e.preventDefault();
-                if (!gameStarted || gameOver || spinning) return;
+                if (!gameStarted || gameOver) return;
+                // Spinning kontrolü tamamen kaldırıldı
                 
-                selectedMonitorIndex = (selectedMonitorIndex - 1 + 10) % 10;
+                // 1. kutudan sola gidilmesini engelle
+                if (selectedMonitorIndex === 0) {
+                    return; // 1. kutudaysa hareketi engelle
+                }
+                
+                // Normal olarak bir sola git
+                selectedMonitorIndex = selectedMonitorIndex - 1;
                 updateMonitorSelection();
             });
             
             rightBtn.addEventListener('touchstart', function(e) {
                 e.preventDefault();
-                if (!gameStarted || gameOver || spinning) return;
+                if (!gameStarted || gameOver) return;
+                // Spinning kontrolü tamamen kaldırıldı
                 
-                selectedMonitorIndex = (selectedMonitorIndex + 1) % 10;
+                // Son kutudan sağa gidilmesini engelle
+                if (selectedMonitorIndex === 9) {
+                    return; // Son kutudaysa hareketi engelle
+                }
+                
+                // Normal olarak bir sağa git
+                selectedMonitorIndex = selectedMonitorIndex + 1;
                 updateMonitorSelection();
             });
             
             connectBtn.addEventListener('touchstart', function(e) {
                 e.preventDefault();
-                if (!gameStarted || gameOver || spinning) return;
+                if (!gameStarted || gameOver) return;
+                
+                // Döngü devam ederken connect butonunu engelle
+                if (spinning) {
+                    return; // Döngü devam ediyorsa işlemi engelle
+                }
+                
+                // İşlemde olup olmadığını kontrol et
+                if (isConnectProcessing) {
+                    return; // Zaten bir işlem yapılıyorsa engelle
+                }
                 
                 lockSelectedMonitor();
             });
