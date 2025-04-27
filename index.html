@@ -401,12 +401,12 @@
         @media (max-width: 767px) {
             body {
                 font-size: 16px;
-                padding-bottom: 250px; /* Daha büyük USB için ek boşluk */
+                padding-bottom: 350px; /* Daha büyük butonlar için ek boşluk */
             }
             
             #gameContainer {
                 justify-content: flex-start;
-                padding: 20px 0 250px 0; /* Alt kısma ek boşluk */
+                padding: 20px 0 350px 0; /* Alt kısma ek boşluk */
                 min-height: 100vh;
                 height: auto;
             }
@@ -473,7 +473,7 @@
             #usbContainer {
                 margin: 0;
                 position: fixed;
-                bottom: 0;
+                bottom: 80px; /* Zeminden yukarı çektik */
                 left: 0;
                 right: 0;
                 background-color: rgba(3, 19, 33, 0.95);
@@ -494,12 +494,16 @@
             }
             
             #connectBtn {
-                min-width: 180px;
+                min-width: 360px; /* 180px'in 2 katı */
+                height: 80px; /* Yüksekliği de 2 kat arttırdık */
                 margin-top: 5px;
-                padding: 12px 0;
-                font-size: 20px;
+                padding: 0;
+                font-size: 40px; /* 20px'in 2 katı */
                 border-width: 3px;
                 box-shadow: 0 0 15px rgba(0, 217, 255, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             
             .wire {
@@ -539,11 +543,11 @@
         /* Daha küçük ekranlar için (telefonlar) */
         @media (max-width: 480px) {
             body {
-                padding-bottom: 200px;
+                padding-bottom: 300px;
             }
             
             #gameContainer {
-                padding: 20px 0 200px 0;
+                padding: 20px 0 300px 0;
             }
             
             .monitor {
@@ -600,9 +604,10 @@
             }
             
             #connectBtn {
-                min-width: 150px;
+                min-width: 300px; /* 150px'in 2 katı */
+                height: 70px;
                 margin-top: 5px;
-                font-size: 18px;
+                font-size: 36px; /* 18px'in 2 katı */
                 border-width: 3px;
             }
             
@@ -632,6 +637,7 @@
             
             #usbContainer {
                 padding: 10px 0;
+                bottom: 60px; /* Küçük ekranlarda biraz daha az yukarı çektik */
             }
         }
         
