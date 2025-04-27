@@ -315,9 +315,25 @@
         
         /* Aktif monitör vurgusu */
         .monitor.selected {
-            box-shadow: 0 0 15px #ff00aa;
-            border-color: #ff00aa;
-            /* İçerik rengini değiştirmiyoruz, sadece çevresini vurguluyoruz */
+            box-shadow: 0 0 8px #00d9ff;
+            border-color: #00d9ff;
+            background-color: rgba(0, 217, 255, 0.1);
+            z-index: 10;
+            position: relative;
+        }
+        
+        /* Monitör üzerindeki işaretçi - Kaldırıldı */
+        .monitor.selected::before {
+            display: none;
+        }
+        
+        @keyframes pointer-bounce {
+            0% {
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                transform: translateX(-50%) translateY(-5px);
+            }
         }
         
         /* Kilitlenmiş monitör */
@@ -342,10 +358,11 @@
         
         /* Hem seçili hem de doğru değer içeren monitor */
         .monitor.selected.correct-value {
-            color: #00d9ff; /* İçerik cyan kalır */
-            box-shadow: 0 0 15px #ff00aa; /* Dış hat fuşya kalır */
-            border-color: #ff00aa; /* Kenar fuşya */
-            text-shadow: 0 0 10px #00d9ff; /* İçerik gölgesi cyan */
+            color: #00d9ff;
+            box-shadow: 0 0 8px #00d9ff;
+            border-color: #00d9ff;
+            text-shadow: 0 0 5px #00d9ff;
+            background-color: rgba(0, 217, 255, 0.1);
         }
         
         /* Kilitleme animasyonu */
@@ -447,14 +464,6 @@
                 justify-content: center;
                 padding: 10px 0;
             }
-            
-            #leftBtn {
-                left: 30px;
-            }
-            
-            #rightBtn {
-                right: 30px;
-            }
         }
         
         /* Daha küçük ekranlar için (telefonlar) */
@@ -517,14 +526,6 @@
                 width: 35px;
                 height: 35px;
                 font-size: 18px;
-            }
-            
-            #leftBtn {
-                left: 20px;
-            }
-            
-            #rightBtn {
-                right: 20px;
             }
         }
         
