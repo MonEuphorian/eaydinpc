@@ -430,7 +430,7 @@
             .monitor {
                 width: 35px;
                 height: 35px;
-                font-size: 22px; /* Font boyutunu artırdık */
+                font-size: 24px; /* Font boyutunu 24px'e çıkardık */
                 margin: 0 3px; /* Boşluğu azalttık */
                 border-width: 2px;
                 display: flex;
@@ -595,7 +595,7 @@
             .monitor {
                 width: 30px;
                 height: 30px;
-                font-size: 20px; /* Font boyutunu artırdık */
+                font-size: 22px; /* Font boyutunu artırdık */
                 margin: 0 3px; /* Margin'i azalttık */
                 border-width: 2px;
                 text-shadow: 0 0 5px currentColor; /* Metin gölgesini artırdık */
@@ -941,8 +941,9 @@
         <!-- Kazanma ekranı -->
         <div id="winScreen" class="gameScreen">
             <h1 class="screenTitle">ERİŞİM SAĞLANDI!</h1>
-            <p class="screenText">Hedef sisteme başarıyla sızdınız ve tüm dosyalara erişim kazandınız.</p>
-            <button id="playAgainButton" class="bigBtn">YENİDEN OYNA</button>
+            <p class="screenText">Kalan süre: <span id="remainingTime">00:00</span></p>
+            <p class="screenText">Güvenlik yazılımı engellendi ve şifreli klasörün kilidini açmak için hazır ol!</p>
+            <button id="playAgainButton" class="bigBtn">DEVAM ET</button>
         </div>
         
         <!-- Kablo container - burada kablolar dinamik olarak oluşturulacak -->
@@ -1664,7 +1665,12 @@
             const totalScore = scorePoints + timeBonus + (correctlyLocked * 5);
             
             if (win) {
-                // Aşama tamamlandı ekranında skor bilgilerini gösterme
+                // Aşama tamamlandı ekranında kalan süreyi göster
+                const minutes = Math.floor(timer / 60);
+                const seconds = timer % 60;
+                document.getElementById('remainingTime').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
                 winScreen.style.display = 'flex';
             } else {
                 // Aşama başarısız ekranında skor bilgilerini gösterme
