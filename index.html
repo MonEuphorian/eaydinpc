@@ -360,10 +360,10 @@
         
         /* Kilitlenmiş monitör */
         .monitor.locked {
-            border-color: #00ff00;
+            border-color: #ff00aa; /* Kilit durumunda fuşya sınır */
         }
         
-        /* Doğru değer ve kilitli */
+        /* Doğru değer ve kilitli için geçici yeşil stil */
         .monitor.locked.correct {
             color: #00ff00; /* Saf yeşil */
             text-shadow: 0 0 10px #00ff00;
@@ -724,11 +724,12 @@
         .wire {
             position: absolute;
             height: 100px; /* Başlangıç yüksekliği, dinamik olarak ayarlanacak */
-            width: 4px; /* Kablo kalınlığı arttırıldı */
-            background-color: #ff00aa; /* Varsayılan kablo rengi değiştirildi - pembe */
+            width: 5px; /* Kablo kalınlığı arttırıldı */
+            background-color: #ff00aa; /* Fuşya renk */
             transform-origin: top center;
-            box-shadow: 0 0 8px #ff00aa; /* Daha parlak glow efekti */
-            z-index: 1;
+            box-shadow: 0 0 10px rgba(255, 0, 170, 0.7); /* Daha parlak glow efekti */
+            z-index: 25;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
         
         /* Aktif kablolar */
@@ -743,7 +744,23 @@
         .wire.success {
             background-color: #00ff00;
             box-shadow: 0 0 12px #00ff00;
-            width: 5px; /* Başarılı kablo biraz kalın */
+            animation: wire-success 1s forwards;
+        }
+        
+        /* Başarılı kabloların animasyonu */
+        @keyframes wire-success {
+            0% { 
+                background-color: #ff00aa; 
+                box-shadow: 0 0 10px rgba(255, 0, 170, 0.7);
+            }
+            50% { 
+                background-color: #ffffff; 
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+            }
+            100% { 
+                background-color: #00ff00; 
+                box-shadow: 0 0 12px #00ff00;
+            }
         }
         
         /* Matriks yeşili ikon için stil */
@@ -776,6 +793,112 @@
             .monitor {
                 touch-action: manipulation; /* Çift dokunma zoom'u engelle */
             }
+        }
+        
+        /* Üst monitöre transfer animasyonu */
+        @keyframes transfer-glow {
+            0% { 
+                box-shadow: 0 0 5px rgba(0, 217, 255, 0.3);
+                border-color: #00d9ff;
+                background-color: rgba(0, 217, 255, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
+                border-color: #ffffff;
+                background-color: rgba(0, 217, 255, 0.3);
+            }
+            100% { 
+                box-shadow: 0 0 8px rgba(0, 217, 255, 0.5);
+                border-color: #00d9ff;
+                background-color: rgba(0, 217, 255, 0.1);
+            }
+        }
+        
+        /* Alt monitöre geri dönüş animasyonu */
+        @keyframes return-to-fuschia {
+            0% { 
+                box-shadow: 0 0 8px #00ff00;
+                border-color: #00ff00;
+                background-color: rgba(0, 255, 0, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 15px #ff00aa;
+                border-color: #ffffff;
+                background-color: rgba(255, 0, 170, 0.3);
+            }
+            100% { 
+                box-shadow: 0 0 8px #ff00aa;
+                border-color: #ff00aa;
+                background-color: rgba(255, 0, 170, 0.1);
+            }
+        }
+        
+        /* Kablo geri dönüş animasyonu */
+        @keyframes wire-return {
+            0% { 
+                background-color: #00ff00; 
+                box-shadow: 0 0 12px #00ff00;
+            }
+            50% { 
+                background-color: #ffffff; 
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+            }
+            100% { 
+                background-color: #ff00aa; 
+                box-shadow: 0 0 10px rgba(255, 0, 170, 0.7);
+            }
+        }
+        
+        .monitor.transfer-receive {
+            animation: transfer-glow 1s forwards;
+        }
+        
+        .monitor.return-to-fuschia {
+            animation: return-to-fuschia 1s forwards;
+        }
+        
+        .wire.return-to-fuschia {
+            animation: wire-return 1s forwards;
+        }
+        
+        /* Fuşya renge dönüş animasyonu */
+        @keyframes return-to-fuschia {
+            0% { border-color: #00ff00; box-shadow: 0 0 15px rgba(0, 255, 0, 0.7); }
+            100% { border-color: #ff00aa; box-shadow: 0 0 10px rgba(255, 0, 170, 0.6); }
+        }
+        
+        /* Kablo dönüş animasyonu */
+        @keyframes wire-return {
+            0% { background-color: #00ff00; box-shadow: 0 0 8px #00ff00; }
+            100% { background-color: #ff00aa; box-shadow: 0 0 8px #ff00aa; }
+        }
+        
+        .monitor.return-to-fuschia {
+            animation: return-to-fuschia 0.8s forwards;
+        }
+        
+        .wire.return-to-fuschia {
+            animation: wire-return 0.8s forwards;
+        }
+        
+        /* Monitörün fuşyaya dönme animasyonu */
+        @keyframes return-to-fuschia {
+            0% { background-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
+            100% { background-color: #ff00ff; box-shadow: 0 0 10px #ff00ff; }
+        }
+        
+        /* Kablonun fuşyaya dönme animasyonu */
+        @keyframes wire-return {
+            0% { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
+            100% { background-color: #ff00ff; box-shadow: 0 0 5px #ff00ff; }
+        }
+        
+        .monitor.return-to-fuschia {
+            animation: return-to-fuschia 1s ease-out forwards;
+        }
+        
+        .wire.return-to-fuschia {
+            animation: wire-return 0.8s ease-out forwards;
         }
     </style>
 </head>
@@ -987,8 +1110,13 @@
         let timeLimit = false; // Süre sınırını kapat
         let isConnectProcessing = false; // Connect butonunun işlemde olup olmadığını takip eden değişken
         
-        // Doğru kod ve şifreler
-        const correctCodes = ['Y', 'K', '3', 'C', '0', 'F', 'B', 'X', 'V', '9'];
+        // Yeni değişkenler
+        let activeShields = []; // Aktif olan shield'ların indekslerini tutar
+        let correctBoxPerShield = {}; // Her shield için doğru kutu indeksi
+        let currentShieldCount = 0; // Mevcut turda aktif olan shield sayısı
+        
+        // Doğru kod ve şifreler - Artık her turda rastgele belirlenecek
+        // const correctCodes = ['Y', 'K', '3', 'C', '0', 'F', 'B', 'X', 'V', '9'];
         const correctPasswords = ['?', '?', '?', '?', '?', '?', '?', '?', '?', '?'];
         
         // Rastgele karakter oluşturma
@@ -1053,8 +1181,11 @@
             });
             
             miniShields.forEach(shield => {
-                shield.classList.remove('active');
+                shield.classList.remove('active', 'matrix-green');
             });
+            
+            // Tüm animasyonları sıfırla - 8 ve 9 numaralı monitörlerin takılı kalma hatasını düzeltir
+            resetAllAnimations();
             
             // Zamanlayıcıyı sıfırla
             updateTimer();
@@ -1081,6 +1212,9 @@
             
             // İlk aşama için monitörleri ayarla
             updateMonitorSelection();
+            
+            // Tüm animasyonları sıfırla - oyun başlarken 8 ve 9 numaralı monitörlerin takılı kalma hatasını düzeltir
+            resetAllAnimations();
         }
         
         // Zamanlayıcıyı güncelle
@@ -1162,19 +1296,16 @@
             const row = currentStage === 1 ? codeMonitors : passwordMonitors;
             const lockedArray = currentStage === 1 ? codeModulesLocked : passwordModulesLocked;
             
-            // Slot başlarken tüm kutucuklardan doğru değer vurgusunu kaldır (rengi fuşyaya döndür)
-            row.forEach((monitor) => {
-                if (!monitor.classList.contains('locked')) {
-                    monitor.classList.remove('correct-value');
-                }
-            });
-            
-            // Tüm kalkanları sıfırla - slot başlangıcında
+            // Tüm aktif shield'ları sıfırla
+            activeShields = [];
             document.querySelectorAll('.miniShield').forEach(shield => {
                 shield.classList.remove('matrix-green');
             });
             
-            // Karakter değişimi için döngü - otomatik durma özelliği kaldırıldı
+            // Füşya animasyon hatasını düzeltmek için
+            resetAllAnimations();
+            
+            // Kilitlenememiş tüm monitörlerde karakter değişimi başlat
             spinningInterval = setInterval(() => {
                 // Kilitlenmemiş modülleri güncelle
                 row.forEach((monitor, index) => {
@@ -1183,19 +1314,9 @@
                         if (Math.random() > 0.5) {
                             monitor.textContent = getRandomChar();
                         }
-                        
-                        // Doğru değere yaklaşma şansını arttır - küçük bir şans
-                        const correctValue = currentStage === 1 ? 
-                            correctCodes[index] : correctPasswords[index];
-                        
-                        if (Math.random() < 0.05) { // %5 ihtimalle doğru değeri göster
-                            monitor.textContent = correctValue;
-                        }
                     }
                 });
             }, 100); // 100ms aralıklarla güncelleme
-            
-            // NOT: Otomatik durma kodu kaldırıldı
         }
         
         // Döndürmeyi durdur ve ipuçlarını göster
@@ -1211,67 +1332,99 @@
             }
             
             const row = currentStage === 1 ? codeMonitors : passwordMonitors;
-            const correctValues = currentStage === 1 ? correctCodes : correctPasswords;
             
-            // Kutucukların içeriğini rastgele değerlerle doldur, doğru değerleri değiştirme
+            // Alt monitörlerdeki kilitlenememiş tüm kutuları rastgele karakterlerle doldur
             row.forEach((monitor, index) => {
                 if (!monitor.classList.contains('locked')) {
-                    // "correct-value" sınıfını tamamen kaldır, kutuların rengini değiştirmeyelim
+                    // Tüm monitörlere rastgele değerler ata
+                    monitor.textContent = getRandomChar();
                     monitor.classList.remove('correct-value');
-                    
-                    // Rastgele değer ata veya doğru değeri koru, ama görünümü değiştirme
-                    if (monitor.textContent !== correctValues[index]) {
-                        monitor.textContent = getRandomChar();
-                        // Doğru karakterle aynı olmamasını sağla
-                        while (monitor.textContent === correctValues[index]) {
-                            monitor.textContent = getRandomChar();
-                        }
-                    }
                 }
             });
             
-            // İkili grupların doğruluğunu kontrol et ve ilgili kalkanları güncelle
-            checkPairCorrectness();
+            // Rastgele tek bir shield seçilmesini sağla
+            selectRandomShields();
         }
         
-        // İkili grupların doğruluğunu kontrol et ve ilgili kalkanları güncelle
-        function checkPairCorrectness() {
-            const row = currentStage === 1 ? codeMonitors : passwordMonitors;
-            const correctValues = currentStage === 1 ? correctCodes : correctPasswords;
-            
-            // Önce tüm kalkanları temizle
+        // Rastgele shield'ları seçip aktifleştir
+        function selectRandomShields() {
+            // Tüm kalkanları sıfırla
             document.querySelectorAll('.miniShield').forEach(shield => {
                 shield.classList.remove('matrix-green');
             });
             
-            // Her kalkan için kontrolü yap
-            // shield-0: 0. kutu veya 1. kutu
-            // shield-1: 1. kutu veya 2. kutu 
-            // shield-2: 2. kutu veya 3. kutu
-            // ...vb.
+            // Aktif shield listesini temizle
+            activeShields = [];
+            correctBoxPerShield = {};
+            
+            // Kullanılabilir shield'ları bul - en az bir monitörü kilitlenmemiş olan shield'lar
+            const availablePairs = [];
             
             for (let i = 0; i < 9; i++) {
-                const shieldId = `shield-${i}`;
-                const shield = document.getElementById(shieldId);
-                
-                if (!shield) continue; // Kalkan bulunamazsa atla
-                
-                // Kalkanla ilişkili kutular - kalkan numarası ve kalkan numarası+1
+                // İki monitor arasındaki shield
                 const firstBoxIndex = i;
                 const secondBoxIndex = i + 1;
                 
-                // İki kutudan en az birinde doğru değer var mı kontrol et
-                const firstMatches = !row[firstBoxIndex].classList.contains('locked') && 
-                    row[firstBoxIndex].textContent === correctValues[firstBoxIndex];
-                const secondMatches = !row[secondBoxIndex].classList.contains('locked') && 
-                    row[secondBoxIndex].textContent === correctValues[secondBoxIndex];
-                
-                // Eğer ikisinden en az biri doğru ise ve kilitli değilse kalkanı yeşil yap
-                if (firstMatches || secondMatches) {
-                    console.log(`Kalkan ${shieldId} yeşil olacak, çünkü ${firstBoxIndex+1} veya ${secondBoxIndex+1} kutusunda doğru değer var`);
-                    shield.classList.add('matrix-green');
+                // İki monitörden EN AZ BİRİNİN kilitlenmemiş olmasını kontrol et
+                if (!codeModulesLocked[firstBoxIndex] || !codeModulesLocked[secondBoxIndex]) {
+                    availablePairs.push(i); // Shield indeksi ekleniyor
                 }
             }
+            
+            // Eğer kullanılabilir çift yoksa işlem yapma
+            if (availablePairs.length === 0) {
+                currentShieldCount = 0;
+                console.log("Kullanılabilir shield kalmadı");
+                return;
+            }
+            
+            // Her zaman sadece 1 shield seç
+            currentShieldCount = 1;
+            
+            // Kullanılabilir çiftlerden rastgele seçim yap
+            const randomIndex = Math.floor(Math.random() * availablePairs.length);
+            const selectedShieldIndex = availablePairs[randomIndex];
+            
+            // Seçilen shield'ı aktif shield listesine ekle
+            activeShields.push(selectedShieldIndex);
+            
+            // Bu shield'a ait kutulardan kilitlenmemiş olanları bul
+            const firstBoxIndex = selectedShieldIndex;
+            const secondBoxIndex = selectedShieldIndex + 1;
+            
+            const unlocked = [];
+            if (!codeModulesLocked[firstBoxIndex]) unlocked.push(firstBoxIndex);
+            if (!codeModulesLocked[secondBoxIndex]) unlocked.push(secondBoxIndex);
+            
+            // Kilitlenmemiş kutuları kullanarak doğru kutuyu belirle
+            let correctBoxIndex;
+            
+            // Eğer iki kutuda kilitlenmemiş ise rastgele birini seç
+            if (unlocked.length === 2) {
+                const randomBoxIndex = Math.floor(Math.random() * 2);
+                correctBoxIndex = unlocked[randomBoxIndex];
+            } 
+            // Eğer sadece bir kutu kilitlenmemiş ise o kutu doğru olmalı
+            else if (unlocked.length === 1) {
+                correctBoxIndex = unlocked[0];
+            }
+            // Bu duruma asla gelmememiz gerekiyor ama güvenlik için ekledim
+            else {
+                console.error("Bu shield için kilitlenmemiş kutu kalmadı:", selectedShieldIndex);
+                return; // İşlemi sonlandır
+            }
+            
+            // Bu shield için doğru kutu indeksini kaydet
+            correctBoxPerShield[selectedShieldIndex] = correctBoxIndex;
+            
+            // Shield'ı aktifleştir
+            const shield = document.getElementById(`shield-${selectedShieldIndex}`);
+            if (shield) {
+                shield.classList.add('matrix-green');
+            }
+            
+            console.log("Aktif shield:", selectedShieldIndex);
+            console.log("Doğru kutu:", correctBoxPerShield[selectedShieldIndex]);
         }
         
         // Seçili monitörü kilitle
@@ -1283,54 +1436,134 @@
             
             const row = currentStage === 1 ? codeMonitors : passwordMonitors;
             const lockedArray = currentStage === 1 ? codeModulesLocked : passwordModulesLocked;
-            const correctValues = currentStage === 1 ? correctCodes : correctPasswords;
             
-            // Doğru karakter mi kontrolü
-            if (row[selectedMonitorIndex].textContent === correctValues[selectedMonitorIndex]) {
-                // Doğru karakter ise kilitle
+            // Eğer monitör zaten kilitliyse, döngüyü tekrar başlat (hata düzeltme)
+            if (lockedArray[selectedMonitorIndex]) {
+                console.log("Zaten kilitli bir monitör seçildi, döngü yeniden başlatılıyor.");
+                startSpinning();
+                
+                // İşlem tamamlandığında flag'i resetle
+                setTimeout(() => {
+                    isConnectProcessing = false;
+                }, 500);
+                return;
+            }
+            
+            // Seçilen monitörün aktif bir shield ile ilişkisi var mı kontrol et
+            let isCorrectSelection = false;
+            let relatedShieldIndex = -1;
+            
+            // Seçilen monitörün sağındaki veya solundaki shield'ı kontrol et
+            for (const shieldIndex of activeShields) {
+                // Shield'ın ilişkili olduğu kutular
+                const firstBoxIndex = shieldIndex;
+                const secondBoxIndex = shieldIndex + 1;
+                
+                // Seçilen monitör bu shield'ın ilişkili olduğu kutulardan biri mi?
+                if (selectedMonitorIndex === firstBoxIndex || selectedMonitorIndex === secondBoxIndex) {
+                    relatedShieldIndex = shieldIndex;
+                    
+                    // Bu shield için doğru kutunun hangisi olduğunu kontrol et
+                    const correctBoxForThisShield = correctBoxPerShield[shieldIndex];
+                    
+                    // Seçilen monitör doğru mu?
+                    isCorrectSelection = (selectedMonitorIndex === correctBoxForThisShield);
+                    break;
+                }
+            }
+            
+            // Eğer seçilen monitör aktif bir shield ile ilişkili değilse işlem yapma
+            if (relatedShieldIndex === -1) {
+                console.log("Seçilen monitör aktif bir shield ile ilişkili değil.");
+                isConnectProcessing = false;
+                return;
+            }
+            
+            // Doğru seçim yapıldıysa
+            if (isCorrectSelection) {
+                // Monitörü kilitle
                 row[selectedMonitorIndex].classList.add('locked');
                 lockedArray[selectedMonitorIndex] = true;
                 
-                scorePoints += 10;
+                // Kablo rengini değiştir ve animasyon başlat
+                const wire = document.getElementById(`wire-${selectedMonitorIndex}`);
+                if (wire) {
+                    wire.classList.add('success');
+                }
+                
+                // Monitör kilitleme animasyonu
+                row[selectedMonitorIndex].classList.add('just-locked');
                 row[selectedMonitorIndex].classList.add('correct'); // Yeşil renk için
                 
-                // Kilitleme animasyonu
-                row[selectedMonitorIndex].classList.add('just-locked');
+                // Kısa bir gecikme ile içeriği üst monitöre aktar ve animasyon başlat
+                setTimeout(() => {
+                    // Seçilen monitörün içeriğini üst monitöre aktar
+                    const selectedValue = row[selectedMonitorIndex].textContent;
+                    passwordMonitors[selectedMonitorIndex].textContent = selectedValue;
+                    
+                    // Üst monitöre transfer animasyonu ekle
+                    passwordMonitors[selectedMonitorIndex].classList.add('transfer-receive');
+                    
+                    // Animasyonu bir süre sonra kaldır
+                    setTimeout(() => {
+                        passwordMonitors[selectedMonitorIndex].classList.remove('transfer-receive');
+                        
+                        // Üst monitörden alt monitöre dönüş animasyonu - rengini fuşyaya geri döndür
+                        row[selectedMonitorIndex].classList.remove('correct');
+                        row[selectedMonitorIndex].classList.add('return-to-fuschia');
+                        
+                        // Kabloyu da fuşyaya geri döndür
+                        if (wire) {
+                            wire.classList.remove('success');
+                            wire.classList.add('return-to-fuschia');
+                        }
+                        
+                        // Dönüş animasyonunu bir süre sonra kaldır
+                        setTimeout(() => {
+                            row[selectedMonitorIndex].classList.remove('return-to-fuschia');
+                            if (wire) {
+                                wire.classList.remove('return-to-fuschia');
+                            }
+                        }, 1000);
+                        
+                    }, 1000);
+                    
+                }, 300); // 300ms gecikme ile transfer başlasın
+                
+                scorePoints += 10;
+                
                 setTimeout(() => {
                     row[selectedMonitorIndex].classList.remove('just-locked');
                     
                     // İşlem tamamlandığında flag'i resetle
                     setTimeout(() => {
                         isConnectProcessing = false;
+                        
+                        // İlişkili shield'ı sönük hale getir
+                        const shield = document.getElementById(`shield-${relatedShieldIndex}`);
+                        if (shield) {
+                            shield.classList.remove('matrix-green');
+                        }
+                        
+                        // Aktif shield listesinden kaldır
+                        activeShields = activeShields.filter(index => index !== relatedShieldIndex);
+                        
+                        // Tüm monitörler kilitlendi mi kontrol et
+                        if (lockedArray.every(locked => locked)) {
+                            // Aşama 1 tamamlandığında oyunu bitir
+                            endGame(true);
+                        } 
+                        // Doğru seçimden sonra, hemen yeni shield seçmeyi durdur
+                        // Yeni shield ancak kullanıcı USB'ye basıp tekrar durdurduğunda seçilecek
                     }, 200); // Minimum 200ms bekle
                 }, 500);
+            } 
+            // Yanlış seçim yapıldıysa
+            else {
+                console.log("Yanlış seçim yapıldı, döngüyü yeniden başlat.");
+                // Hata sesi çal - daha sonra eklenecek
                 
-                // İkili grupları tekrar kontrol et
-                checkPairCorrectness();
-                
-                // Tüm monitörler kilitlendi mi kontrol et
-                if (lockedArray.every(locked => locked)) {
-                    // Aşama 1 tamamlandığında oyunu bitir
-                    endGame(true);
-                }
-                
-                // Bu kısmı yorum haline getiriyoruz - artık otomatik geçiş olmayacak
-                /*
-                let nextIndex = (selectedMonitorIndex + 1) % 10;
-                let count = 0;
-                
-                while (lockedArray[nextIndex] && count < 10) {
-                    nextIndex = (nextIndex + 1) % 10;
-                    count++;
-                }
-                
-                if (count < 10) {
-                    selectedMonitorIndex = nextIndex;
-                    updateMonitorSelection();
-                }
-                */
-            } else {
-                // Doğru karakter değilse, döngüyü tekrar başlat
+                // Döngüyü tekrar başlat
                 startSpinning();
                 
                 // İşlem tamamlandığında flag'i resetle
@@ -1371,19 +1604,17 @@
         function calculateCorrectlyLocked() {
             let correct = 0;
             
-            // 1. aşamada doğru kilitlenmiş sayısı
+            // 1. aşamada kilitlenmiş monitör sayısı
             for (let i = 0; i < 10; i++) {
-                const codeMonitor = codeMonitors[i];
-                if (codeMonitor.classList.contains('locked') && codeMonitor.textContent === correctCodes[i]) {
+                if (codeModulesLocked[i]) {
                     correct++;
                 }
             }
             
-            // 2. aşamada doğru kilitlenmiş sayısı
+            // 2. aşamada doğru kilitlenmiş sayısı (henüz kullanılmıyor)
             if (currentStage === 2) {
                 for (let i = 0; i < 10; i++) {
-                    const passwordMonitor = passwordMonitors[i];
-                    if (passwordMonitor.classList.contains('locked') && passwordMonitor.textContent === correctPasswords[i]) {
+                    if (passwordModulesLocked[i]) {
                         correct++;
                     }
                 }
@@ -1559,6 +1790,21 @@
             wires.forEach(wire => {
                 wire.classList.remove('active');
                 // success sınıfı kontrol etme işlemi kaldırıldı
+            });
+        }
+        
+        // Füşya animasyon hatasını düzeltmek için
+        function resetAllAnimations() {
+            // Tüm monitörlerin animasyon sınıflarını temizle
+            const allMonitors = document.querySelectorAll('.monitor');
+            allMonitors.forEach(monitor => {
+                monitor.classList.remove('return-to-fuschia', 'transfer-receive');
+            });
+            
+            // Tüm kabloların animasyon sınıflarını temizle
+            const allWires = document.querySelectorAll('.wire');
+            allWires.forEach(wire => {
+                wire.classList.remove('return-to-fuschia', 'success');
             });
         }
         
