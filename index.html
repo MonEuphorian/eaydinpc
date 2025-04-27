@@ -299,10 +299,17 @@
         
         .screenText {
             font-size: 24px;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             text-align: center;
             max-width: 80%;
             line-height: 1.4;
+        }
+        
+        /* Özel "Kalan süre" gösterimi için stil */
+        #remainingTime {
+            font-weight: bold;
+            color: #ff9100; /* Turuncu renk */
+            text-shadow: 0 0 8px rgba(255, 145, 0, 0.6);
         }
         
         .bigBtn {
@@ -315,6 +322,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            margin-top: 20px; /* Butonun üstünde ek boşluk */
         }
         
         .bigBtn:hover {
@@ -430,7 +438,7 @@
             .monitor {
                 width: 35px;
                 height: 35px;
-                font-size: 24px; /* Font boyutunu 24px'e çıkardık */
+                font-size: 28px; /* Font boyutunu 28px'e çıkardık */
                 margin: 0 3px; /* Boşluğu azalttık */
                 border-width: 2px;
                 display: flex;
@@ -595,7 +603,7 @@
             .monitor {
                 width: 30px;
                 height: 30px;
-                font-size: 22px; /* Font boyutunu artırdık */
+                font-size: 24px; /* Font boyutunu 24px'e çıkardık */
                 margin: 0 3px; /* Margin'i azalttık */
                 border-width: 2px;
                 text-shadow: 0 0 5px currentColor; /* Metin gölgesini artırdık */
@@ -1003,6 +1011,40 @@
         </div>
     </div>
 
+    <!-- Ses dosyaları için audio elementleri - gizli -->
+    <div style="display: none;">
+        <!-- Genel Oyun Sesleri -->
+        <audio id="GAME_START" src="GAME_START.WAV" preload="auto"></audio>
+        <audio id="TIME_UP_ALARM" src="TIME_UP_ALARM.WAV" preload="auto"></audio>
+        <audio id="GAME_SUCCESS" src="GAME_SUCCESS.WAV" preload="auto"></audio>
+        <audio id="GAME_FAILURE" src="GAME_FAILURE.WAV" preload="auto"></audio>
+        
+        <!-- Etkileşim Sesleri -->
+        <audio id="USB_CLICK" src="USB_CLICK.WAV" preload="auto"></audio>
+        <audio id="USB_STOP" src="USB_STOP.WAV" preload="auto"></audio>
+        <audio id="ARROW_CLICK" src="ARROW_CLICK.WAV" preload="auto"></audio>
+        <audio id="CONNECT_CLICK" src="CONNECT_CLICK.WAV" preload="auto"></audio>
+        
+        <!-- Bildirim Sesleri -->
+        <audio id="CORRECT_MONITOR" src="CORRECT_MONITOR.WAV" preload="auto"></audio>
+        <audio id="WRONG_MONITOR" src="WRONG_MONITOR.WAV" preload="auto"></audio>
+        <audio id="ALREADY_LOCKED" src="ALREADY_LOCKED.WAV" preload="auto"></audio>
+        
+        <!-- Animasyon Sesleri -->
+        <audio id="TRANSFER_WHOOSH" src="TRANSFER_WHOOSH.WAV" preload="auto"></audio>
+        <audio id="SHIELD_ACTIVE" src="SHIELD_ACTIVE.WAV" preload="auto"></audio>
+        <audio id="WIRE_ACTIVE" src="WIRE_ACTIVE.WAV" preload="auto"></audio>
+        <audio id="SHIELD_GREEN" src="SHIELD_GREEN.WAV" preload="auto"></audio>
+        
+        <!-- Süre Efektleri -->
+        <audio id="TIME_15_WARNING" src="TIME_15_WARNING.WAV" preload="auto"></audio>
+        <audio id="TIME_5_BEEP" src="TIME_5_BEEP.WAV" preload="auto"></audio>
+        
+        <!-- Özel Efektler -->
+        <audio id="SYSTEM_RESET" src="SYSTEM_RESET.WAV" preload="auto"></audio>
+        <audio id="TIME_UP_SCREEN" src="TIME_UP_SCREEN.WAV" preload="auto"></audio>
+    </div>
+
     <script>
         // Sayfa yenilendiğinde oyun sıfırlanır - bunu garanti etmek için window.onload kullanıyoruz
         window.onload = function() {
@@ -1017,22 +1059,65 @@
             
             // Olay dinleyicilerini ayarla
             setupEventListeners();
+            
+            // Ses dosyalarını önbelleğe al
+            preloadSounds();
         };
+        
+        // Ses efektlerini çalmak için yardımcı fonksiyon
+        function playSound(id) {
+            try {
+                const sound = document.getElementById(id);
+                if (sound) {
+                    // Eğer ses halihazırda çalıyorsa, baştan başlat
+                    sound.pause();
+                    sound.currentTime = 0;
+                    
+                    // Sesi çal
+                    sound.play().catch(e => {
+                        console.log(`Ses çalma hatası (${id}):`, e);
+                    });
+                }
+            } catch (error) {
+                console.log(`Ses çalma hatası (${id}):`, error);
+            }
+        }
+        
+        // Ses dosyalarını önbelleğe alma
+        function preloadSounds() {
+            const audioElements = document.querySelectorAll('audio');
+            audioElements.forEach(audio => {
+                audio.load();
+            });
+        }
         
         // Tüm olay dinleyicilerini ayarlama
         function setupEventListeners() {
             // Oyun başlatma/yeniden başlatma butonları
-            startButton.addEventListener('click', initGame);
-            restartButton.addEventListener('click', initGame);
-            playAgainButton.addEventListener('click', initGame);
+            startButton.addEventListener('click', function() {
+                playSound('GAME_START');
+                initGame();
+            });
+            
+            restartButton.addEventListener('click', function() {
+                playSound('GAME_START');
+                initGame();
+            });
+            
+            playAgainButton.addEventListener('click', function() {
+                playSound('GAME_START');
+                initGame();
+            });
             
             // USB'ye tıklama için olay dinleyicisi
             usb.addEventListener('click', function() {
                 if (!gameStarted || gameOver) return;
                 
                 if (!spinning) {
+                    playSound('USB_CLICK');
                     startSpinning();
                 } else {
+                    playSound('USB_STOP');
                     stopSpinning();
                 }
             });
@@ -1047,6 +1132,8 @@
                 if (selectedMonitorIndex === 0) {
                     return; // 1. kutudaysa hareketi engelle
                 }
+                
+                playSound('ARROW_CLICK');
                 
                 // Normal olarak bir sola git
                 selectedMonitorIndex = selectedMonitorIndex - 1;
@@ -1063,6 +1150,8 @@
                 if (selectedMonitorIndex === 9) {
                     return; // Son kutudaysa hareketi engelle
                 }
+                
+                playSound('ARROW_CLICK');
                 
                 // Normal olarak bir sağa git
                 selectedMonitorIndex = selectedMonitorIndex + 1;
@@ -1083,6 +1172,8 @@
                 if (isConnectProcessing) {
                     return; // Zaten bir işlem yapılıyorsa engelle
                 }
+                
+                playSound('CONNECT_CLICK');
                 
                 lockSelectedMonitor();
             });
@@ -1243,6 +1334,7 @@
         function updateTimer() {
             if (timeLimit && timer <= 0) {
                 // Süre doldu, tüm kilitli kutuları resetle
+                playSound('TIME_UP_ALARM');
                 resetLockedBoxes();
                 // Süreyi tekrar başlat
                 timer = 60;
@@ -1251,6 +1343,16 @@
             
             if (timeLimit) {
                 timer--;
+                
+                // 15 saniye kaldığında ses çal
+                if (timer === 15) {
+                    playSound('TIME_15_WARNING');
+                }
+                
+                // Son 5 saniye için geri sayım sesi
+                if (timer <= 5 && timer > 0) {
+                    playSound('TIME_5_BEEP');
+                }
             }
             
             const minutes = Math.floor(timer / 60);
@@ -1264,6 +1366,7 @@
         function resetLockedBoxes() {
             // Animasyon efektiyle kilitleri aç
             showTimerExpiredEffect();
+            playSound('SYSTEM_RESET');
             
             // Tüm monitörleri kilitsiz duruma getir
             codeModulesLocked = Array(10).fill(false);
@@ -1301,6 +1404,7 @@
             // Animasyon için overlay'ı göster
             setTimeout(() => {
                 overlay.style.opacity = '1';
+                playSound('TIME_UP_SCREEN');
                 
                 // 2 saniye sonra kaybol
                 setTimeout(() => {
@@ -1499,6 +1603,7 @@
             const shield = document.getElementById(`shield-${selectedShieldIndex}`);
             if (shield) {
                 shield.classList.add('matrix-green');
+                playSound('SHIELD_ACTIVE');
             }
             
             console.log("Aktif shield:", selectedShieldIndex);
@@ -1518,6 +1623,7 @@
             // Eğer monitör zaten kilitliyse, döngüyü tekrar başlat (hata düzeltme)
             if (lockedArray[selectedMonitorIndex]) {
                 console.log("Zaten kilitli bir monitör seçildi, döngü yeniden başlatılıyor.");
+                playSound('ALREADY_LOCKED');
                 startSpinning();
                 
                 // İşlem tamamlandığında flag'i resetle
@@ -1567,11 +1673,13 @@
                 const wire = document.getElementById(`wire-${selectedMonitorIndex}`);
                 if (wire) {
                     wire.classList.add('success');
+                    playSound('WIRE_ACTIVE');
                 }
                 
                 // Monitör kilitleme animasyonu
                 row[selectedMonitorIndex].classList.add('just-locked');
                 row[selectedMonitorIndex].classList.add('correct'); // Yeşil renk için
+                playSound('CORRECT_MONITOR');
                 
                 // Kısa bir gecikme ile içeriği üst monitöre aktar ve animasyon başlat
                 setTimeout(() => {
@@ -1581,6 +1689,7 @@
                     
                     // Üst monitöre transfer animasyonu ekle
                     passwordMonitors[selectedMonitorIndex].classList.add('transfer-receive');
+                    playSound('TRANSFER_WHOOSH');
                     
                     // Animasyonu bir süre sonra kaldır
                     setTimeout(() => {
@@ -1621,6 +1730,7 @@
                         const shield = document.getElementById(`shield-${relatedShieldIndex}`);
                         if (shield) {
                             shield.classList.remove('matrix-green');
+                            playSound('SHIELD_GREEN');
                         }
                         
                         // Aktif shield listesinden kaldır
@@ -1639,7 +1749,8 @@
             // Yanlış seçim yapıldıysa
             else {
                 console.log("Yanlış seçim yapıldı, döngüyü yeniden başlat.");
-                // Hata sesi çal - daha sonra eklenecek
+                // Hata sesi çal
+                playSound('WRONG_MONITOR');
                 
                 // Döngüyü tekrar başlat
                 startSpinning();
@@ -1671,9 +1782,11 @@
                 document.getElementById('remainingTime').textContent = 
                     `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 
+                playSound('GAME_SUCCESS');
                 winScreen.style.display = 'flex';
             } else {
                 // Aşama başarısız ekranında skor bilgilerini gösterme
+                playSound('GAME_FAILURE');
                 gameOverScreen.style.display = 'flex';
             }
         }
