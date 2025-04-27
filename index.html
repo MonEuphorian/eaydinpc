@@ -430,9 +430,14 @@
             .monitor {
                 width: 35px;
                 height: 35px;
-                font-size: 18px;
-                margin: 0 4px;
+                font-size: 22px; /* Font boyutunu artırdık */
+                margin: 0 3px; /* Boşluğu azalttık */
                 border-width: 2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-shadow: 0 0 4px currentColor; /* Metin gölgesini artırdık */
+                font-weight: bold; /* Font kalınlığını artırdık */
             }
             
             .miniShield {
@@ -532,7 +537,8 @@
             /* Monitörler arasındaki mesafe */
             .monitorRow {
                 margin: 20px 0;
-                max-width: 90%;
+                max-width: 95%; /* 90%'dan 95%'e çıkardık */
+                width: 95%; /* Genişliği belirttik */
             }
             
             /* Monitör satırları arasında çok daha fazla mesafe */
@@ -589,9 +595,22 @@
             .monitor {
                 width: 30px;
                 height: 30px;
-                font-size: 16px;
-                margin: 0 3px;
+                font-size: 20px; /* Font boyutunu artırdık */
+                margin: 0 3px; /* Margin'i azalttık */
                 border-width: 2px;
+                text-shadow: 0 0 5px currentColor; /* Metin gölgesini artırdık */
+                font-weight: bold; /* Font kalınlığını koruyoruz */
+            }
+            
+            /* Harflerin daha belirgin olması için monitörlerdeki içerik renklerini daha parlak yapalım */
+            .code-monitor {
+                color: #00ffff; /* Daha parlak cyan renk */
+                text-shadow: 0 0 5px #00ffff; /* Belirgin gölge */
+            }
+            
+            .password-monitor {
+                color: #00ffff; /* Daha parlak cyan renk */
+                text-shadow: 0 0 5px #00ffff; /* Belirgin gölge */
             }
             
             .miniShield {
@@ -619,7 +638,8 @@
             
             .monitorRow {
                 margin: 15px 0;
-                width: 95%;
+                width: 95%; /* 95% yapıldı */
+                max-width: 95%; /* 95% yapıldı */
             }
             
             /* Monitör satırları arasında çok daha fazla mesafe */
@@ -1099,7 +1119,7 @@
         let gameStarted = false;
         let gameOver = false;
         let currentStage = 1; // 1: Antivirüs bypass, 2: Şifre kırma
-        let timer = 999; // Uzun süre
+        let timer = 60; // 60 saniye süre
         let timerInterval;
         let selectedMonitorIndex = 0;
         let spinning = false;
@@ -1107,7 +1127,7 @@
         let codeModulesLocked = Array(10).fill(false);
         let passwordModulesLocked = Array(10).fill(false);
         let scorePoints = 0;
-        let timeLimit = false; // Süre sınırını kapat
+        let timeLimit = true; // Süre sınırını aktif et
         let isConnectProcessing = false; // Connect butonunun işlemde olup olmadığını takip eden değişken
         
         // Yeni değişkenler
@@ -1147,7 +1167,7 @@
             gameStarted = false;
             gameOver = false;
             currentStage = 1;
-            timer = 999;
+            timer = 60; // 60 saniye
             selectedMonitorIndex = 0;
             spinning = false;
             
@@ -1205,8 +1225,9 @@
             // Oyunu başlat
             gameStarted = true;
             
-            // Zamanlayıcıyı başlat (süre sınırı açıksa)
+            // Zamanlayıcıyı başlat (süre sınırı açık)
             if (timeLimit) {
+                timer = 60; // 60 saniye
                 timerInterval = setInterval(updateTimer, 1000);
             }
             
@@ -1220,8 +1241,10 @@
         // Zamanlayıcıyı güncelle
         function updateTimer() {
             if (timeLimit && timer <= 0) {
-                // Süre doldu, oyun bitti
-                endGame(false);
+                // Süre doldu, tüm kilitli kutuları resetle
+                resetLockedBoxes();
+                // Süreyi tekrar başlat
+                timer = 60;
                 return;
             }
             
@@ -1234,6 +1257,60 @@
             timerElement.textContent = timeLimit ? 
                 `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}` : 
                 "∞"; // Sonsuz sembolü
+        }
+        
+        // Kilitli kutuları resetle - yeni fonksiyon
+        function resetLockedBoxes() {
+            // Animasyon efektiyle kilitleri aç
+            showTimerExpiredEffect();
+            
+            // Tüm monitörleri kilitsiz duruma getir
+            codeModulesLocked = Array(10).fill(false);
+            passwordModulesLocked = Array(10).fill(false);
+            
+            // Tüm monitörleri güncelle
+            codeMonitors.forEach(monitor => {
+                monitor.classList.remove('locked', 'correct', 'just-locked');
+                if (!spinning) {
+                    monitor.textContent = '?';
+                }
+            });
+            
+            // Üst monitörleri de temizle
+            passwordMonitors.forEach(monitor => {
+                monitor.textContent = '?';
+            });
+            
+            // Tüm animasyonları sıfırla
+            resetAllAnimations();
+            
+            // Seçimi güncelle
+            updateMonitorSelection();
+        }
+        
+        // Süre dolduğunda efekt göster
+        function showTimerExpiredEffect() {
+            // Geçici bir overlay oluştur
+            const overlay = document.createElement('div');
+            overlay.className = 'transition-overlay';
+            overlay.style.opacity = '0';
+            overlay.innerHTML = `<div class="transition-text">SÜRE DOLDU!</div>`;
+            document.body.appendChild(overlay);
+            
+            // Animasyon için overlay'ı göster
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                
+                // 2 saniye sonra kaybol
+                setTimeout(() => {
+                    overlay.style.opacity = '0';
+                    
+                    // Tamamen kaybolunca DOM'dan kaldır
+                    setTimeout(() => {
+                        document.body.removeChild(overlay);
+                    }, 1000);
+                }, 1500);
+            }, 50);
         }
         
         // Monitörleri sıfırla
@@ -1581,21 +1658,16 @@
                 clearInterval(timerInterval);
             }
             
-            // Skor hesaplaması
+            // Skor hesaplaması - artık ekranda gösterilmeyecek
             const correctlyLocked = calculateCorrectlyLocked();
             const timeBonus = timeLimit ? timer * 2 : 0;
             const totalScore = scorePoints + timeBonus + (correctlyLocked * 5);
             
             if (win) {
-                document.querySelector('#winScreen .screenText').innerHTML = 
-                    `Skorunuz: ${totalScore}<br>
-                    Doğru kombinasyonlar: ${correctlyLocked}<br>
-                    ${timeLimit ? `Kalan süre bonusu: ${timeBonus}` : ''}`;
+                // Aşama tamamlandı ekranında skor bilgilerini gösterme
                 winScreen.style.display = 'flex';
             } else {
-                document.querySelector('#gameOverScreen .screenText').innerHTML = 
-                    `Skorunuz: ${scorePoints}<br>
-                    ${timeLimit ? 'Süre doldu!' : ''} Tekrar denemek ister misiniz?`;
+                // Aşama başarısız ekranında skor bilgilerini gösterme
                 gameOverScreen.style.display = 'flex';
             }
         }
