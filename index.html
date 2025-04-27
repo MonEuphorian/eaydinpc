@@ -389,22 +389,33 @@
         
         /* Mobil uyumluluk için */
         @media (max-width: 767px) {
+            body {
+                font-size: 16px;
+            }
+            
+            #gameContainer {
+                justify-content: space-evenly;
+                padding: 20px 0;
+                height: 100vh;
+            }
+            
             .monitor {
-                width: 25px;
-                height: 25px;
-                font-size: 14px;
-                margin: 0 2px;
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+                margin: 0 4px;
                 border-width: 2px;
             }
             
             .miniShield {
-                width: 20px;
-                height: 20px;
-                border-width: 1px;
+                width: 25px;
+                height: 25px;
+                border-width: 2px;
+                z-index: 3;
             }
             
             .miniShield:after {
-                font-size: 12px;
+                font-size: 14px;
             }
             
             .screenTitle {
@@ -416,73 +427,97 @@
             }
             
             .bigBtn {
-                padding: 10px 20px;
-                font-size: 16px;
+                padding: 12px 25px;
+                font-size: 18px;
             }
             
             #timer {
-                font-size: 28px;
-                margin: 20px 0 15px 0;
+                font-size: 32px;
+                margin: 20px 0;
             }
             
             #usb {
-                width: 60px;
-                height: 80px;
+                width: 80px;
+                height: 100px;
+                margin-bottom: 0;
             }
             
             .side-controls {
-                margin: 0 10px;
+                margin: 0 15px;
             }
             
             .arrowBtn {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
             }
             
             #usbContainer {
-                margin: 15px auto;
+                margin: 30px auto;
             }
             
             .btn {
-                padding: 8px 15px;
-                font-size: 14px;
+                padding: 10px 20px;
+                font-size: 16px;
                 margin: 0 5px;
             }
             
+            #connectBtn {
+                min-width: 180px;
+                margin-top: 20px;
+                padding: 12px 0;
+            }
+            
             .wire {
-                width: 3px;
+                width: 4px;
             }
             
             /* Monitörler arasındaki mesafe */
             .monitorRow {
-                margin: 15px 0;
+                margin: 30px 0;
+                max-width: 90%;
             }
             
-            /* Oyun elementlerini daha yakın konumlandır */
-            #gameContainer {
-                justify-content: center;
-                padding: 10px 0;
+            /* Monitör satırları arasında daha fazla mesafe */
+            #passwordRow {
+                margin-bottom: 60px;
+            }
+            
+            #codeRow {
+                margin-top: 60px;
+            }
+            
+            /* Seçili kutu mobilde daha belirgin */
+            .monitor.selected {
+                box-shadow: 0 0 12px #00d9ff;
+                border-width: 3px;
+            }
+            
+            /* Doğru değere sahip kilitli kutular daha belirgin */
+            .monitor.locked.correct {
+                box-shadow: 0 0 12px #00ff00;
+                border-width: 3px;
             }
         }
         
         /* Daha küçük ekranlar için (telefonlar) */
         @media (max-width: 480px) {
             .monitor {
-                width: 22px;
-                height: 22px;
-                font-size: 12px;
-                margin: 0 1px;
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+                margin: 0 3px;
                 border-width: 2px;
             }
             
             .miniShield {
-                width: 16px;
-                height: 16px;
+                width: 22px;
+                height: 22px;
+                border-width: 2px;
             }
             
             .miniShield:after {
-                font-size: 10px;
+                font-size: 12px;
             }
             
             .screenTitle {
@@ -494,38 +529,52 @@
             }
             
             #timer {
-                font-size: 24px;
-                margin: 15px 0 10px 0;
+                font-size: 28px;
+                margin: 15px 0;
             }
             
             .monitorRow {
-                margin: 10px 0;
+                margin: 20px 0;
                 width: 95%;
             }
             
+            /* Monitör satırları arasında daha fazla mesafe */
+            #passwordRow {
+                margin-bottom: 50px;
+            }
+            
+            #codeRow {
+                margin-top: 50px;
+            }
+            
             .btn {
-                padding: 6px 12px;
-                font-size: 12px;
+                padding: 8px 15px;
+                font-size: 14px;
                 margin: 0 3px;
             }
             
             #connectBtn {
-                min-width: 100px;
+                min-width: 150px;
+                margin-top: 15px;
             }
             
             #usb {
-                width: 50px;
-                height: 70px;
+                width: 70px;
+                height: 85px;
             }
             
             .side-controls {
-                margin: 0 5px;
+                margin: 0 10px;
             }
             
             .arrowBtn {
-                width: 35px;
-                height: 35px;
-                font-size: 18px;
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+            
+            .wire {
+                width: 3px;
             }
         }
         
@@ -1164,7 +1213,8 @@
                     endGame(true);
                 }
                 
-                // Sağdaki bir sonraki kilitlenmemiş monitöre git
+                // Bu kısmı yorum haline getiriyoruz - artık otomatik geçiş olmayacak
+                /*
                 let nextIndex = (selectedMonitorIndex + 1) % 10;
                 let count = 0;
                 
@@ -1177,6 +1227,7 @@
                     selectedMonitorIndex = nextIndex;
                     updateMonitorSelection();
                 }
+                */
             } else {
                 // Doğru karakter değilse, döngüyü tekrar başlat
                 startSpinning();
@@ -1265,6 +1316,11 @@
                 updateWirePosition(wire, passwordMonitors[i], codeMonitors[i]);
             }
             
+            // Mobil cihaz kontrolü
+            const isMobile = window.innerWidth <= 767;
+            // Mobil cihazlar için offset değeri
+            const offsetY = isMobile ? 10 : 0;
+            
             // Antivirüs ikonlarını kabloların arasına yerleştir - sadece görsel amaçlı
             for (let i = 1; i < passwordMonitors.length; i++) {
                 // Sağ kablo pozisyonunu al
@@ -1283,7 +1339,9 @@
                     // Üst monitör ile alt monitör arasındaki mesafenin ortası
                     const upperRect = passwordMonitors[i].getBoundingClientRect();
                     const lowerRect = codeMonitors[i].getBoundingClientRect();
-                    const midY = (upperRect.bottom + lowerRect.top) / 2 - containerRect.top;
+                    
+                    // Mobil cihazlarda kalkanlar için biraz daha fazla boşluk bırak
+                    const midY = (upperRect.bottom + lowerRect.top) / 2 - containerRect.top + offsetY;
                     
                     // Antivirüs ikonunu oluştur
                     const miniShield = document.createElement('div');
@@ -1353,8 +1411,13 @@
             
             // Yatay fark
             const dx = endX - startX;
-            // Dikey mesafe
+            // Dikey mesafe - mobil cihazlarda daha fazla mesafe olabilir
             const length = endY - startY;
+            
+            // Mobil cihazda ise ve dikey mesafe çok kısaysa minimum bir değer ayarla
+            const isMobile = window.innerWidth <= 767;
+            const minLength = isMobile ? 40 : 20; // Mobil için minimum 40px, değilse 20px
+            const actualLength = Math.max(length, minLength);
             
             // Kablo stillerini ayarla
             wireElement.style.left = `${startX}px`;
@@ -1362,16 +1425,16 @@
             
             if (Math.abs(dx) < 2) {
                 // Tam dikey kablo (üst üste monitörler)
-                wireElement.style.height = `${length}px`;
+                wireElement.style.height = `${actualLength}px`;
                 wireElement.style.width = `4px`;
                 wireElement.style.transform = 'none';
             } else {
                 // Eğimli kablo için gerçek uzunluk
-                const actualLength = Math.sqrt(dx * dx + length * length);
+                const adjustedLength = Math.sqrt(dx * dx + actualLength * actualLength);
                 // Açı hesaplaması: 0 derece = düz yukarı, pozitif = sağa eğimli, negatif = sola eğimli
-                const angle = Math.atan2(dx, length) * (180 / Math.PI);
+                const angle = Math.atan2(dx, actualLength) * (180 / Math.PI);
                 
-                wireElement.style.height = `${actualLength}px`;
+                wireElement.style.height = `${adjustedLength}px`;
                 wireElement.style.width = `4px`;
                 wireElement.style.transformOrigin = 'top center';
                 wireElement.style.transform = `rotate(${angle}deg)`;
