@@ -151,10 +151,28 @@
         
         /* USB ve kontrol butonları */
         #usbContainer {
-            margin: 25px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            max-width: 400px;
+            margin: 25px auto;
+            position: relative;
+        }
+        
+        .usb-row {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .side-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 15px;
         }
         
         #usb {
@@ -162,7 +180,6 @@
             height: 100px;
             border: 3px solid #ff00aa;
             border-radius: 5px;
-            margin-bottom: 20px;
             position: relative;
             display: flex;
             align-items: center;
@@ -185,7 +202,6 @@
             display: flex;
             justify-content: center;
             width: 100%;
-            margin-top: 10px;
         }
         
         .btn {
@@ -208,12 +224,35 @@
         #connectBtn {
             border-color: #00d9ff;
             min-width: 140px;
+            background-color: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 5px rgba(0, 217, 255, 0.5);
+            color: #00d9ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        #connectBtn:hover {
+            background-color: rgba(0, 217, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.8);
         }
         
         .arrowBtn {
             border-color: #ff00aa;
             color: #ff00aa;
             width: 50px;
+            height: 50px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 5px rgba(255, 0, 170, 0.5);
+        }
+        
+        .arrowBtn:hover {
+            background-color: rgba(255, 0, 170, 0.2);
+            box-shadow: 0 0 10px rgba(255, 0, 170, 0.8);
         }
         
         /* Oyun ekranları */
@@ -370,13 +409,22 @@
             }
             
             #usb {
-                width: 50px;
-                height: 70px;
-                margin-bottom: 15px;
+                width: 60px;
+                height: 80px;
+            }
+            
+            .side-controls {
+                margin: 0 10px;
+            }
+            
+            .arrowBtn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
             }
             
             #usbContainer {
-                margin: 15px 0;
+                margin: 15px auto;
             }
             
             .btn {
@@ -398,6 +446,14 @@
             #gameContainer {
                 justify-content: center;
                 padding: 10px 0;
+            }
+            
+            #leftBtn {
+                left: 30px;
+            }
+            
+            #rightBtn {
+                right: 30px;
             }
         }
         
@@ -448,8 +504,27 @@
                 min-width: 100px;
             }
             
+            #usb {
+                width: 50px;
+                height: 70px;
+            }
+            
+            .side-controls {
+                margin: 0 5px;
+            }
+            
             .arrowBtn {
-                width: 40px;
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            
+            #leftBtn {
+                left: 20px;
+            }
+            
+            #rightBtn {
+                right: 20px;
             }
         }
         
@@ -616,13 +691,19 @@
         
         <!-- USB ve kontroller -->
         <div id="usbContainer">
-            <div id="usb">
-                <div id="usbIcon">&#x1F41E;</div> <!-- Böcek emojisi -->
+            <div class="usb-row">
+                <div class="side-controls">
+                    <button id="leftBtn" class="btn arrowBtn">←</button>
+                </div>
+                <div id="usb">
+                    <div id="usbIcon">&#x1F41E;</div> <!-- Böcek emojisi -->
+                </div>
+                <div class="side-controls">
+                    <button id="rightBtn" class="btn arrowBtn">→</button>
+                </div>
             </div>
             <div class="controls">
-                <button id="leftBtn" class="btn arrowBtn">←</button>
                 <button id="connectBtn" class="btn">CONNECT</button>
-                <button id="rightBtn" class="btn arrowBtn">→</button>
             </div>
         </div>
     </div>
