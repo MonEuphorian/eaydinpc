@@ -970,6 +970,123 @@
         .wire.return-to-fuschia {
             animation: wire-return 0.8s ease-out forwards;
         }
+
+        /* Tutorial ekranı stilleri */
+        #tutorialScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(3, 19, 33, 0.95);
+            z-index: 1000;
+        }
+
+        .tutorial-content {
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00d9ff;
+            border-radius: 10px;
+            color: #fff;
+        }
+
+        .tutorial-step {
+            display: none;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .tutorial-step.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tutorial-title {
+            color: #00d9ff;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .tutorial-text {
+            font-size: 18px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .tutorial-highlight {
+            color: #ff00aa;
+            font-weight: bold;
+        }
+
+        .tutorial-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tutorial-btn {
+            background-color: transparent;
+            border: 2px solid #00d9ff;
+            color: #00d9ff;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tutorial-btn:hover {
+            background-color: rgba(0, 217, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+        }
+
+        .tutorial-skip {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .tutorial-skip:hover {
+            color: #fff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Mobil uyumluluk için */
+        @media (max-width: 767px) {
+            .tutorial-content {
+                width: 95%;
+                margin: 10px auto;
+                padding: 15px;
+            }
+
+            .tutorial-title {
+                font-size: 20px;
+            }
+
+            .tutorial-text {
+                font-size: 16px;
+            }
+
+            .tutorial-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1051,6 +1168,60 @@
             </div>
             <div class="controls">
                 <button id="connectBtn" class="btn">CONNECT</button>
+            </div>
+        </div>
+
+        <!-- Tutorial ekranı -->
+        <div id="tutorialScreen">
+            <div class="tutorial-content">
+                <button class="tutorial-skip">Öğreticiyi Geç</button>
+                
+                <!-- Adım 1 -->
+                <div class="tutorial-step" data-step="1">
+                    <h2 class="tutorial-title">Hack Simülatörüne Hoş Geldiniz!</h2>
+                    <p class="tutorial-text">Bu simülatörde amacınız, güvenlik sistemini atlatarak şifreyi çözmek. Size adım adım nasıl yapılacağını göstereceğim.</p>
+                </div>
+
+                <!-- Adım 2 -->
+                <div class="tutorial-step" data-step="2">
+                    <h2 class="tutorial-title">USB Hack Aracı</h2>
+                    <p class="tutorial-text">Ekranın altındaki <span class="tutorial-highlight">USB ikonu</span>'na tıklayarak kod taramasını başlatabilirsiniz. Tekrar tıkladığınızda tarama duracak.</p>
+                </div>
+
+                <!-- Adım 3 -->
+                <div class="tutorial-step" data-step="3">
+                    <h2 class="tutorial-title">Monitörler Arası Gezinme</h2>
+                    <p class="tutorial-text"><span class="tutorial-highlight">Sol ve Sağ ok tuşları</span> ile monitörler arasında gezinebilirsiniz. Seçili monitör parlak çerçeve ile belirtilir.</p>
+                </div>
+
+                <!-- Adım 4 -->
+                <div class="tutorial-step" data-step="4">
+                    <h2 class="tutorial-title">Güvenlik Kalkanları</h2>
+                    <p class="tutorial-text">Monitörler arasındaki <span class="tutorial-highlight">yeşil kalkanlar</span> doğru monitörü gösterir. Her seferinde sadece bir kalkan aktif olur.</p>
+                </div>
+
+                <!-- Adım 5 -->
+                <div class="tutorial-step" data-step="5">
+                    <h2 class="tutorial-title">Bağlantı Kurma</h2>
+                    <p class="tutorial-text">Doğru monitörü seçtikten sonra <span class="tutorial-highlight">CONNECT</span> butonuna basarak bağlantıyı kurabilirsiniz. Yanlış seçim yaparsanız, tarama yeniden başlar.</p>
+                </div>
+
+                <!-- Adım 6 -->
+                <div class="tutorial-step" data-step="6">
+                    <h2 class="tutorial-title">Süre Sınırı</h2>
+                    <p class="tutorial-text">Tüm monitörleri <span class="tutorial-highlight">60 saniye</span> içinde çözmeniz gerekiyor. Süre dolduğunda kilitli olmayan monitörler sıfırlanır.</p>
+                </div>
+
+                <!-- Adım 7 -->
+                <div class="tutorial-step" data-step="7">
+                    <h2 class="tutorial-title">Hazırsınız!</h2>
+                    <p class="tutorial-text">Artık hack simülatörünü kullanmaya hazırsınız. Başarılar!</p>
+                </div>
+
+                <div class="tutorial-buttons">
+                    <button class="tutorial-btn" id="prevTutorial">Geri</button>
+                    <button class="tutorial-btn" id="nextTutorial">İleri</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1139,8 +1310,12 @@
         function setupEventListeners() {
             // Oyun başlatma/yeniden başlatma butonları
             startButton.addEventListener('click', function() {
-                playSound('GAME_START');
-                initGame();
+                if (!isTutorialComplete) {
+                    showTutorial();
+                } else {
+                    playSound('GAME_START');
+                    initGame();
+                }
             });
             
             restartButton.addEventListener('click', function() {
@@ -2178,6 +2353,81 @@
                 }
             });
         }
+
+        // Tutorial değişkenleri
+        let currentTutorialStep = 1;
+        const totalTutorialSteps = 7;
+        let isTutorialComplete = false;
+
+        // Tutorial fonksiyonları
+        function showTutorial() {
+            const tutorialScreen = document.getElementById('tutorialScreen');
+            tutorialScreen.style.display = 'block';
+            updateTutorialStep();
+        }
+
+        function updateTutorialStep() {
+            // Tüm adımları gizle
+            document.querySelectorAll('.tutorial-step').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            // Mevcut adımı göster
+            const currentStep = document.querySelector(`.tutorial-step[data-step="${currentTutorialStep}"]`);
+            if (currentStep) {
+                currentStep.classList.add('active');
+            }
+
+            // Butonları güncelle
+            const prevBtn = document.getElementById('prevTutorial');
+            const nextBtn = document.getElementById('nextTutorial');
+
+            prevBtn.style.visibility = currentTutorialStep === 1 ? 'hidden' : 'visible';
+            nextBtn.textContent = currentTutorialStep === totalTutorialSteps ? 'Başla' : 'İleri';
+        }
+
+        function nextTutorialStep() {
+            if (currentTutorialStep < totalTutorialSteps) {
+                currentTutorialStep++;
+                updateTutorialStep();
+            } else {
+                completeTutorial();
+            }
+        }
+
+        function prevTutorialStep() {
+            if (currentTutorialStep > 1) {
+                currentTutorialStep--;
+                updateTutorialStep();
+            }
+        }
+
+        function completeTutorial() {
+            isTutorialComplete = true;
+            document.getElementById('tutorialScreen').style.display = 'none';
+            initGame(); // Oyunu başlat
+        }
+
+        function skipTutorial() {
+            isTutorialComplete = true;
+            document.getElementById('tutorialScreen').style.display = 'none';
+            initGame(); // Oyunu başlat
+        }
+
+        // Tutorial buton event listener'ları
+        document.getElementById('nextTutorial').addEventListener('click', nextTutorialStep);
+        document.getElementById('prevTutorial').addEventListener('click', prevTutorialStep);
+        document.querySelector('.tutorial-skip').addEventListener('click', skipTutorial);
+
+        // Oyun başlatma butonuna tutorial kontrolü ekle
+        startButton.addEventListener('click', function() {
+            if (!isTutorialComplete) {
+                showTutorial();
+            } else {
+                playSound('GAME_START');
+                initGame();
+            }
+        });
     </script>
 </body>
 </html> 
