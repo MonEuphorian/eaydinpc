@@ -305,6 +305,31 @@
             line-height: 1.4;
         }
         
+        /* Kazanma ekranı içeriğini ortalamak için ek stil */
+        #winScreen {
+            display: none;
+            position: fixed; /* Absolute yerine fixed kullanımı */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #winScreen .screenTitle,
+        #winScreen .screenText,
+        #winScreen .bigBtn {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            position: relative; /* Position relative for better alignment */
+        }
+        
         /* Özel "Kalan süre" gösterimi için stil */
         #remainingTime {
             font-weight: bold;
@@ -965,10 +990,12 @@
         
         <!-- Kazanma ekranı -->
         <div id="winScreen" class="gameScreen">
-            <h1 class="screenTitle">ERİŞİM SAĞLANDI!</h1>
-            <p class="screenText">Kalan süre: <span id="remainingTime">00:00</span></p>
-            <p class="screenText">Güvenlik yazılımı engellendi ve şifreli klasörün kilidini açmak için hazır ol!</p>
-            <button id="playAgainButton" class="bigBtn">DEVAM ET</button>
+            <div class="win-content" style="width: 100%; max-width: 90%; text-align: center;">
+                <h1 class="screenTitle">ERİŞİM SAĞLANDI!</h1>
+                <p class="screenText">Kalan süre: <span id="remainingTime">00:00</span></p>
+                <p class="screenText">Güvenlik yazılımı engellendi ve şifreli klasörün kilidini açmak için hazır ol!</p>
+                <button id="playAgainButton" class="bigBtn">DEVAM ET</button>
+            </div>
         </div>
         
         <!-- Kablo container - burada kablolar dinamik olarak oluşturulacak -->
@@ -1077,35 +1104,120 @@
             // Olay dinleyicilerini ayarla
             setupEventListeners();
             
-            // Ses dosyalarını önbelleğe al
-            preloadSounds();
+            // Ses sistemini başlat
+            initAudioSystem();
         };
         
-        // Ses efektlerini çalmak için yardımcı fonksiyon
+        // Ses sistemi değişkenleri
+        let audioContext = null;
+        let audioInitialized = false;
+        let audioBuffers = {};
+        
+        // Ses sistemini başlatma
+        function initAudioSystem() {
+            try {
+                // AudioContext oluşturma (ilk etkileşimle başlatılacak)
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContext();
+                
+                // Mobil cihazlarda autoplay politikalarını bypass etmek için bekletiyoruz
+                if (audioContext.state === 'suspended') {
+                    const resumeAudio = function() {
+                        if (audioContext.state === 'suspended') {
+                            audioContext.resume();
+                        }
+                        document.body.removeEventListener('touchstart', resumeAudio);
+                        document.body.removeEventListener('click', resumeAudio);
+                        document.body.removeEventListener('keydown', resumeAudio);
+                        console.log("Audio context başlatıldı");
+                    };
+                    
+                    document.body.addEventListener('touchstart', resumeAudio, false);
+                    document.body.addEventListener('click', resumeAudio, false);
+                    document.body.addEventListener('keydown', resumeAudio, false);
+                    console.log("Audio context kullanıcı etkileşimini bekliyor");
+                } else {
+                    console.log("Audio context başlatıldı");
+                }
+                
+                // Ses dosyalarını hafızaya alma (preload)
+                preloadSounds();
+            } catch (e) {
+                console.error("Ses sistemi başlatılamadı:", e);
+            }
+        }
+        
+        // Sesleri yükleme
+        function preloadSounds() {
+            // İşaretli tüm ses dosyalarını yükle
+            const audioElements = document.querySelectorAll('audio');
+            
+            // Tüm ses dosyalarını yüklemeyi dene
+            Promise.all(Array.from(audioElements).map(audio => {
+                return fetch(audio.src)
+                    .then(response => response.arrayBuffer())
+                    .then(arrayBuffer => {
+                        // AudioContext başlatılmışsa decode et
+                        if (audioContext) {
+                            return audioContext.decodeAudioData(arrayBuffer)
+                                .then(audioBuffer => {
+                                    // Her ses ID'si ile buffer'ı sakla
+                                    audioBuffers[audio.id] = audioBuffer;
+                                    console.log(`Ses yüklendi: ${audio.id}`);
+                                });
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Ses yüklenemedi: ${audio.id}`, error);
+                    });
+            }))
+            .then(() => {
+                audioInitialized = true;
+                console.log("Tüm sesler yüklendi!");
+            })
+            .catch(error => {
+                console.error("Ses yükleme hatası:", error);
+            });
+        }
+        
+        // Ses efektlerini çalmak için yardımcı fonksiyon - iyileştirilmiş versiyon
         function playSound(id) {
             try {
+                // 1. AudioContext API ile çalma (daha güvenilir yöntem)
+                if (audioContext && audioBuffers[id]) {
+                    // AudioContext çalışmıyorsa başlat
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                    
+                    // Ses kaynağı oluştur ve sesi çal
+                    const source = audioContext.createBufferSource();
+                    source.buffer = audioBuffers[id];
+                    source.connect(audioContext.destination);
+                    source.start(0);
+                    return;
+                }
+                
+                // 2. Fallback: HTML5 Audio API ile çalma
                 const sound = document.getElementById(id);
                 if (sound) {
                     // Eğer ses halihazırda çalıyorsa, baştan başlat
                     sound.pause();
                     sound.currentTime = 0;
                     
-                    // Sesi çal
-                    sound.play().catch(e => {
-                        console.log(`Ses çalma hatası (${id}):`, e);
-                    });
+                    // Özellikle mobil cihazlar için bunu mutlaka kullanıcı etkileşimi içinde çağır
+                    const playPromise = sound.play();
+                    
+                    // Play Promise'i işle (mobil tarayıcılar için önemli)
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.warn(`Ses çalma hatası (${id}):`, error);
+                        });
+                    }
                 }
             } catch (error) {
-                console.log(`Ses çalma hatası (${id}):`, error);
+                console.error(`Ses çalma hatası (${id}):`, error);
             }
-        }
-        
-        // Ses dosyalarını önbelleğe alma
-        function preloadSounds() {
-            const audioElements = document.querySelectorAll('audio');
-            audioElements.forEach(audio => {
-                audio.load();
-            });
         }
         
         // Tüm olay dinleyicilerini ayarlama
