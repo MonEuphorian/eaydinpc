@@ -295,17 +295,6 @@
             color: #ff00aa;
             text-shadow: 0 0 10px rgba(255, 0, 170, 0.7);
             text-align: center;
-            position: relative;
-            top: 0;
-            transform: translateY(0);
-        }
-        
-        /* Başlangıç ekranı için özel stil */
-        #startScreen .screenTitle {
-            position: relative;
-            top: 0;
-            transform: translateY(0);
-            margin-top: -100px; /* Başlık yukarı kaydırılıyor */
         }
         
         .screenText {
@@ -981,52 +970,6 @@
         .wire.return-to-fuschia {
             animation: wire-return 0.8s ease-out forwards;
         }
-        
-        /* Yeni efekt CSS */
-        .pulse-effect {
-            animation: pulse-usb 1s infinite;
-            box-shadow: 0 0 30px 10px #00ffea, 0 0 60px 20px #ff00aa44;
-        }
-        @keyframes pulse-usb {
-            0% { box-shadow: 0 0 10px 2px #00ffea, 0 0 20px 5px #ff00aa44; }
-            50% { box-shadow: 0 0 30px 10px #00ffea, 0 0 60px 20px #ff00aa44; }
-            100% { box-shadow: 0 0 10px 2px #00ffea, 0 0 20px 5px #ff00aa44; }
-        }
-        .arrowBtn {
-            /* ... mevcut kod ... */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .arrow-img {
-            width: 70%;
-            height: 70%;
-            object-fit: contain;
-            pointer-events: none;
-        }
-        #usb {
-            /* ... mevcut kod ... */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .usb-img {
-            width: 70%;
-            height: 70%;
-            object-fit: contain;
-            pointer-events: none;
-        }
-        /* --- YENİ: Sadece tekli kilitlenme için özel animasyon --- */
-        @keyframes single-lock {
-          0% { transform: scale(1); box-shadow: 0 0 0 0 #00ff00; border-color: #00ff00; }
-          50% { transform: scale(1.2); box-shadow: 0 0 15px 5px #00ff00; border-color: #00ff00; }
-          100% { transform: scale(1); box-shadow: 0 0 0 0 #00ff00; border-color: #00ff00; }
-        }
-        .single-locked {
-          animation: single-lock 0.5s ease;
-          border-color: #00ff00 !important;
-          box-shadow: 0 0 10px #00ff00;
-        }
     </style>
 </head>
 <body>
@@ -1100,7 +1043,7 @@
                     <button id="leftBtn" class="btn arrowBtn">←</button>
                 </div>
                 <div id="usb">
-                    <img src="usb.png" alt="USB" class="usb-img">
+                    <div id="usbIcon">&#x1F41E;</div> <!-- Böcek emojisi -->
                 </div>
                 <div class="side-controls">
                     <button id="rightBtn" class="btn arrowBtn">→</button>
@@ -1149,9 +1092,6 @@
     <script>
         // Sayfa yenilendiğinde oyun sıfırlanır - bunu garanti etmek için window.onload kullanıyoruz
         window.onload = function() {
-            // Kazanma ekranını direk gizliyoruz - kısa görünmeyi engellemek için
-            document.getElementById('winScreen').style.display = 'none';
-            
             resetGame();
             // Kabloları başlangıçta oluştur
             createWires();
@@ -1164,35 +1104,120 @@
             // Olay dinleyicilerini ayarla
             setupEventListeners();
             
-            // Ses dosyalarını önbelleğe al
-            preloadSounds();
+            // Ses sistemini başlat
+            initAudioSystem();
         };
         
-        // Ses efektlerini çalmak için yardımcı fonksiyon
+        // Ses sistemi değişkenleri
+        let audioContext = null;
+        let audioInitialized = false;
+        let audioBuffers = {};
+        
+        // Ses sistemini başlatma
+        function initAudioSystem() {
+            try {
+                // AudioContext oluşturma (ilk etkileşimle başlatılacak)
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContext();
+                
+                // Mobil cihazlarda autoplay politikalarını bypass etmek için bekletiyoruz
+                if (audioContext.state === 'suspended') {
+                    const resumeAudio = function() {
+                        if (audioContext.state === 'suspended') {
+                            audioContext.resume();
+                        }
+                        document.body.removeEventListener('touchstart', resumeAudio);
+                        document.body.removeEventListener('click', resumeAudio);
+                        document.body.removeEventListener('keydown', resumeAudio);
+                        console.log("Audio context başlatıldı");
+                    };
+                    
+                    document.body.addEventListener('touchstart', resumeAudio, false);
+                    document.body.addEventListener('click', resumeAudio, false);
+                    document.body.addEventListener('keydown', resumeAudio, false);
+                    console.log("Audio context kullanıcı etkileşimini bekliyor");
+                } else {
+                    console.log("Audio context başlatıldı");
+                }
+                
+                // Ses dosyalarını hafızaya alma (preload)
+                preloadSounds();
+            } catch (e) {
+                console.error("Ses sistemi başlatılamadı:", e);
+            }
+        }
+        
+        // Sesleri yükleme
+        function preloadSounds() {
+            // İşaretli tüm ses dosyalarını yükle
+            const audioElements = document.querySelectorAll('audio');
+            
+            // Tüm ses dosyalarını yüklemeyi dene
+            Promise.all(Array.from(audioElements).map(audio => {
+                return fetch(audio.src)
+                    .then(response => response.arrayBuffer())
+                    .then(arrayBuffer => {
+                        // AudioContext başlatılmışsa decode et
+                        if (audioContext) {
+                            return audioContext.decodeAudioData(arrayBuffer)
+                                .then(audioBuffer => {
+                                    // Her ses ID'si ile buffer'ı sakla
+                                    audioBuffers[audio.id] = audioBuffer;
+                                    console.log(`Ses yüklendi: ${audio.id}`);
+                                });
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Ses yüklenemedi: ${audio.id}`, error);
+                    });
+            }))
+            .then(() => {
+                audioInitialized = true;
+                console.log("Tüm sesler yüklendi!");
+            })
+            .catch(error => {
+                console.error("Ses yükleme hatası:", error);
+            });
+        }
+        
+        // Ses efektlerini çalmak için yardımcı fonksiyon - iyileştirilmiş versiyon
         function playSound(id) {
             try {
+                // 1. AudioContext API ile çalma (daha güvenilir yöntem)
+                if (audioContext && audioBuffers[id]) {
+                    // AudioContext çalışmıyorsa başlat
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                    
+                    // Ses kaynağı oluştur ve sesi çal
+                    const source = audioContext.createBufferSource();
+                    source.buffer = audioBuffers[id];
+                    source.connect(audioContext.destination);
+                    source.start(0);
+                    return;
+                }
+                
+                // 2. Fallback: HTML5 Audio API ile çalma
                 const sound = document.getElementById(id);
                 if (sound) {
                     // Eğer ses halihazırda çalıyorsa, baştan başlat
                     sound.pause();
                     sound.currentTime = 0;
                     
-                    // Sesi çal
-                    sound.play().catch(e => {
-                        console.log(`Ses çalma hatası (${id}):`, e);
-                    });
+                    // Özellikle mobil cihazlar için bunu mutlaka kullanıcı etkileşimi içinde çağır
+                    const playPromise = sound.play();
+                    
+                    // Play Promise'i işle (mobil tarayıcılar için önemli)
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.warn(`Ses çalma hatası (${id}):`, error);
+                        });
+                    }
                 }
             } catch (error) {
-                console.log(`Ses çalma hatası (${id}):`, error);
+                console.error(`Ses çalma hatası (${id}):`, error);
             }
-        }
-        
-        // Ses dosyalarını önbelleğe alma
-        function preloadSounds() {
-            const audioElements = document.querySelectorAll('audio');
-            audioElements.forEach(audio => {
-                audio.load();
-            });
         }
         
         // Tüm olay dinleyicilerini ayarlama
@@ -1381,7 +1406,7 @@
             passwordModulesLocked = Array(10).fill(false);
             scorePoints = 0;
             
-            // Başlangıç ekranını göster, diğerlerini gizle
+            // Başlangıç ekranını göster
             startScreen.style.display = 'flex';
             gameOverScreen.style.display = 'none';
             winScreen.style.display = 'none';
@@ -1408,9 +1433,6 @@
             
             // Kabloları sıfırla
             resetWires();
-            
-            // USB efektini sıfırla
-            usb.classList.remove('pulse-effect');
         }
         
         // Oyunu başlat
@@ -1720,109 +1742,153 @@
         // Seçili monitörü kilitle
         function lockSelectedMonitor() {
             if (!gameStarted || gameOver || spinning || isConnectProcessing) return;
+            
+            // Connect butonunun yeniden kullanılmasını engellemek için flag'i aktif et
             isConnectProcessing = true;
-            disableControls();
+            
             const row = currentStage === 1 ? codeMonitors : passwordMonitors;
             const lockedArray = currentStage === 1 ? codeModulesLocked : passwordModulesLocked;
+            
+            // Eğer monitör zaten kilitliyse, döngüyü tekrar başlat (hata düzeltme)
             if (lockedArray[selectedMonitorIndex]) {
+                console.log("Zaten kilitli bir monitör seçildi, döngü yeniden başlatılıyor.");
                 playSound('ALREADY_LOCKED');
                 startSpinning();
+                
+                // İşlem tamamlandığında flag'i resetle
                 setTimeout(() => {
                     isConnectProcessing = false;
-                    enableControls();
-                }, 200);
+                }, 500);
                 return;
             }
+            
+            // Seçilen monitörün aktif bir shield ile ilişkisi var mı kontrol et
             let isCorrectSelection = false;
             let relatedShieldIndex = -1;
+            
+            // Seçilen monitörün sağındaki veya solundaki shield'ı kontrol et
             for (const shieldIndex of activeShields) {
+                // Shield'ın ilişkili olduğu kutular
                 const firstBoxIndex = shieldIndex;
                 const secondBoxIndex = shieldIndex + 1;
+                
+                // Seçilen monitör bu shield'ın ilişkili olduğu kutulardan biri mi?
                 if (selectedMonitorIndex === firstBoxIndex || selectedMonitorIndex === secondBoxIndex) {
                     relatedShieldIndex = shieldIndex;
+                    
+                    // Bu shield için doğru kutunun hangisi olduğunu kontrol et
                     const correctBoxForThisShield = correctBoxPerShield[shieldIndex];
+                    
+                    // Seçilen monitör doğru mu?
                     isCorrectSelection = (selectedMonitorIndex === correctBoxForThisShield);
                     break;
                 }
             }
+            
+            // Eğer seçilen monitör aktif bir shield ile ilişkili değilse işlem yapma
             if (relatedShieldIndex === -1) {
+                console.log("Seçilen monitör aktif bir shield ile ilişkili değil.");
                 isConnectProcessing = false;
-                enableControls();
                 return;
             }
+            
+            // Doğru seçim yapıldıysa
             if (isCorrectSelection) {
+                // Monitörü kilitle
                 row[selectedMonitorIndex].classList.add('locked');
                 lockedArray[selectedMonitorIndex] = true;
+                
+                // Kablo rengini değiştir ve animasyon başlat
                 const wire = document.getElementById(`wire-${selectedMonitorIndex}`);
                 if (wire) {
                     wire.classList.add('success');
                     playSound('WIRE_ACTIVE');
                 }
-                // --- SADECE TEKLİ KİLİTLENME ANİMASYONU ---
-                row[selectedMonitorIndex].classList.add('single-locked');
-                setTimeout(() => {
-                    row[selectedMonitorIndex].classList.remove('single-locked');
-                }, 500);
+                
+                // Monitör kilitleme animasyonu
+                row[selectedMonitorIndex].classList.add('just-locked');
+                row[selectedMonitorIndex].classList.add('correct'); // Yeşil renk için
                 playSound('CORRECT_MONITOR');
+                
+                // Kısa bir gecikme ile içeriği üst monitöre aktar ve animasyon başlat
                 setTimeout(() => {
-                    const shield = document.getElementById(`shield-${relatedShieldIndex}`);
-                    if (shield) {
-                        shield.classList.remove('matrix-green');
-                        playSound('SHIELD_GREEN');
-                    }
-                    activeShields = activeShields.filter(index => index !== relatedShieldIndex);
-                }, 200);
-                setTimeout(() => {
-                    isConnectProcessing = false;
-                    enableControls();
-                    if (lockedArray.every(locked => locked)) {
-                        usb.classList.add('pulse-effect');
-                        playSound('GAME_START');
-                        endGame(true);
-                    } else {
-                        startSpinning();
-                    }
-                }, 200);
-                setTimeout(() => {
+                    // Seçilen monitörün içeriğini üst monitöre aktar
                     const selectedValue = row[selectedMonitorIndex].textContent;
                     passwordMonitors[selectedMonitorIndex].textContent = selectedValue;
+                    
+                    // Üst monitöre transfer animasyonu ekle
                     passwordMonitors[selectedMonitorIndex].classList.add('transfer-receive');
                     playSound('TRANSFER_WHOOSH');
+                    
+                    // Animasyonu bir süre sonra kaldır
                     setTimeout(() => {
                         passwordMonitors[selectedMonitorIndex].classList.remove('transfer-receive');
+                        
+                        // Üst monitörden alt monitöre dönüş animasyonu - rengini fuşyaya geri döndür
+                        row[selectedMonitorIndex].classList.remove('correct');
+                        row[selectedMonitorIndex].classList.add('return-to-fuschia');
+                        
+                        // Kabloyu da fuşyaya geri döndür
                         if (wire) {
                             wire.classList.remove('success');
                             wire.classList.add('return-to-fuschia');
                         }
+                        
+                        // Dönüş animasyonunu bir süre sonra kaldır
                         setTimeout(() => {
+                            row[selectedMonitorIndex].classList.remove('return-to-fuschia');
                             if (wire) {
                                 wire.classList.remove('return-to-fuschia');
                             }
                         }, 1000);
+                        
                     }, 1000);
-                }, 300);
-            } else {
+                    
+                }, 300); // 300ms gecikme ile transfer başlasın
+                
+                scorePoints += 10;
+                
+                setTimeout(() => {
+                    row[selectedMonitorIndex].classList.remove('just-locked');
+                    
+                    // İşlem tamamlandığında flag'i resetle
+                    setTimeout(() => {
+                        isConnectProcessing = false;
+                        
+                        // İlişkili shield'ı sönük hale getir
+                        const shield = document.getElementById(`shield-${relatedShieldIndex}`);
+                        if (shield) {
+                            shield.classList.remove('matrix-green');
+                            playSound('SHIELD_GREEN');
+                        }
+                        
+                        // Aktif shield listesinden kaldır
+                        activeShields = activeShields.filter(index => index !== relatedShieldIndex);
+                        
+                        // Tüm monitörler kilitlendi mi kontrol et
+                        if (lockedArray.every(locked => locked)) {
+                            // Aşama 1 tamamlandığında oyunu bitir
+                            endGame(true);
+                        } 
+                        // Doğru seçimden sonra, hemen yeni shield seçmeyi durdur
+                        // Yeni shield ancak kullanıcı USB'ye basıp tekrar durdurduğunda seçilecek
+                    }, 200); // Minimum 200ms bekle
+                }, 500);
+            } 
+            // Yanlış seçim yapıldıysa
+            else {
+                console.log("Yanlış seçim yapıldı, döngüyü yeniden başlat.");
+                // Hata sesi çal
                 playSound('WRONG_MONITOR');
+                
+                // Döngüyü tekrar başlat
                 startSpinning();
+                
+                // İşlem tamamlandığında flag'i resetle
                 setTimeout(() => {
                     isConnectProcessing = false;
-                    enableControls();
-                }, 200);
+                }, 500); // Minimum 500ms bekle
             }
-        }
-        
-        // --- YENİ: Kontrolleri devre dışı bırak/aktif et fonksiyonları ---
-        function disableControls() {
-            usb.style.pointerEvents = 'none';
-            leftBtn.disabled = true;
-            rightBtn.disabled = true;
-            connectBtn.disabled = true;
-        }
-        function enableControls() {
-            usb.style.pointerEvents = '';
-            leftBtn.disabled = false;
-            rightBtn.disabled = false;
-            connectBtn.disabled = false;
         }
         
         // Oyunu bitir
@@ -1839,112 +1905,19 @@
             const totalScore = scorePoints + timeBonus + (correctlyLocked * 5);
             
             if (win) {
-                // --- YENİ: Toplu transfer animasyonu ve mesajı ---
-                playEndGameTransferAnimation().then(() => {
-                    // Aşama tamamlandı ekranında kalan süreyi göster
-                    const minutes = Math.floor(timer / 60);
-                    const seconds = timer % 60;
-                    document.getElementById('remainingTime').textContent = 
-                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                    playSound('GAME_SUCCESS');
-                    winScreen.style.display = 'flex';
-                });
+                // Aşama tamamlandı ekranında kalan süreyi göster
+                const minutes = Math.floor(timer / 60);
+                const seconds = timer % 60;
+                document.getElementById('remainingTime').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                playSound('GAME_SUCCESS');
+                winScreen.style.display = 'flex';
             } else {
+                // Aşama başarısız ekranında skor bilgilerini gösterme
                 playSound('GAME_FAILURE');
                 gameOverScreen.style.display = 'flex';
             }
-        }
-        
-        // --- YENİ: Toplu transfer animasyonu fonksiyonu ---
-        async function playEndGameTransferAnimation() {
-            // 1. Alt kutulardan üst kutulara transfer (toplu)
-            for (let i = 0; i < 10; i++) {
-                // Kabloları yeşil yap ve animasyon başlat
-                const wire = document.getElementById(`wire-${i}`);
-                if (wire) {
-                    wire.classList.add('success');
-                }
-                // Alt kutuyu yeşil yap
-                codeMonitors[i].classList.add('locked', 'correct');
-                // Üst kutuya aktar
-                const value = codeMonitors[i].textContent;
-                passwordMonitors[i].textContent = value;
-                // Üst kutuda transfer animasyonu
-                passwordMonitors[i].classList.add('transfer-receive');
-            }
-            // Ses efektleri topluca çal
-            playSound('WIRE_ACTIVE');
-            playSound('CORRECT_MONITOR');
-            playSound('TRANSFER_WHOOSH');
-            // Biraz bekle (animasyon süresi)
-            await new Promise(res => setTimeout(res, 2500));
-
-            // 2. Alt kutular ve kablolar fuşyaya döner (toplu)
-            for (let i = 0; i < 10; i++) {
-                passwordMonitors[i].classList.remove('transfer-receive');
-                codeMonitors[i].classList.remove('locked', 'correct');
-                codeMonitors[i].classList.add('return-to-fuschia');
-                const wire = document.getElementById(`wire-${i}`);
-                if (wire) {
-                    wire.classList.remove('success');
-                    wire.classList.add('return-to-fuschia');
-                }
-            }
-            playSound('TRANSFER_WHOOSH');
-            await new Promise(res => setTimeout(res, 2000));
-
-            // Animasyonları temizle
-            for (let i = 0; i < 10; i++) {
-                codeMonitors[i].classList.remove('return-to-fuschia');
-                const wire = document.getElementById(`wire-${i}`);
-                if (wire) {
-                    wire.classList.remove('return-to-fuschia');
-                }
-            }
-
-            // 3. Üstten alta transfer animasyonu (sırayla)
-            for (let i = 0; i < 10; i++) {
-                // Üst kutudan alt kutuya transfer animasyonu
-                passwordMonitors[i].classList.add('transfer-receive');
-                codeMonitors[i].classList.add('transfer-receive');
-                const wire = document.getElementById(`wire-${i}`);
-                if (wire) {
-                    wire.classList.add('active');
-                }
-                playSound('TRANSFER_WHOOSH');
-                await new Promise(res => setTimeout(res, 180)); // Her kutu için kısa bir gecikme
-                // Animasyonu temizle
-                passwordMonitors[i].classList.remove('transfer-receive');
-                codeMonitors[i].classList.remove('transfer-receive');
-                if (wire) {
-                    wire.classList.remove('active');
-                }
-            }
-
-            // 4. Modül mesajı göster
-            await showModuleMessage('Tüm modüller başarıyla transfer edildi!');
-        }
-
-        // --- YENİ: Modül mesajı gösterme fonksiyonu ---
-        function showModuleMessage(msg) {
-            return new Promise(res => {
-                // Overlay oluştur
-                const overlay = document.createElement('div');
-                overlay.className = 'transition-overlay';
-                overlay.style.opacity = '0';
-                overlay.innerHTML = `<div class="transition-text">${msg}</div>`;
-                document.body.appendChild(overlay);
-                setTimeout(() => {
-                    overlay.style.opacity = '1';
-                    setTimeout(() => {
-                        overlay.style.opacity = '0';
-                        setTimeout(() => {
-                            document.body.removeChild(overlay);
-                            res();
-                        }, 800);
-                    }, 1500);
-                }, 50);
-            });
         }
         
         // Doğru kilitlenmiş kombinasyonları hesapla
@@ -2168,15 +2141,6 @@
                 
                 // Orientasyon değişikliğini izle
                 window.addEventListener('orientationchange', handleOrientationChange);
-                // Ekran boyutu değişikliğini de takip et (bazı cihazlarda orientationchange yerine resize çalışır)
-                window.addEventListener('resize', function() {
-                    // Son resize eventinden 500ms sonra handleOrientationChange çağır
-                    clearTimeout(window.resizeTimer);
-                    window.resizeTimer = setTimeout(handleOrientationChange, 500);
-                });
-                
-                // Sayfa yüklendiğinde orientasyon ayarlaması yap
-                handleOrientationChange();
             }
         }
         
@@ -2184,107 +2148,32 @@
         function handleOrientationChange() {
             // Orientasyon değişikliğinden sonra kısa bir gecikme ile yeniden düzenle
             setTimeout(() => {
-                // Tüm kabloları ve pozisyonları sıfırla
-                resetWires();
-                // Kabloları yeniden oluştur
-                createWires();
                 updateWirePositions();
+                optimizeForMobile();
                 
-                const isLandscape = window.innerWidth > window.innerHeight;
-                const isSmallScreen = window.innerWidth < 480;
-                
-                // Yeniden seçimi güncelle - kabloların yeniden oluşturulması sonrası gerekli
-                updateMonitorSelection();
-                
-                // Tüm animasyonları sıfırla - geçiş sırasında oluşabilecek görsel hataları önler
-                resetAllAnimations();
-                
-                // Ekran yerleşimini yatay/dikey moda göre ayarla
-                if (isLandscape) {
+                // Yatay modda layout'u daha iyi hale getir
+                if (window.innerWidth > window.innerHeight) {
                     // Yatay mod - daha kompakt görünüm
                     document.querySelectorAll('.monitorRow').forEach(row => {
                         row.style.margin = '10px 0';
-                        row.style.maxWidth = '90%';
                     });
                     
-                    document.getElementById('timer').style.margin = '10px 0 5px 0';
-                    
-                    // Yatay modda USB container'ı sayfanın altına yerleştirelim
-                    const usbContainer = document.getElementById('usbContainer');
-                    usbContainer.style.position = 'fixed';
-                    usbContainer.style.bottom = '0';
-                    usbContainer.style.left = '0';
-                    usbContainer.style.right = '0';
-                    usbContainer.style.zIndex = '50';
-                    usbContainer.style.backgroundColor = 'rgba(3, 19, 33, 0.95)';
-                    usbContainer.style.padding = '5px 0';
-                    
-                    // Yatay modda butonları yeniden boyutlandır
-                    document.querySelectorAll('.arrowBtn').forEach(btn => {
-                        btn.style.width = '50px';
-                        btn.style.height = '50px';
-                        btn.style.fontSize = '18px';
-                    });
-                    
-                    document.getElementById('connectBtn').style.minWidth = '150px';
-                    document.getElementById('connectBtn').style.height = '50px';
-                    document.getElementById('connectBtn').style.fontSize = '16px';
-                    
-                    // Yatay modda USB'yi küçült
-                    document.getElementById('usb').style.width = '50px';
-                    document.getElementById('usb').style.height = '70px';
-                    document.getElementById('usbIcon').style.fontSize = '30px';
-                    
-                    // Monitör satırları arasındaki mesafeyi azalt
-                    document.getElementById('passwordRow').style.marginBottom = '20px';
-                    document.getElementById('codeRow').style.marginTop = '20px';
-                    
+                    document.getElementById('timer').style.margin = '15px 0 10px 0';
                 } else {
                     // Dikey mod - normal görünüm
-                    document.querySelectorAll('.monitorRow').forEach(row => {
-                        row.style.maxWidth = '90%';
-                        row.style.margin = isSmallScreen ? '10px 0' : '15px 0';
-                    });
-                    
-                    document.getElementById('timer').style.margin = isSmallScreen ? '15px 0' : '20px 0';
-                    
-                    // USB container stil sıfırlama
-                    const usbContainer = document.getElementById('usbContainer');
-                    usbContainer.style.position = 'fixed';
-                    usbContainer.style.bottom = isSmallScreen ? '60px' : '80px';
-                    usbContainer.style.backgroundColor = 'rgba(3, 19, 33, 0.95)';
-                    usbContainer.style.padding = '15px 0';
-                    
-                    // Dikey modda butonları orijinal boyutlarına getir
-                    document.querySelectorAll('.arrowBtn').forEach(btn => {
-                        btn.style.width = isSmallScreen ? '110px' : '130px';
-                        btn.style.height = isSmallScreen ? '110px' : '130px';
-                        btn.style.fontSize = isSmallScreen ? '52px' : '60px';
-                    });
-                    
-                    document.getElementById('connectBtn').style.minWidth = isSmallScreen ? '300px' : '360px';
-                    document.getElementById('connectBtn').style.height = isSmallScreen ? '70px' : '80px';
-                    document.getElementById('connectBtn').style.fontSize = isSmallScreen ? '36px' : '40px';
-                    
-                    // Dikey modda USB'yi orijinal boyutuna getir
-                    document.getElementById('usb').style.width = isSmallScreen ? '120px' : '160px';
-                    document.getElementById('usb').style.height = isSmallScreen ? '150px' : '200px';
-                    document.getElementById('usbIcon').style.fontSize = isSmallScreen ? '60px' : '80px';
-                    
-                    // Monitör satırları arasındaki mesafeyi ayarla
-                    document.getElementById('passwordRow').style.marginBottom = isSmallScreen ? '50px' : '60px';
-                    document.getElementById('codeRow').style.marginTop = isSmallScreen ? '50px' : '60px';
+                    if (window.innerWidth < 480) {
+                        document.querySelectorAll('.monitorRow').forEach(row => {
+                            row.style.margin = '10px 0';
+                        });
+                        document.getElementById('timer').style.margin = '20px 0 15px 0';
+                    } else {
+                        document.querySelectorAll('.monitorRow').forEach(row => {
+                            row.style.margin = '15px 0';
+                        });
+                        document.getElementById('timer').style.margin = '25px 0 20px 0';
+                    }
                 }
-                
-                // Stil değişikliklerini anında uygula
-                forceReflow();
-                
             }, 300); // Küçük bir gecikme ile yeniden düzenle
-        }
-        
-        // Stil değişikliklerinin anında uygulanmasını sağla
-        function forceReflow() {
-            document.body.offsetHeight; // Bu satır yeniden akışı zorlar
         }
         
         // Touch olayları ekle
