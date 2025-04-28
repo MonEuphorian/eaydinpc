@@ -2056,6 +2056,15 @@
                 
                 // Orientasyon değişikliğini izle
                 window.addEventListener('orientationchange', handleOrientationChange);
+                // Ekran boyutu değişikliğini de takip et (bazı cihazlarda orientationchange yerine resize çalışır)
+                window.addEventListener('resize', function() {
+                    // Son resize eventinden 500ms sonra handleOrientationChange çağır
+                    clearTimeout(window.resizeTimer);
+                    window.resizeTimer = setTimeout(handleOrientationChange, 500);
+                });
+                
+                // Sayfa yüklendiğinde orientasyon ayarlaması yap
+                handleOrientationChange();
             }
         }
         
@@ -2063,32 +2072,107 @@
         function handleOrientationChange() {
             // Orientasyon değişikliğinden sonra kısa bir gecikme ile yeniden düzenle
             setTimeout(() => {
+                // Tüm kabloları ve pozisyonları sıfırla
+                resetWires();
+                // Kabloları yeniden oluştur
+                createWires();
                 updateWirePositions();
-                optimizeForMobile();
                 
-                // Yatay modda layout'u daha iyi hale getir
-                if (window.innerWidth > window.innerHeight) {
+                const isLandscape = window.innerWidth > window.innerHeight;
+                const isSmallScreen = window.innerWidth < 480;
+                
+                // Yeniden seçimi güncelle - kabloların yeniden oluşturulması sonrası gerekli
+                updateMonitorSelection();
+                
+                // Tüm animasyonları sıfırla - geçiş sırasında oluşabilecek görsel hataları önler
+                resetAllAnimations();
+                
+                // Ekran yerleşimini yatay/dikey moda göre ayarla
+                if (isLandscape) {
                     // Yatay mod - daha kompakt görünüm
                     document.querySelectorAll('.monitorRow').forEach(row => {
                         row.style.margin = '10px 0';
+                        row.style.maxWidth = '90%';
                     });
                     
-                    document.getElementById('timer').style.margin = '15px 0 10px 0';
+                    document.getElementById('timer').style.margin = '10px 0 5px 0';
+                    
+                    // Yatay modda USB container'ı sayfanın altına yerleştirelim
+                    const usbContainer = document.getElementById('usbContainer');
+                    usbContainer.style.position = 'fixed';
+                    usbContainer.style.bottom = '0';
+                    usbContainer.style.left = '0';
+                    usbContainer.style.right = '0';
+                    usbContainer.style.zIndex = '50';
+                    usbContainer.style.backgroundColor = 'rgba(3, 19, 33, 0.95)';
+                    usbContainer.style.padding = '5px 0';
+                    
+                    // Yatay modda butonları yeniden boyutlandır
+                    document.querySelectorAll('.arrowBtn').forEach(btn => {
+                        btn.style.width = '50px';
+                        btn.style.height = '50px';
+                        btn.style.fontSize = '18px';
+                    });
+                    
+                    document.getElementById('connectBtn').style.minWidth = '150px';
+                    document.getElementById('connectBtn').style.height = '50px';
+                    document.getElementById('connectBtn').style.fontSize = '16px';
+                    
+                    // Yatay modda USB'yi küçült
+                    document.getElementById('usb').style.width = '50px';
+                    document.getElementById('usb').style.height = '70px';
+                    document.getElementById('usbIcon').style.fontSize = '30px';
+                    
+                    // Monitör satırları arasındaki mesafeyi azalt
+                    document.getElementById('passwordRow').style.marginBottom = '20px';
+                    document.getElementById('codeRow').style.marginTop = '20px';
+                    
                 } else {
                     // Dikey mod - normal görünüm
-                    if (window.innerWidth < 480) {
-                        document.querySelectorAll('.monitorRow').forEach(row => {
-                            row.style.margin = '10px 0';
-                        });
-                        document.getElementById('timer').style.margin = '20px 0 15px 0';
-                    } else {
-                        document.querySelectorAll('.monitorRow').forEach(row => {
-                            row.style.margin = '15px 0';
-                        });
-                        document.getElementById('timer').style.margin = '25px 0 20px 0';
-                    }
+                    document.querySelectorAll('.monitorRow').forEach(row => {
+                        row.style.maxWidth = '90%';
+                        row.style.margin = isSmallScreen ? '10px 0' : '15px 0';
+                    });
+                    
+                    document.getElementById('timer').style.margin = isSmallScreen ? '15px 0' : '20px 0';
+                    
+                    // USB container stil sıfırlama
+                    const usbContainer = document.getElementById('usbContainer');
+                    usbContainer.style.position = 'fixed';
+                    usbContainer.style.bottom = isSmallScreen ? '60px' : '80px';
+                    usbContainer.style.backgroundColor = 'rgba(3, 19, 33, 0.95)';
+                    usbContainer.style.padding = '15px 0';
+                    
+                    // Dikey modda butonları orijinal boyutlarına getir
+                    document.querySelectorAll('.arrowBtn').forEach(btn => {
+                        btn.style.width = isSmallScreen ? '110px' : '130px';
+                        btn.style.height = isSmallScreen ? '110px' : '130px';
+                        btn.style.fontSize = isSmallScreen ? '52px' : '60px';
+                    });
+                    
+                    document.getElementById('connectBtn').style.minWidth = isSmallScreen ? '300px' : '360px';
+                    document.getElementById('connectBtn').style.height = isSmallScreen ? '70px' : '80px';
+                    document.getElementById('connectBtn').style.fontSize = isSmallScreen ? '36px' : '40px';
+                    
+                    // Dikey modda USB'yi orijinal boyutuna getir
+                    document.getElementById('usb').style.width = isSmallScreen ? '120px' : '160px';
+                    document.getElementById('usb').style.height = isSmallScreen ? '150px' : '200px';
+                    document.getElementById('usbIcon').style.fontSize = isSmallScreen ? '60px' : '80px';
+                    
+                    // Monitör satırları arasındaki mesafeyi ayarla
+                    document.getElementById('passwordRow').style.marginBottom = isSmallScreen ? '50px' : '60px';
+                    document.getElementById('codeRow').style.marginTop = isSmallScreen ? '50px' : '60px';
                 }
+                
+                // Stil değişikliklerini anında uygula
+                forceReflow();
+                
             }, 300); // Küçük bir gecikme ile yeniden düzenle
+        }
+        
+        // Stil değişikliklerinin anında uygulanmasını sağla
+        function forceReflow() {
+            document.body.offsetHeight; // Bu satır yeniden akışı zorlar
         }
         
         // Touch olayları ekle
