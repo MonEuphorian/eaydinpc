@@ -2016,53 +2016,13 @@
         }
     </script>
 
-    <!-- Sadece bir adet Debug ve Ses Test aracı -->
-    <button id="uniqueSoundTest" style="position:fixed;top:10px;right:10px;z-index:9999;
-      background:#00d9ff;color:#031321;border:none;padding:8px 12px;border-radius:4px;
-      font-family:'Courier New', monospace;font-weight:bold;font-size:14px;">
-      SES TESTİ
-    </button>
+    <!-- Görünmez Debug konsolu -->
+    <button id="uniqueSoundTest" style="display:none;"></button>
 
     <script src="https://unpkg.com/eruda"></script>
     <script>
         // Eruda başlat
         eruda.init();
-        
-        // Ses test butonu
-        document.getElementById('uniqueSoundTest').addEventListener('click', function() {
-            // Eruda panelini göster
-            eruda.show();
-            
-            // Test seslerini çal
-            alert('Ses testi başlıyor...');
-            
-            try {
-                // Örnek sesler
-                const sounds = ['GAME_START', 'ARROW_CLICK', 'CORRECT_MONITOR'];
-                
-                // Her sesi sırayla çalmayı dene
-                sounds.forEach((id, index) => {
-                    setTimeout(() => {
-                        const sound = document.getElementById(id);
-                        if (sound) {
-                            // Önceki ses durumunu sıfırla
-                            sound.pause();
-                            sound.currentTime = 0;
-                            
-                            // Yeni ses çal
-                            sound.play()
-                                .then(() => console.log(`✅ Ses çalındı: ${id}`))
-                                .catch(e => console.error(`❌ Ses hatası (${id}): ${e.message}`));
-                        } else {
-                            console.error(`❌ Ses bulunamadı: ${id}`);
-                        }
-                    }, index * 1000);
-                });
-            } catch (e) {
-                console.error('Ses test hatası:', e);
-                alert('Ses testi sırasında hata: ' + e.message);
-            }
-        });
     </script>
 </body>
 </html> 
