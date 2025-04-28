@@ -295,6 +295,17 @@
             color: #ff00aa;
             text-shadow: 0 0 10px rgba(255, 0, 170, 0.7);
             text-align: center;
+            position: relative;
+            top: 0;
+            transform: translateY(0);
+        }
+        
+        /* Başlangıç ekranı için özel stil */
+        #startScreen .screenTitle {
+            position: relative;
+            top: 0;
+            transform: translateY(0);
+            margin-top: -100px; /* Başlık yukarı kaydırılıyor */
         }
         
         .screenText {
@@ -1092,6 +1103,9 @@
     <script>
         // Sayfa yenilendiğinde oyun sıfırlanır - bunu garanti etmek için window.onload kullanıyoruz
         window.onload = function() {
+            // Kazanma ekranını direk gizliyoruz - kısa görünmeyi engellemek için
+            document.getElementById('winScreen').style.display = 'none';
+            
             resetGame();
             // Kabloları başlangıçta oluştur
             createWires();
@@ -1321,7 +1335,7 @@
             passwordModulesLocked = Array(10).fill(false);
             scorePoints = 0;
             
-            // Başlangıç ekranını göster
+            // Başlangıç ekranını göster, diğerlerini gizle
             startScreen.style.display = 'flex';
             gameOverScreen.style.display = 'none';
             winScreen.style.display = 'none';
