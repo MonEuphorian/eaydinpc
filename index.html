@@ -305,31 +305,6 @@
             line-height: 1.4;
         }
         
-        /* Kazanma ekranı içeriğini ortalamak için ek stil */
-        #winScreen {
-            display: none;
-            position: fixed; /* Absolute yerine fixed kullanımı */
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #winScreen .screenTitle,
-        #winScreen .screenText,
-        #winScreen .bigBtn {
-            margin-left: auto;
-            margin-right: auto;
-            text-align: center;
-            position: relative; /* Position relative for better alignment */
-        }
-        
         /* Özel "Kalan süre" gösterimi için stil */
         #remainingTime {
             font-weight: bold;
@@ -988,16 +963,6 @@
             <button id="restartButton" class="bigBtn">YENİDEN DENE</button>
         </div>
         
-        <!-- Kazanma ekranı -->
-        <div id="winScreen" class="gameScreen">
-            <div class="win-content" style="width: 100%; max-width: 90%; text-align: center;">
-                <h1 class="screenTitle">ERİŞİM SAĞLANDI!</h1>
-                <p class="screenText">Kalan süre: <span id="remainingTime">00:00</span></p>
-                <p class="screenText">Güvenlik yazılımı engellendi ve şifreli klasörün kilidini açmak için hazır ol!</p>
-                <button id="playAgainButton" class="bigBtn">DEVAM ET</button>
-            </div>
-        </div>
-        
         <!-- Kablo container - burada kablolar dinamik olarak oluşturulacak -->
         <div class="wires-container" id="wiresContainer"></div>
         
@@ -1058,35 +1023,92 @@
     <!-- Ses dosyaları için audio elementleri - gizli -->
     <div style="display: none;">
         <!-- Genel Oyun Sesleri -->
-        <audio id="GAME_START" src="GAME_START.WAV" preload="auto"></audio>
-        <audio id="TIME_UP_ALARM" src="TIME_UP_ALARM.WAV" preload="auto"></audio>
-        <audio id="GAME_SUCCESS" src="GAME_SUCCESS.WAV" preload="auto"></audio>
-        <audio id="GAME_FAILURE" src="GAME_FAILURE.WAV" preload="auto"></audio>
+        <audio id="GAME_START" preload="auto">
+          <source src="assets/GAME_START.mp3" type="audio/mpeg">
+          <source src="assets/GAME_START.WAV" type="audio/wav">
+        </audio>
+        <audio id="TIME_UP_ALARM" preload="auto">
+          <source src="assets/TIME_UP_ALARM.mp3" type="audio/mpeg">
+          <source src="assets/TIME_UP_ALARM.WAV" type="audio/wav">
+        </audio>
+        <audio id="GAME_SUCCESS" preload="auto">
+          <source src="assets/GAME_SUCCESS.mp3" type="audio/mpeg">
+          <source src="assets/GAME_SUCCESS.WAV" type="audio/wav">
+        </audio>
+        <audio id="GAME_FAILURE" preload="auto">
+          <source src="assets/GAME_FAILURE.mp3" type="audio/mpeg">
+          <source src="assets/GAME_FAILURE.WAV" type="audio/wav">
+        </audio>
         
         <!-- Etkileşim Sesleri -->
-        <audio id="USB_CLICK" src="USB_CLICK.WAV" preload="auto"></audio>
-        <audio id="USB_STOP" src="USB_STOP.WAV" preload="auto"></audio>
-        <audio id="ARROW_CLICK" src="ARROW_CLICK.WAV" preload="auto"></audio>
-        <audio id="CONNECT_CLICK" src="CONNECT_CLICK.WAV" preload="auto"></audio>
+        <audio id="USB_CLICK" preload="auto">
+          <source src="assets/USB_CLICK.mp3" type="audio/mpeg">
+          <source src="assets/USB_CLICK.WAV" type="audio/wav">
+        </audio>
+        <audio id="USB_STOP" preload="auto">
+          <source src="assets/USB_STOP.mp3" type="audio/mpeg">
+          <source src="assets/USB_STOP.WAV" type="audio/wav">
+        </audio>
+        <audio id="ARROW_CLICK" preload="auto">
+          <source src="assets/ARROW_CLICK.mp3" type="audio/mpeg">
+          <source src="assets/ARROW_CLICK.WAV" type="audio/wav">
+        </audio>
+        <audio id="CONNECT_CLICK" preload="auto">
+          <source src="assets/CONNECT_CLICK.mp3" type="audio/mpeg">
+          <source src="assets/CONNECT_CLICK.WAV" type="audio/wav">
+        </audio>
         
         <!-- Bildirim Sesleri -->
-        <audio id="CORRECT_MONITOR" src="CORRECT_MONITOR.WAV" preload="auto"></audio>
-        <audio id="WRONG_MONITOR" src="WRONG_MONITOR.WAV" preload="auto"></audio>
-        <audio id="ALREADY_LOCKED" src="ALREADY_LOCKED.WAV" preload="auto"></audio>
+        <audio id="CORRECT_MONITOR" preload="auto">
+          <source src="assets/CORRECT_MONITOR.mp3" type="audio/mpeg">
+          <source src="assets/CORRECT_MONITOR.WAV" type="audio/wav">
+        </audio>
+        <audio id="WRONG_MONITOR" preload="auto">
+          <source src="assets/WRONG_MONITOR.mp3" type="audio/mpeg">
+          <source src="assets/WRONG_MONITOR.WAV" type="audio/wav">
+        </audio>
+        <audio id="ALREADY_LOCKED" preload="auto">
+          <source src="assets/ALREADY_LOCKED.mp3" type="audio/mpeg">
+          <source src="assets/ALREADY_LOCKED.WAV" type="audio/wav">
+        </audio>
         
         <!-- Animasyon Sesleri -->
-        <audio id="TRANSFER_WHOOSH" src="TRANSFER_WHOOSH.WAV" preload="auto"></audio>
-        <audio id="SHIELD_ACTIVE" src="SHIELD_ACTIVE.WAV" preload="auto"></audio>
-        <audio id="WIRE_ACTIVE" src="WIRE_ACTIVE.WAV" preload="auto"></audio>
-        <audio id="SHIELD_GREEN" src="SHIELD_GREEN.WAV" preload="auto"></audio>
+        <audio id="TRANSFER_WHOOSH" preload="auto">
+          <source src="assets/TRANSFER_WHOOSH.mp3" type="audio/mpeg">
+          <source src="assets/TRANSFER_WHOOSH.WAV" type="audio/wav">
+        </audio>
+        <audio id="SHIELD_ACTIVE" preload="auto">
+          <source src="assets/SHIELD_ACTIVE.mp3" type="audio/mpeg">
+          <source src="assets/SHIELD_ACTIVE.WAV" type="audio/wav">
+        </audio>
+        <audio id="WIRE_ACTIVE" preload="auto">
+          <source src="assets/WIRE_ACTIVE.mp3" type="audio/mpeg">
+          <source src="assets/WIRE_ACTIVE.WAV" type="audio/wav">
+        </audio>
+        <audio id="SHIELD_GREEN" preload="auto">
+          <source src="assets/SHIELD_GREEN.mp3" type="audio/mpeg">
+          <source src="assets/SHIELD_GREEN.WAV" type="audio/wav">
+        </audio>
         
         <!-- Süre Efektleri -->
-        <audio id="TIME_15_WARNING" src="TIME_15_WARNING.WAV" preload="auto"></audio>
-        <audio id="TIME_5_BEEP" src="TIME_5_BEEP.WAV" preload="auto"></audio>
+        <audio id="TIME_15_WARNING" preload="auto">
+          <source src="assets/TIME_15_WARNING.mp3" type="audio/mpeg">
+          <source src="assets/TIME_15_WARNING.WAV" type="audio/wav">
+        </audio>
+        <audio id="TIME_5_BEEP" preload="auto">
+          <source src="assets/TIME_5_BEEP.mp3" type="audio/mpeg">
+          <source src="assets/TIME_5_BEEP.WAV" type="audio/wav">
+        </audio>
         
         <!-- Özel Efektler -->
-        <audio id="SYSTEM_RESET" src="SYSTEM_RESET.WAV" preload="auto"></audio>
-        <audio id="TIME_UP_SCREEN" src="TIME_UP_SCREEN.WAV" preload="auto"></audio>
+        <audio id="SYSTEM_RESET" preload="auto">
+          <source src="assets/SYSTEM_RESET.mp3" type="audio/mpeg">
+          <source src="assets/SYSTEM_RESET.WAV" type="audio/wav">
+        </audio>
+        <audio id="TIME_UP_SCREEN" preload="auto">
+          <source src="assets/TIME_UP_SCREEN.mp3" type="audio/mpeg">
+          <source src="assets/TIME_UP_SCREEN.WAV" type="audio/wav">
+        </audio>
     </div>
 
     <script>
@@ -1183,40 +1205,16 @@
         // Ses efektlerini çalmak için yardımcı fonksiyon - iyileştirilmiş versiyon
         function playSound(id) {
             try {
-                // 1. AudioContext API ile çalma (daha güvenilir yöntem)
-                if (audioContext && audioBuffers[id]) {
-                    // AudioContext çalışmıyorsa başlat
-                    if (audioContext.state === 'suspended') {
-                        audioContext.resume();
-                    }
-                    
-                    // Ses kaynağı oluştur ve sesi çal
-                    const source = audioContext.createBufferSource();
-                    source.buffer = audioBuffers[id];
-                    source.connect(audioContext.destination);
-                    source.start(0);
-                    return;
-                }
-                
-                // 2. Fallback: HTML5 Audio API ile çalma
                 const sound = document.getElementById(id);
                 if (sound) {
-                    // Eğer ses halihazırda çalıyorsa, baştan başlat
                     sound.pause();
                     sound.currentTime = 0;
-                    
-                    // Özellikle mobil cihazlar için bunu mutlaka kullanıcı etkileşimi içinde çağır
-                    const playPromise = sound.play();
-                    
-                    // Play Promise'i işle (mobil tarayıcılar için önemli)
-                    if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            console.warn(`Ses çalma hatası (${id}):`, error);
-                        });
-                    }
+                    sound.play().catch(e => {
+                        console.log(`Ses çalma hatası (${id}):`, e);
+                    });
                 }
             } catch (error) {
-                console.error(`Ses çalma hatası (${id}):`, error);
+                console.log(`Ses çalma hatası (${id}):`, error);
             }
         }
         
@@ -1229,11 +1227,6 @@
             });
             
             restartButton.addEventListener('click', function() {
-                playSound('GAME_START');
-                initGame();
-            });
-            
-            playAgainButton.addEventListener('click', function() {
                 playSound('GAME_START');
                 initGame();
             });
@@ -1369,10 +1362,8 @@
         // DOM Elementleri
         const startScreen = document.getElementById('startScreen');
         const gameOverScreen = document.getElementById('gameOverScreen');
-        const winScreen = document.getElementById('winScreen');
         const startButton = document.getElementById('startButton');
         const restartButton = document.getElementById('restartButton');
-        const playAgainButton = document.getElementById('playAgainButton');
         const timerElement = document.getElementById('timer');
         const codeMonitors = document.querySelectorAll('#codeRow .monitor');
         const passwordMonitors = document.querySelectorAll('#passwordRow .monitor');
@@ -1409,7 +1400,6 @@
             // Başlangıç ekranını göster
             startScreen.style.display = 'flex';
             gameOverScreen.style.display = 'none';
-            winScreen.style.display = 'none';
             
             // Tüm modülleri sıfırla
             codeMonitors.forEach(monitor => {
@@ -1842,6 +1832,13 @@
                             }
                         }, 1000);
                         
+                        // Tüm kutular kilitlendiğinde kalan yeşil animasyonları sıfırla
+                        if (lockedArray.every(locked => locked)) {
+                            setTimeout(() => {
+                                resetAllAnimations();
+                                resetWires();
+                            }, 200);
+                        }
                     }, 1000);
                     
                 }, 300); // 300ms gecikme ile transfer başlasın
@@ -1905,14 +1902,17 @@
             const totalScore = scorePoints + timeBonus + (correctlyLocked * 5);
             
             if (win) {
-                // Aşama tamamlandı ekranında kalan süreyi göster
-                const minutes = Math.floor(timer / 60);
-                const seconds = timer % 60;
-                document.getElementById('remainingTime').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
+                // Oyun başarıyla tamamlandığında sadece sesi çal
                 playSound('GAME_SUCCESS');
-                winScreen.style.display = 'flex';
+                // Tüm animasyonları ve renkleri sıfırla
+                setTimeout(() => {
+                    resetAllAnimations();
+                    resetWires();
+                    // Kısa bir bekleme ile oyunu otomatik başlat
+                    setTimeout(() => {
+                        initGame();
+                    }, 1200);
+                }, 1200);
             } else {
                 // Aşama başarısız ekranında skor bilgilerini gösterme
                 playSound('GAME_FAILURE');
@@ -2263,6 +2263,14 @@
                 }
             });
         }
+
+        // Mobilde seslerin preload edilmesi için
+        function unlockAllSounds() {
+          document.querySelectorAll('audio').forEach(audio => {
+            audio.play().then(() => audio.pause()).catch(()=>{});
+          });
+        }
+        document.body.addEventListener('touchstart', unlockAllSounds, { once: true });
     </script>
 </body>
 </html> 
