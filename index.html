@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hack Simülatörü</title>
+    
+    <!-- Eruda Debug Tool -->
+    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
     <style>
         /* Temel stiller */
         body {
@@ -979,6 +983,7 @@
             <h1 class="screenTitle">SİBER HACK SİMÜLATÖRÜ</h1>
             <p class="screenText">Hedef sisteme erişmek için antivirüs korumasını atlatın ve şifreyi kırın. Her aşama için 60 saniyeniz var.</p>
             <button id="startButton" class="bigBtn">HACK BAŞLAT</button>
+            <button onclick="alert('Ses testi başlıyor...'); setTimeout(function() { document.getElementById('GAME_START').play().catch(e => console.error('Ses hatası:', e)); }, 500); setTimeout(function() { document.getElementById('USB_CLICK').play().catch(e => console.error('Ses hatası:', e)); }, 2000);" class="bigBtn" style="margin-top: 10px; font-size: 18px; background-color: rgba(0,0,0,0.5); padding: 10px 20px;">SES TESTİ</button>
         </div>
         
         <!-- Oyun bitti ekranı -->
@@ -1090,8 +1095,16 @@
     </div>
 
     <script>
+        // Bazı tarayıcılar için ses formatını arayüzden yönetme
+        let audioFormat = 'mp3';
+        let audioLoaded = false;
+        let userInteractedWithPage = false;
+        
         // Sayfa yenilendiğinde oyun sıfırlanır - bunu garanti etmek için window.onload kullanıyoruz
         window.onload = function() {
+            // Tarayıcının desteklediği ses formatlarını kontrol et
+            checkSupportedAudioFormats();
+            
             resetGame();
             // Kabloları başlangıçta oluştur
             createWires();
@@ -1106,445 +1119,153 @@
             
             // Ses sistemini başlat
             initAudioSystem();
+            
+            // Kullanıcı etkileşimi kontrolü
+            document.addEventListener('touchstart', markUserInteraction, { once: true });
+            document.addEventListener('mousedown', markUserInteraction, { once: true });
+            document.addEventListener('keydown', markUserInteraction, { once: true });
         };
         
-        // Ses sistemi değişkenleri
-        let audioContext = null;
-        let audioInitialized = false;
-        let audioBuffers = {};
+        // Kullanıcı etkileşimini işaretle
+        function markUserInteraction() {
+            userInteractedWithPage = true;
+            console.log("✓ Kullanıcı etkileşimi algılandı");
+            
+            // Audio elementlerini yeniden çalmayı dene
+            if (!audioLoaded) {
+                tryToPlayTestSound();
+            }
+        }
         
-        // Ses sistemini başlatma
-        function initAudioSystem() {
-            try {
-                // AudioContext oluşturma (ilk etkileşimle başlatılacak)
-                window.AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioContext = new AudioContext();
+        // Test sesi çalmayı dene
+        function tryToPlayTestSound() {
+            if (!userInteractedWithPage) return;
+            
+            const testSound = document.getElementById('GAME_START');
+            if (testSound) {
+                testSound.volume = 0.01; // Çok düşük ses seviyesi
+                testSound.play().then(() => {
+                    console.log("✓ Test ses çalışıyor!");
+                    testSound.pause();
+                    testSound.currentTime = 0;
+                    audioLoaded = true;
+                }).catch(err => {
+                    console.error("Test ses çalma hatası:", err);
+                });
+            }
+        }
+        
+        // Tarayıcının desteklediği ses formatlarını kontrol et
+        function checkSupportedAudioFormats() {
+            const audio = document.createElement('audio');
+            
+            // MP3 desteği
+            const canPlayMP3 = audio.canPlayType('audio/mpeg') !== '';
+            // OGG desteği
+            const canPlayOGG = audio.canPlayType('audio/ogg; codecs="vorbis"') !== '';
+            // WAV desteği
+            const canPlayWAV = audio.canPlayType('audio/wav; codecs="1"') !== '';
+            
+            console.log("Tarayıcı ses format desteği:", { mp3: canPlayMP3, ogg: canPlayOGG, wav: canPlayWAV });
+            
+            // Desteklenen formatı belirle
+            if (canPlayMP3) {
+                audioFormat = 'mp3';
+            } else if (canPlayOGG) {
+                audioFormat = 'ogg';
+                console.warn("MP3 desteklenmiyor, OGG kullanılacak");
+            } else if (canPlayWAV) {
+                audioFormat = 'wav';
+                console.warn("MP3 desteklenmiyor, WAV kullanılacak");
+            } else {
+                console.error("Tarayıcı hiçbir ses formatını desteklemiyor!");
+            }
+        }
+        
+        // Ses sistemini test et
+        function testSoundSystem() {
+            console.log("Ses sistemi test ediliyor...");
+            
+            // Kullanıcı etkileşimini işaretle
+            markUserInteraction();
+            
+            // AudioContext durumunu kontrol et
+            if (audioContext) {
+                console.log("AudioContext durumu:", audioContext.state);
                 
-                // Mobil cihazlarda autoplay politikalarını bypass etmek için bekletiyoruz
                 if (audioContext.state === 'suspended') {
-                    const resumeAudio = function() {
-                        if (audioContext.state === 'suspended') {
-                            audioContext.resume();
-                        }
-                        document.body.removeEventListener('touchstart', resumeAudio);
-                        document.body.removeEventListener('click', resumeAudio);
-                        document.body.removeEventListener('keydown', resumeAudio);
-                        console.log("Audio context başlatıldı");
-                    };
-                    
-                    document.body.addEventListener('touchstart', resumeAudio, false);
-                    document.body.addEventListener('click', resumeAudio, false);
-                    document.body.addEventListener('keydown', resumeAudio, false);
-                    console.log("Audio context kullanıcı etkileşimini bekliyor");
-                } else {
-                    console.log("Audio context başlatıldı");
-                }
-                
-                // Ses dosyalarını hafızaya alma (preload)
-                preloadSounds();
-            } catch (e) {
-                console.error("Ses sistemi başlatılamadı:", e);
-            }
-        }
-        
-        // Sesleri yükleme
-        function preloadSounds() {
-            // İşaretli tüm ses dosyalarını yükle
-            const audioElements = document.querySelectorAll('audio');
-            
-            // Tüm ses dosyalarını yüklemeyi dene
-            Promise.all(Array.from(audioElements).map(audio => {
-                return fetch(audio.src)
-                    .then(response => response.arrayBuffer())
-                    .then(arrayBuffer => {
-                        // AudioContext başlatılmışsa decode et
-                        if (audioContext) {
-                            return audioContext.decodeAudioData(arrayBuffer)
-                                .then(audioBuffer => {
-                                    // Her ses ID'si ile buffer'ı sakla
-                                    audioBuffers[audio.id] = audioBuffer;
-                                    console.log(`Ses yüklendi: ${audio.id}`);
-                                });
-                        }
-                    })
-                    .catch(error => {
-                        console.error(`Ses yüklenemedi: ${audio.id}`, error);
+                    console.log("AudioContext resume ediliyor...");
+                    audioContext.resume().then(() => {
+                        console.log("AudioContext başarıyla resume edildi");
+                        playTestSounds();
+                    }).catch(err => {
+                        console.error("AudioContext resume hatası:", err);
                     });
-            }))
-            .then(() => {
-                audioInitialized = true;
-                console.log("Tüm sesler yüklendi!");
-            })
-            .catch(error => {
-                console.error("Ses yükleme hatası:", error);
-            });
-        }
-        
-        // Ses efektlerini çalmak için yardımcı fonksiyon - iyileştirilmiş versiyon
-        function playSound(id) {
-            try {
-                // 1. AudioContext API ile çalma (daha güvenilir yöntem)
-                if (audioContext && audioBuffers[id]) {
-                    // AudioContext çalışmıyorsa başlat
-                    if (audioContext.state === 'suspended') {
-                        audioContext.resume();
-                    }
-                    
-                    // Ses kaynağı oluştur ve sesi çal
-                    const source = audioContext.createBufferSource();
-                    source.buffer = audioBuffers[id];
-                    source.connect(audioContext.destination);
-                    source.start(0);
-                    return;
-                }
-                
-                // 2. Fallback: HTML5 Audio API ile çalma
-                const sound = document.getElementById(id);
-                if (sound) {
-                    // Eğer ses halihazırda çalıyorsa, baştan başlat
-                    sound.pause();
-                    sound.currentTime = 0;
-                    
-                    // Özellikle mobil cihazlar için bunu mutlaka kullanıcı etkileşimi içinde çağır
-                    const playPromise = sound.play();
-                    
-                    // Play Promise'i işle (mobil tarayıcılar için önemli)
-                    if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            console.warn(`Ses çalma hatası (${id}):`, error);
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error(`Ses çalma hatası (${id}):`, error);
-            }
-        }
-        
-        // Tüm olay dinleyicilerini ayarlama
-        function setupEventListeners() {
-            // Oyun başlatma/yeniden başlatma butonları
-            startButton.addEventListener('click', function() {
-                playSound('GAME_START');
-                initGame();
-            });
-            
-            restartButton.addEventListener('click', function() {
-                playSound('GAME_START');
-                initGame();
-            });
-            
-            playAgainButton.addEventListener('click', function() {
-                playSound('GAME_START');
-                initGame();
-            });
-            
-            // USB'ye tıklama için olay dinleyicisi
-            usb.addEventListener('click', function() {
-                if (!gameStarted || gameOver) return;
-                
-                if (!spinning) {
-                    playSound('USB_CLICK');
-                    startSpinning();
                 } else {
-                    playSound('USB_STOP');
-                    stopSpinning();
+                    playTestSounds();
                 }
-            });
-            
-            // Sol ok tuşu - Döngü sırasında da çalışacak şekilde düzeltildi
-            leftBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (!gameStarted || gameOver) return;
-                // Spinning kontrolü tamamen kaldırıldı
-                
-                // 1. kutudan sola gidilmesini engelle
-                if (selectedMonitorIndex === 0) {
-                    return; // 1. kutudaysa hareketi engelle
-                }
-                
-                playSound('ARROW_CLICK');
-                
-                // Normal olarak bir sola git
-                selectedMonitorIndex = selectedMonitorIndex - 1;
-                updateMonitorSelection();
-            });
-            
-            // Sağ ok tuşu - Döngü sırasında da çalışacak şekilde düzeltildi
-            rightBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (!gameStarted || gameOver) return;
-                // Spinning kontrolü tamamen kaldırıldı
-                
-                // Son kutudan sağa gidilmesini engelle
-                if (selectedMonitorIndex === 9) {
-                    return; // Son kutudaysa hareketi engelle
-                }
-                
-                playSound('ARROW_CLICK');
-                
-                // Normal olarak bir sağa git
-                selectedMonitorIndex = selectedMonitorIndex + 1;
-                updateMonitorSelection();
-            });
-            
-            // Connect butonu - Sadece döngü durduğunda çalışsın
-            connectBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (!gameStarted || gameOver) return;
-                
-                // Döngü devam ederken connect butonunu engelle
-                if (spinning) {
-                    return; // Döngü devam ediyorsa işlemi engelle
-                }
-                
-                // İşlemde olup olmadığını kontrol et
-                if (isConnectProcessing) {
-                    return; // Zaten bir işlem yapılıyorsa engelle
-                }
-                
-                playSound('CONNECT_CLICK');
-                
-                lockSelectedMonitor();
-            });
-            
-            // Klavye kontrolleri
-            window.addEventListener('keydown', function(e) {
-                if (!gameStarted || gameOver) return;
-                
-                switch(e.key) {
-                    case 'ArrowLeft':
-                        // Spinning kontrolü tamamen kaldırıldı
-                        leftBtn.click(); // Sol buton kodunu kullan
-                        break;
-                    case 'ArrowRight':
-                        // Spinning kontrolü tamamen kaldırıldı
-                        rightBtn.click(); // Sağ buton kodunu kullan
-                        break;
-                    case 'Enter':
-                    case ' ':
-                        if (spinning) return; // Connect için döngü kontrolü hala aktif
-                        connectBtn.click(); // Connect buton kodunu kullan
-                        break;
-                    case 'Escape':
-                        if (!spinning) {
-                            startSpinning();
-                        } else {
-                            stopSpinning();
-                        }
-                        break;
-                }
-            });
-        }
-        
-        // Oyun değişkenleri
-        let gameStarted = false;
-        let gameOver = false;
-        let currentStage = 1; // 1: Antivirüs bypass, 2: Şifre kırma
-        let timer = 60; // 60 saniye süre
-        let timerInterval;
-        let selectedMonitorIndex = 0;
-        let spinning = false;
-        let spinningInterval = null;
-        let codeModulesLocked = Array(10).fill(false);
-        let passwordModulesLocked = Array(10).fill(false);
-        let scorePoints = 0;
-        let timeLimit = true; // Süre sınırını aktif et
-        let isConnectProcessing = false; // Connect butonunun işlemde olup olmadığını takip eden değişken
-        
-        // Yeni değişkenler
-        let activeShields = []; // Aktif olan shield'ların indekslerini tutar
-        let correctBoxPerShield = {}; // Her shield için doğru kutu indeksi
-        let currentShieldCount = 0; // Mevcut turda aktif olan shield sayısı
-        
-        // Doğru kod ve şifreler - Artık her turda rastgele belirlenecek
-        // const correctCodes = ['Y', 'K', '3', 'C', '0', 'F', 'B', 'X', 'V', '9'];
-        const correctPasswords = ['?', '?', '?', '?', '?', '?', '?', '?', '?', '?'];
-        
-        // Rastgele karakter oluşturma
-        function getRandomChar() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            return chars[Math.floor(Math.random() * chars.length)];
-        }
-        
-        // DOM Elementleri
-        const startScreen = document.getElementById('startScreen');
-        const gameOverScreen = document.getElementById('gameOverScreen');
-        const winScreen = document.getElementById('winScreen');
-        const startButton = document.getElementById('startButton');
-        const restartButton = document.getElementById('restartButton');
-        const playAgainButton = document.getElementById('playAgainButton');
-        const timerElement = document.getElementById('timer');
-        const codeMonitors = document.querySelectorAll('#codeRow .monitor');
-        const passwordMonitors = document.querySelectorAll('#passwordRow .monitor');
-        const miniShields = document.querySelectorAll('.miniShield');
-        const usb = document.getElementById('usb');
-        const leftBtn = document.getElementById('leftBtn');
-        const rightBtn = document.getElementById('rightBtn');
-        const connectBtn = document.getElementById('connectBtn');
-        
-        // Oyunu tamamen sıfırla
-        function resetGame() {
-            // Tüm değişkenleri başlangıç durumuna getir
-            gameStarted = false;
-            gameOver = false;
-            currentStage = 1;
-            timer = 60; // 60 saniye
-            selectedMonitorIndex = 0;
-            spinning = false;
-            
-            if (spinningInterval) {
-                clearInterval(spinningInterval);
-                spinningInterval = null;
+            } else {
+                console.warn("AudioContext yok, doğrudan HTML5 Audio API ile test ediliyor");
+                playTestSounds();
             }
-            
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-            
-            codeModulesLocked = Array(10).fill(false);
-            passwordModulesLocked = Array(10).fill(false);
-            scorePoints = 0;
-            
-            // Başlangıç ekranını göster
-            startScreen.style.display = 'flex';
-            gameOverScreen.style.display = 'none';
-            winScreen.style.display = 'none';
-            
-            // Tüm modülleri sıfırla
-            codeMonitors.forEach(monitor => {
-                monitor.textContent = '?';
-                monitor.classList.remove('selected', 'locked', 'correct', 'just-locked', 'correct-value');
-            });
-            
-            passwordMonitors.forEach(monitor => {
-                monitor.classList.remove('selected', 'locked', 'correct', 'just-locked', 'correct-value');
-            });
-            
-            miniShields.forEach(shield => {
-                shield.classList.remove('active', 'matrix-green');
-            });
-            
-            // Tüm animasyonları sıfırla - 8 ve 9 numaralı monitörlerin takılı kalma hatasını düzeltir
-            resetAllAnimations();
-            
-            // Zamanlayıcıyı sıfırla
-            updateTimer();
-            
-            // Kabloları sıfırla
-            resetWires();
         }
         
-        // Oyunu başlat
-        function initGame() {
-            // Oyunu önce sıfırla
-            resetGame();
+        // Test sesleri çal
+        function playTestSounds() {
+            // Her ses formatını deneme sırası
+            const testSequence = [
+                { name: "GAME_START", delay: 0 },
+                { name: "CORRECT_MONITOR", delay: 1000 },
+                { name: "WIRE_ACTIVE", delay: 2000 }
+            ];
             
-            // Oyun ekranlarını ayarla
-            startScreen.style.display = 'none';
+            // Ses test notifikasyonu
+            showTestNotification("Ses Testi Başladı");
             
-            // Oyunu başlat
-            gameStarted = true;
-            
-            // Zamanlayıcıyı başlat (süre sınırı açık)
-            if (timeLimit) {
-                timer = 60; // 60 saniye
-                timerInterval = setInterval(updateTimer, 1000);
-            }
-            
-            // İlk aşama için monitörleri ayarla
-            updateMonitorSelection();
-            
-            // Tüm animasyonları sıfırla - oyun başlarken 8 ve 9 numaralı monitörlerin takılı kalma hatasını düzeltir
-            resetAllAnimations();
-        }
-        
-        // Zamanlayıcıyı güncelle
-        function updateTimer() {
-            if (timeLimit && timer <= 0) {
-                // Süre doldu, tüm kilitli kutuları resetle
-                playSound('TIME_UP_ALARM');
-                resetLockedBoxes();
-                // Süreyi tekrar başlat
-                timer = 60;
-                return;
-            }
-            
-            if (timeLimit) {
-                timer--;
-                
-                // 15 saniye kaldığında ses çal
-                if (timer === 15) {
-                    playSound('TIME_15_WARNING');
-                }
-                
-                // Son 5 saniye için geri sayım sesi
-                if (timer <= 5 && timer > 0) {
-                    playSound('TIME_5_BEEP');
-                }
-            }
-            
-            const minutes = Math.floor(timer / 60);
-            const seconds = timer % 60;
-            timerElement.textContent = timeLimit ? 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}` : 
-                "∞"; // Sonsuz sembolü
-        }
-        
-        // Kilitli kutuları resetle - yeni fonksiyon
-        function resetLockedBoxes() {
-            // Animasyon efektiyle kilitleri aç
-            showTimerExpiredEffect();
-            playSound('SYSTEM_RESET');
-            
-            // Tüm monitörleri kilitsiz duruma getir
-            codeModulesLocked = Array(10).fill(false);
-            passwordModulesLocked = Array(10).fill(false);
-            
-            // Tüm monitörleri güncelle
-            codeMonitors.forEach(monitor => {
-                monitor.classList.remove('locked', 'correct', 'just-locked');
-                if (!spinning) {
-                    monitor.textContent = '?';
-                }
-            });
-            
-            // Üst monitörleri de temizle
-            passwordMonitors.forEach(monitor => {
-                monitor.textContent = '?';
-            });
-            
-            // Tüm animasyonları sıfırla
-            resetAllAnimations();
-            
-            // Seçimi güncelle
-            updateMonitorSelection();
-        }
-        
-        // Süre dolduğunda efekt göster
-        function showTimerExpiredEffect() {
-            // Geçici bir overlay oluştur
-            const overlay = document.createElement('div');
-            overlay.className = 'transition-overlay';
-            overlay.style.opacity = '0';
-            overlay.innerHTML = `<div class="transition-text">SÜRE DOLDU!</div>`;
-            document.body.appendChild(overlay);
-            
-            // Animasyon için overlay'ı göster
-            setTimeout(() => {
-                overlay.style.opacity = '1';
-                playSound('TIME_UP_SCREEN');
-                
-                // 2 saniye sonra kaybol
+            // Test seslerini sırayla çal
+            testSequence.forEach(sound => {
                 setTimeout(() => {
-                    overlay.style.opacity = '0';
-                    
-                    // Tamamen kaybolunca DOM'dan kaldır
-                    setTimeout(() => {
-                        document.body.removeChild(overlay);
-                    }, 1000);
-                }, 1500);
-            }, 50);
+                    playSound(sound.name);
+                    showTestNotification(`Test: ${sound.name}`);
+                }, sound.delay);
+            });
+        }
+        
+        // Test notifikasyonu göster
+        function showTestNotification(message) {
+            // Zaten varsa önceki notifikasyonu kaldır
+            const existingNotification = document.getElementById('soundTestNotification');
+            if (existingNotification) {
+                document.body.removeChild(existingNotification);
+            }
+            
+            // Yeni notifikasyon oluştur
+            const notification = document.createElement('div');
+            notification.id = 'soundTestNotification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                color: #00ff00;
+                padding: 15px 30px;
+                border-radius: 10px;
+                font-size: 18px;
+                font-family: 'Courier New', monospace;
+                z-index: 9999;
+                border: 2px solid #00ff00;
+                box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // 3 saniye sonra kaldır
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
         }
         
         // Monitörleri sıfırla
@@ -2263,6 +1984,85 @@
                 }
             });
         }
+        
+        // Ses efektlerini çalmak için yardımcı fonksiyon
+        function playSound(id) {
+            try {
+                console.log(`▶️ Ses çalmayı deniyor: ${id}`);
+                const sound = document.getElementById(id);
+                if (sound) {
+                    // Eğer ses halihazırda çalıyorsa, baştan başlat
+                    sound.pause();
+                    sound.currentTime = 0;
+                    
+                    // Sesi çal - başarımı Promise ile kontrol et
+                    sound.play().then(() => {
+                        console.log(`✅ Ses başarıyla çalındı: ${id}`);
+                    }).catch(e => {
+                        console.error(`❌ Ses çalma hatası (${id}): ${e.name} - ${e.message}`);
+                        
+                        // Hata tipini kontrol et
+                        if (e.name === 'NotAllowedError') {
+                            console.error('Tarayıcı otomatik çalmaya izin vermiyor. Kullanıcı etkileşimi gerekiyor!');
+                            
+                            // Hata mesajını göster
+                            alert('Tarayıcı ses çalmaya izin vermiyor. Ekrana dokunun veya "Ses Testi" butonuna basın.');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.log(`❌ Ses çalma hatası (${id}):`, error);
+            }
+        }
+    </script>
+
+    <!-- Sadece bir adet Debug ve Ses Test aracı -->
+    <button id="uniqueSoundTest" style="position:fixed;top:10px;right:10px;z-index:9999;
+      background:#00d9ff;color:#031321;border:none;padding:8px 12px;border-radius:4px;
+      font-family:'Courier New', monospace;font-weight:bold;font-size:14px;">
+      SES TESTİ
+    </button>
+
+    <script src="https://unpkg.com/eruda"></script>
+    <script>
+        // Eruda başlat
+        eruda.init();
+        
+        // Ses test butonu
+        document.getElementById('uniqueSoundTest').addEventListener('click', function() {
+            // Eruda panelini göster
+            eruda.show();
+            
+            // Test seslerini çal
+            alert('Ses testi başlıyor...');
+            
+            try {
+                // Örnek sesler
+                const sounds = ['GAME_START', 'ARROW_CLICK', 'CORRECT_MONITOR'];
+                
+                // Her sesi sırayla çalmayı dene
+                sounds.forEach((id, index) => {
+                    setTimeout(() => {
+                        const sound = document.getElementById(id);
+                        if (sound) {
+                            // Önceki ses durumunu sıfırla
+                            sound.pause();
+                            sound.currentTime = 0;
+                            
+                            // Yeni ses çal
+                            sound.play()
+                                .then(() => console.log(`✅ Ses çalındı: ${id}`))
+                                .catch(e => console.error(`❌ Ses hatası (${id}): ${e.message}`));
+                        } else {
+                            console.error(`❌ Ses bulunamadı: ${id}`);
+                        }
+                    }, index * 1000);
+                });
+            } catch (e) {
+                console.error('Ses test hatası:', e);
+                alert('Ses testi sırasında hata: ' + e.message);
+            }
+        });
     </script>
 </body>
 </html> 
