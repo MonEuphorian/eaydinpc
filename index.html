@@ -981,6 +981,52 @@
         .wire.return-to-fuschia {
             animation: wire-return 0.8s ease-out forwards;
         }
+        
+        /* Yeni efekt CSS */
+        .pulse-effect {
+            animation: pulse-usb 1s infinite;
+            box-shadow: 0 0 30px 10px #00ffea, 0 0 60px 20px #ff00aa44;
+        }
+        @keyframes pulse-usb {
+            0% { box-shadow: 0 0 10px 2px #00ffea, 0 0 20px 5px #ff00aa44; }
+            50% { box-shadow: 0 0 30px 10px #00ffea, 0 0 60px 20px #ff00aa44; }
+            100% { box-shadow: 0 0 10px 2px #00ffea, 0 0 20px 5px #ff00aa44; }
+        }
+        .arrowBtn {
+            /* ... mevcut kod ... */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .arrow-img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+        #usb {
+            /* ... mevcut kod ... */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .usb-img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+        /* --- YENİ: Sadece tekli kilitlenme için özel animasyon --- */
+        @keyframes single-lock {
+          0% { transform: scale(1); box-shadow: 0 0 0 0 #00ff00; border-color: #00ff00; }
+          50% { transform: scale(1.2); box-shadow: 0 0 15px 5px #00ff00; border-color: #00ff00; }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 #00ff00; border-color: #00ff00; }
+        }
+        .single-locked {
+          animation: single-lock 0.5s ease;
+          border-color: #00ff00 !important;
+          box-shadow: 0 0 10px #00ff00;
+        }
     </style>
 </head>
 <body>
@@ -1054,7 +1100,7 @@
                     <button id="leftBtn" class="btn arrowBtn">←</button>
                 </div>
                 <div id="usb">
-                    <div id="usbIcon">&#x1F41E;</div> <!-- Böcek emojisi -->
+                    <img src="assets/usb.png" alt="USB" class="usb-img">
                 </div>
                 <div class="side-controls">
                     <button id="rightBtn" class="btn arrowBtn">→</button>
@@ -1069,35 +1115,35 @@
     <!-- Ses dosyaları için audio elementleri - gizli -->
     <div style="display: none;">
         <!-- Genel Oyun Sesleri -->
-        <audio id="GAME_START" src="GAME_START.WAV" preload="auto"></audio>
-        <audio id="TIME_UP_ALARM" src="TIME_UP_ALARM.WAV" preload="auto"></audio>
-        <audio id="GAME_SUCCESS" src="GAME_SUCCESS.WAV" preload="auto"></audio>
-        <audio id="GAME_FAILURE" src="GAME_FAILURE.WAV" preload="auto"></audio>
+        <audio id="GAME_START" src="assets/GAME_START.WAV" preload="auto"></audio>
+        <audio id="TIME_UP_ALARM" src="assets/TIME_UP_ALARM.WAV" preload="auto"></audio>
+        <audio id="GAME_SUCCESS" src="assets/GAME_SUCCESS.WAV" preload="auto"></audio>
+        <audio id="GAME_FAILURE" src="assets/GAME_FAILURE.WAV" preload="auto"></audio>
         
         <!-- Etkileşim Sesleri -->
-        <audio id="USB_CLICK" src="USB_CLICK.WAV" preload="auto"></audio>
-        <audio id="USB_STOP" src="USB_STOP.WAV" preload="auto"></audio>
-        <audio id="ARROW_CLICK" src="ARROW_CLICK.WAV" preload="auto"></audio>
-        <audio id="CONNECT_CLICK" src="CONNECT_CLICK.WAV" preload="auto"></audio>
+        <audio id="USB_CLICK" src="assets/USB_CLICK.WAV" preload="auto"></audio>
+        <audio id="USB_STOP" src="assets/USB_STOP.WAV" preload="auto"></audio>
+        <audio id="ARROW_CLICK" src="assets/ARROW_CLICK.WAV" preload="auto"></audio>
+        <audio id="CONNECT_CLICK" src="assets/CONNECT_CLICK.WAV" preload="auto"></audio>
         
         <!-- Bildirim Sesleri -->
-        <audio id="CORRECT_MONITOR" src="CORRECT_MONITOR.WAV" preload="auto"></audio>
-        <audio id="WRONG_MONITOR" src="WRONG_MONITOR.WAV" preload="auto"></audio>
-        <audio id="ALREADY_LOCKED" src="ALREADY_LOCKED.WAV" preload="auto"></audio>
+        <audio id="CORRECT_MONITOR" src="assets/CORRECT_MONITOR.WAV" preload="auto"></audio>
+        <audio id="WRONG_MONITOR" src="assets/WRONG_MONITOR.WAV" preload="auto"></audio>
+        <audio id="ALREADY_LOCKED" src="assets/ALREADY_LOCKED.WAV" preload="auto"></audio>
         
         <!-- Animasyon Sesleri -->
-        <audio id="TRANSFER_WHOOSH" src="TRANSFER_WHOOSH.WAV" preload="auto"></audio>
-        <audio id="SHIELD_ACTIVE" src="SHIELD_ACTIVE.WAV" preload="auto"></audio>
-        <audio id="WIRE_ACTIVE" src="WIRE_ACTIVE.WAV" preload="auto"></audio>
-        <audio id="SHIELD_GREEN" src="SHIELD_GREEN.WAV" preload="auto"></audio>
+        <audio id="TRANSFER_WHOOSH" src="assets/TRANSFER_WHOOSH.WAV" preload="auto"></audio>
+        <audio id="SHIELD_ACTIVE" src="assets/SHIELD_ACTIVE.WAV" preload="auto"></audio>
+        <audio id="WIRE_ACTIVE" src="assets/WIRE_ACTIVE.WAV" preload="auto"></audio>
+        <audio id="SHIELD_GREEN" src="assets/SHIELD_GREEN.WAV" preload="auto"></audio>
         
         <!-- Süre Efektleri -->
-        <audio id="TIME_15_WARNING" src="TIME_15_WARNING.WAV" preload="auto"></audio>
-        <audio id="TIME_5_BEEP" src="TIME_5_BEEP.WAV" preload="auto"></audio>
+        <audio id="TIME_15_WARNING" src="assets/TIME_15_WARNING.WAV" preload="auto"></audio>
+        <audio id="TIME_5_BEEP" src="assets/TIME_5_BEEP.WAV" preload="auto"></audio>
         
         <!-- Özel Efektler -->
-        <audio id="SYSTEM_RESET" src="SYSTEM_RESET.WAV" preload="auto"></audio>
-        <audio id="TIME_UP_SCREEN" src="TIME_UP_SCREEN.WAV" preload="auto"></audio>
+        <audio id="SYSTEM_RESET" src="assets/SYSTEM_RESET.WAV" preload="auto"></audio>
+        <audio id="TIME_UP_SCREEN" src="assets/TIME_UP_SCREEN.WAV" preload="auto"></audio>
     </div>
 
     <script>
@@ -1362,6 +1408,9 @@
             
             // Kabloları sıfırla
             resetWires();
+            
+            // USB efektini sıfırla
+            usb.classList.remove('pulse-effect');
         }
         
         // Oyunu başlat
@@ -1671,153 +1720,109 @@
         // Seçili monitörü kilitle
         function lockSelectedMonitor() {
             if (!gameStarted || gameOver || spinning || isConnectProcessing) return;
-            
-            // Connect butonunun yeniden kullanılmasını engellemek için flag'i aktif et
             isConnectProcessing = true;
-            
+            disableControls();
             const row = currentStage === 1 ? codeMonitors : passwordMonitors;
             const lockedArray = currentStage === 1 ? codeModulesLocked : passwordModulesLocked;
-            
-            // Eğer monitör zaten kilitliyse, döngüyü tekrar başlat (hata düzeltme)
             if (lockedArray[selectedMonitorIndex]) {
-                console.log("Zaten kilitli bir monitör seçildi, döngü yeniden başlatılıyor.");
                 playSound('ALREADY_LOCKED');
                 startSpinning();
-                
-                // İşlem tamamlandığında flag'i resetle
                 setTimeout(() => {
                     isConnectProcessing = false;
-                }, 500);
+                    enableControls();
+                }, 200);
                 return;
             }
-            
-            // Seçilen monitörün aktif bir shield ile ilişkisi var mı kontrol et
             let isCorrectSelection = false;
             let relatedShieldIndex = -1;
-            
-            // Seçilen monitörün sağındaki veya solundaki shield'ı kontrol et
             for (const shieldIndex of activeShields) {
-                // Shield'ın ilişkili olduğu kutular
                 const firstBoxIndex = shieldIndex;
                 const secondBoxIndex = shieldIndex + 1;
-                
-                // Seçilen monitör bu shield'ın ilişkili olduğu kutulardan biri mi?
                 if (selectedMonitorIndex === firstBoxIndex || selectedMonitorIndex === secondBoxIndex) {
                     relatedShieldIndex = shieldIndex;
-                    
-                    // Bu shield için doğru kutunun hangisi olduğunu kontrol et
                     const correctBoxForThisShield = correctBoxPerShield[shieldIndex];
-                    
-                    // Seçilen monitör doğru mu?
                     isCorrectSelection = (selectedMonitorIndex === correctBoxForThisShield);
                     break;
                 }
             }
-            
-            // Eğer seçilen monitör aktif bir shield ile ilişkili değilse işlem yapma
             if (relatedShieldIndex === -1) {
-                console.log("Seçilen monitör aktif bir shield ile ilişkili değil.");
                 isConnectProcessing = false;
+                enableControls();
                 return;
             }
-            
-            // Doğru seçim yapıldıysa
             if (isCorrectSelection) {
-                // Monitörü kilitle
                 row[selectedMonitorIndex].classList.add('locked');
                 lockedArray[selectedMonitorIndex] = true;
-                
-                // Kablo rengini değiştir ve animasyon başlat
                 const wire = document.getElementById(`wire-${selectedMonitorIndex}`);
                 if (wire) {
                     wire.classList.add('success');
                     playSound('WIRE_ACTIVE');
                 }
-                
-                // Monitör kilitleme animasyonu
-                row[selectedMonitorIndex].classList.add('just-locked');
-                row[selectedMonitorIndex].classList.add('correct'); // Yeşil renk için
-                playSound('CORRECT_MONITOR');
-                
-                // Kısa bir gecikme ile içeriği üst monitöre aktar ve animasyon başlat
+                // --- SADECE TEKLİ KİLİTLENME ANİMASYONU ---
+                row[selectedMonitorIndex].classList.add('single-locked');
                 setTimeout(() => {
-                    // Seçilen monitörün içeriğini üst monitöre aktar
+                    row[selectedMonitorIndex].classList.remove('single-locked');
+                }, 500);
+                playSound('CORRECT_MONITOR');
+                setTimeout(() => {
+                    const shield = document.getElementById(`shield-${relatedShieldIndex}`);
+                    if (shield) {
+                        shield.classList.remove('matrix-green');
+                        playSound('SHIELD_GREEN');
+                    }
+                    activeShields = activeShields.filter(index => index !== relatedShieldIndex);
+                }, 200);
+                setTimeout(() => {
+                    isConnectProcessing = false;
+                    enableControls();
+                    if (lockedArray.every(locked => locked)) {
+                        usb.classList.add('pulse-effect');
+                        playSound('GAME_START');
+                        endGame(true);
+                    } else {
+                        startSpinning();
+                    }
+                }, 200);
+                setTimeout(() => {
                     const selectedValue = row[selectedMonitorIndex].textContent;
                     passwordMonitors[selectedMonitorIndex].textContent = selectedValue;
-                    
-                    // Üst monitöre transfer animasyonu ekle
                     passwordMonitors[selectedMonitorIndex].classList.add('transfer-receive');
                     playSound('TRANSFER_WHOOSH');
-                    
-                    // Animasyonu bir süre sonra kaldır
                     setTimeout(() => {
                         passwordMonitors[selectedMonitorIndex].classList.remove('transfer-receive');
-                        
-                        // Üst monitörden alt monitöre dönüş animasyonu - rengini fuşyaya geri döndür
-                        row[selectedMonitorIndex].classList.remove('correct');
-                        row[selectedMonitorIndex].classList.add('return-to-fuschia');
-                        
-                        // Kabloyu da fuşyaya geri döndür
                         if (wire) {
                             wire.classList.remove('success');
                             wire.classList.add('return-to-fuschia');
                         }
-                        
-                        // Dönüş animasyonunu bir süre sonra kaldır
                         setTimeout(() => {
-                            row[selectedMonitorIndex].classList.remove('return-to-fuschia');
                             if (wire) {
                                 wire.classList.remove('return-to-fuschia');
                             }
                         }, 1000);
-                        
                     }, 1000);
-                    
-                }, 300); // 300ms gecikme ile transfer başlasın
-                
-                scorePoints += 10;
-                
-                setTimeout(() => {
-                    row[selectedMonitorIndex].classList.remove('just-locked');
-                    
-                    // İşlem tamamlandığında flag'i resetle
-                    setTimeout(() => {
-                        isConnectProcessing = false;
-                        
-                        // İlişkili shield'ı sönük hale getir
-                        const shield = document.getElementById(`shield-${relatedShieldIndex}`);
-                        if (shield) {
-                            shield.classList.remove('matrix-green');
-                            playSound('SHIELD_GREEN');
-                        }
-                        
-                        // Aktif shield listesinden kaldır
-                        activeShields = activeShields.filter(index => index !== relatedShieldIndex);
-                        
-                        // Tüm monitörler kilitlendi mi kontrol et
-                        if (lockedArray.every(locked => locked)) {
-                            // Aşama 1 tamamlandığında oyunu bitir
-                            endGame(true);
-                        } 
-                        // Doğru seçimden sonra, hemen yeni shield seçmeyi durdur
-                        // Yeni shield ancak kullanıcı USB'ye basıp tekrar durdurduğunda seçilecek
-                    }, 200); // Minimum 200ms bekle
-                }, 500);
-            } 
-            // Yanlış seçim yapıldıysa
-            else {
-                console.log("Yanlış seçim yapıldı, döngüyü yeniden başlat.");
-                // Hata sesi çal
+                }, 300);
+            } else {
                 playSound('WRONG_MONITOR');
-                
-                // Döngüyü tekrar başlat
                 startSpinning();
-                
-                // İşlem tamamlandığında flag'i resetle
                 setTimeout(() => {
                     isConnectProcessing = false;
-                }, 500); // Minimum 500ms bekle
+                    enableControls();
+                }, 200);
             }
+        }
+        
+        // --- YENİ: Kontrolleri devre dışı bırak/aktif et fonksiyonları ---
+        function disableControls() {
+            usb.style.pointerEvents = 'none';
+            leftBtn.disabled = true;
+            rightBtn.disabled = true;
+            connectBtn.disabled = true;
+        }
+        function enableControls() {
+            usb.style.pointerEvents = '';
+            leftBtn.disabled = false;
+            rightBtn.disabled = false;
+            connectBtn.disabled = false;
         }
         
         // Oyunu bitir
@@ -1834,19 +1839,112 @@
             const totalScore = scorePoints + timeBonus + (correctlyLocked * 5);
             
             if (win) {
-                // Aşama tamamlandı ekranında kalan süreyi göster
-                const minutes = Math.floor(timer / 60);
-                const seconds = timer % 60;
-                document.getElementById('remainingTime').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                playSound('GAME_SUCCESS');
-                winScreen.style.display = 'flex';
+                // --- YENİ: Toplu transfer animasyonu ve mesajı ---
+                playEndGameTransferAnimation().then(() => {
+                    // Aşama tamamlandı ekranında kalan süreyi göster
+                    const minutes = Math.floor(timer / 60);
+                    const seconds = timer % 60;
+                    document.getElementById('remainingTime').textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    playSound('GAME_SUCCESS');
+                    winScreen.style.display = 'flex';
+                });
             } else {
-                // Aşama başarısız ekranında skor bilgilerini gösterme
                 playSound('GAME_FAILURE');
                 gameOverScreen.style.display = 'flex';
             }
+        }
+        
+        // --- YENİ: Toplu transfer animasyonu fonksiyonu ---
+        async function playEndGameTransferAnimation() {
+            // 1. Alt kutulardan üst kutulara transfer (toplu)
+            for (let i = 0; i < 10; i++) {
+                // Kabloları yeşil yap ve animasyon başlat
+                const wire = document.getElementById(`wire-${i}`);
+                if (wire) {
+                    wire.classList.add('success');
+                }
+                // Alt kutuyu yeşil yap
+                codeMonitors[i].classList.add('locked', 'correct');
+                // Üst kutuya aktar
+                const value = codeMonitors[i].textContent;
+                passwordMonitors[i].textContent = value;
+                // Üst kutuda transfer animasyonu
+                passwordMonitors[i].classList.add('transfer-receive');
+            }
+            // Ses efektleri topluca çal
+            playSound('WIRE_ACTIVE');
+            playSound('CORRECT_MONITOR');
+            playSound('TRANSFER_WHOOSH');
+            // Biraz bekle (animasyon süresi)
+            await new Promise(res => setTimeout(res, 2500));
+
+            // 2. Alt kutular ve kablolar fuşyaya döner (toplu)
+            for (let i = 0; i < 10; i++) {
+                passwordMonitors[i].classList.remove('transfer-receive');
+                codeMonitors[i].classList.remove('locked', 'correct');
+                codeMonitors[i].classList.add('return-to-fuschia');
+                const wire = document.getElementById(`wire-${i}`);
+                if (wire) {
+                    wire.classList.remove('success');
+                    wire.classList.add('return-to-fuschia');
+                }
+            }
+            playSound('TRANSFER_WHOOSH');
+            await new Promise(res => setTimeout(res, 2000));
+
+            // Animasyonları temizle
+            for (let i = 0; i < 10; i++) {
+                codeMonitors[i].classList.remove('return-to-fuschia');
+                const wire = document.getElementById(`wire-${i}`);
+                if (wire) {
+                    wire.classList.remove('return-to-fuschia');
+                }
+            }
+
+            // 3. Üstten alta transfer animasyonu (sırayla)
+            for (let i = 0; i < 10; i++) {
+                // Üst kutudan alt kutuya transfer animasyonu
+                passwordMonitors[i].classList.add('transfer-receive');
+                codeMonitors[i].classList.add('transfer-receive');
+                const wire = document.getElementById(`wire-${i}`);
+                if (wire) {
+                    wire.classList.add('active');
+                }
+                playSound('TRANSFER_WHOOSH');
+                await new Promise(res => setTimeout(res, 180)); // Her kutu için kısa bir gecikme
+                // Animasyonu temizle
+                passwordMonitors[i].classList.remove('transfer-receive');
+                codeMonitors[i].classList.remove('transfer-receive');
+                if (wire) {
+                    wire.classList.remove('active');
+                }
+            }
+
+            // 4. Modül mesajı göster
+            await showModuleMessage('Tüm modüller başarıyla transfer edildi!');
+        }
+
+        // --- YENİ: Modül mesajı gösterme fonksiyonu ---
+        function showModuleMessage(msg) {
+            return new Promise(res => {
+                // Overlay oluştur
+                const overlay = document.createElement('div');
+                overlay.className = 'transition-overlay';
+                overlay.style.opacity = '0';
+                overlay.innerHTML = `<div class="transition-text">${msg}</div>`;
+                document.body.appendChild(overlay);
+                setTimeout(() => {
+                    overlay.style.opacity = '1';
+                    setTimeout(() => {
+                        overlay.style.opacity = '0';
+                        setTimeout(() => {
+                            document.body.removeChild(overlay);
+                            res();
+                        }, 800);
+                    }, 1500);
+                }, 50);
+            });
         }
         
         // Doğru kilitlenmiş kombinasyonları hesapla
