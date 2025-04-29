@@ -55,25 +55,14 @@
 
         /* Timer */
         #timer {
-            position: absolute;
-            z-index: 5;
             display: flex;
             justify-content: center;
             align-items: center;
             max-width: 95vw;
+            margin: 10px auto;
             padding: 0 12px;
             box-sizing: border-box;
             word-break: break-all;
-            left: 50%;
-            top: 0;
-            transform: translateX(-50%);
-            font-size: min(15vw, 72px);
-            font-weight: bold;
-            color: #ff2e6d;
-            text-shadow: 0 0 10px rgba(255, 46, 109, 0.5);
-            margin: 10px 0;
-            font-family: 'Digital-7', 'Roboto Mono', monospace;
-            letter-spacing: 2px;
         }
 
         /* Monitör grupları */
@@ -462,11 +451,8 @@
                 codeRow.appendChild(codeMonitor);
             }
 
-            // Kalkanları ve timer'ı doğru konumlandır
-            setTimeout(() => {
-                positionShields();
-                positionTimer();
-            }, 0);
+            // Kalkanları doğru konumlandır
+            setTimeout(positionShields, 0);
             updateSelection();
         }
 
@@ -505,20 +491,6 @@
                 shield.style.transform = 'translate(-50%, -50%)';
                 container.appendChild(shield);
             }
-        }
-
-        // Timer'ı passwordRow'daki 4. kutunun tam üstüne hizala
-        function positionTimer() {
-            const passwordMonitors = passwordRow.children;
-            const timer = document.getElementById('timer');
-            const container = document.getElementById('gameContainer');
-            if (passwordMonitors.length < 5) return;
-            const targetBox = passwordMonitors[4].getBoundingClientRect();
-            const containerBox = container.getBoundingClientRect();
-            // Timer'ın solunu, 4. kutunun ortasına hizala
-            const centerX = (targetBox.left + targetBox.width / 2) - containerBox.left;
-            timer.style.left = `${centerX}px`;
-            timer.style.transform = 'translateX(-50%)';
         }
 
         // Seçili monitörü güncelle
@@ -668,12 +640,9 @@
             }
         });
 
-        // Ekran boyutu değişirse timer ve kalkanları yeniden konumlandır
+        // Ekran boyutu değişirse kalkanları yeniden konumlandır
         window.addEventListener('resize', () => {
-            setTimeout(() => {
-                positionShields();
-                positionTimer();
-            }, 0);
+            setTimeout(positionShields, 0);
         });
     </script>
 </body>
