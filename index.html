@@ -374,6 +374,12 @@
                 margin-left: 24px;
                 margin-right: 24px;
             }
+            .gameField {
+                margin-bottom: 140px;
+            }
+            #passwordRow {
+                margin-bottom: 60px;
+            }
         }
 
         /* Dikey kablo (wire) stilleri */
@@ -387,6 +393,31 @@
             box-shadow: 0 0 8px #000, 0 2px 8px #444;
         }
 
+        /* Shield ikonları (kabloların ortasında, fuşya) */
+        .shield-icon {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            left: 0;
+            top: 0;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .shield-icon svg {
+            width: 28px;
+            height: 28px;
+            display: block;
+        }
+        .shield-icon .shield-shape {
+            fill: #1a0010;
+            stroke: #ff2e6d;
+            stroke-width: 2.5px;
+            filter: drop-shadow(0 0 8px #ff2e6d);
+        }
+
         /* Oyun alanı (kutular ve kablolar) için ortalama kapsayıcı */
         .gameField {
             display: flex;
@@ -396,7 +427,7 @@
             flex: 1 1 auto;
             min-height: 0;
             height: 100%;
-            margin-bottom: 72px;
+            margin-bottom: 140px;
         }
         #gameArea {
             display: flex;
@@ -411,13 +442,82 @@
                 min-height: 0;
                 height: 100%;
                 justify-content: center;
-                margin-bottom: 72px;
+                margin-bottom: 140px;
             }
             #gameArea {
                 padding-bottom: 140px;
             }
             #controlPanel {
                 bottom: 96px;
+            }
+        }
+
+        /* Animasyonlu antivirüs dairesi (yeni timer) */
+        #antivirusCircle {
+            position: absolute;
+            top: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+        #antivirusCircle svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 110px;
+            height: 110px;
+        }
+        #antivirusTime {
+            position: relative;
+            color: #00ffe0;
+            font-size: 2.8rem;
+            font-family: 'Digital-7', 'Roboto Mono', monospace;
+            font-weight: bold;
+            text-align: center;
+            width: 110px;
+            line-height: 110px;
+            z-index: 2;
+            text-shadow: 0 0 12px #00ffe0, 0 0 2px #fff;
+            pointer-events: none;
+        }
+        #antivirusSpinnerInner {
+            stroke: #00ffe0;
+            filter: drop-shadow(0 0 8px #00ffe0);
+            transform-origin: 55px 55px;
+            animation: antivirus-spin 2s linear infinite;
+        }
+        #antivirusSpinnerOuter {
+            stroke: #00ffe0;
+            filter: drop-shadow(0 0 8px #00ffe0);
+            transform-origin: 55px 55px;
+            animation: antivirus-spin-reverse 3s linear infinite;
+            opacity: 0.7;
+        }
+        @keyframes antivirus-spin {
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes antivirus-spin-reverse {
+            100% { transform: rotate(-360deg); }
+        }
+        @media (max-width: 600px) {
+            #antivirusCircle {
+                width: 80px;
+                height: 80px;
+                top: 28px;
+            }
+            #antivirusCircle svg {
+                width: 80px;
+                height: 80px;
+            }
+            #antivirusTime {
+                font-size: 1.7rem;
+                width: 80px;
+                line-height: 80px;
             }
         }
     </style>
@@ -435,8 +535,6 @@
 
         <!-- Ana oyun alanı -->
         <div id="gameArea" class="hidden">
-            <div id="timer">60:00</div>
-
             <div class="gameField">
                 <div class="monitorGrid">
                     <div class="monitorRow" id="passwordRow">
@@ -457,6 +555,17 @@
                     <button id="rightBtn" class="arrowBtn">→</button>
                 </div>
                 <button id="connectBtn">BAĞLAN</button>
+            </div>
+
+            <!-- Animasyonlu antivirüs dairesi (yeni timer) -->
+            <div id="antivirusCircle">
+                <svg width="110" height="110" viewBox="0 0 110 110">
+                    <circle cx="55" cy="55" r="48" stroke="#00ffe0" stroke-width="3" fill="none" opacity="0.15"/>
+                    <circle id="antivirusSpinnerOuter" cx="55" cy="55" r="48" stroke="#00ffe0" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="80 220"/>
+                    <circle cx="55" cy="55" r="38" stroke="#00ffe0" stroke-width="4" fill="none" opacity="0.15"/>
+                    <circle id="antivirusSpinnerInner" cx="55" cy="55" r="38" stroke="#00ffe0" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="60 180"/>
+                </svg>
+                <div id="antivirusTime">60</div>
             </div>
         </div>
 
@@ -483,6 +592,7 @@
         let selectedMonitorIndex = 0;
         let currentLevel = 1;
         let isUSBActive = false;
+        let antivirusTime = 60;
 
         // DOM elementleri
         const gameArea = document.getElementById('gameArea');
@@ -505,6 +615,7 @@
             // Eski shield'ları ve kabloları temizle
             document.querySelectorAll('.shield').forEach(shield => shield.remove());
             document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.remove());
+            document.querySelectorAll('.shield-icon').forEach(icon => icon.remove());
 
             for(let i = 0; i < 9; i++) {
                 // Şifre monitörleri
@@ -548,16 +659,26 @@
         // Timer fonksiyonu
         function startTimer() {
             timer = 60;
+            antivirusTime = 60;
             updateTimerDisplay();
+            updateAntivirusTimeDisplay();
 
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timer--;
+                antivirusTime--;
                 updateTimerDisplay();
+                updateAntivirusTimeDisplay();
 
                 if(timer <= 0) {
                     clearInterval(timerInterval);
                     endGame(false);
+                }
+                // Antivirüs süresi sıfırlanırsa burada reset animasyonu ve şifre reseti eklenebilir
+                if(antivirusTime <= 0) {
+                    antivirusTime = 60;
+                    updateAntivirusTimeDisplay();
+                    // TODO: Şifre resetleme ve animasyon efekti burada tetiklenecek
                 }
             }, 1000);
         }
@@ -685,6 +806,7 @@
         function positionVerticalWires() {
             // Eski kabloları temizle
             document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.remove());
+            document.querySelectorAll('.shield-icon').forEach(icon => icon.remove());
             const passwordMonitors = passwordRow.children;
             const codeMonitors = codeRow.children;
             const container = document.getElementById('gameContainer');
@@ -709,6 +831,38 @@
                 wire.style.height = `${height}px`;
                 container.appendChild(wire);
             }
+
+            // Shield ikonlarını iki kablonun arasına ve ortalanmış şekilde ekle (toplam 8 adet)
+            for (let i = 0; i < passwordMonitors.length - 1; i++) {
+                const topBox1 = passwordMonitors[i].getBoundingClientRect();
+                const topBox2 = passwordMonitors[i+1].getBoundingClientRect();
+                const bottomBox1 = codeMonitors[i].getBoundingClientRect();
+                const bottomBox2 = codeMonitors[i+1].getBoundingClientRect();
+                const containerBox = container.getBoundingClientRect();
+
+                // İki üst kutunun alt merkezlerinin ortası
+                const startX1 = topBox1.left + topBox1.width / 2 - containerBox.left;
+                const startX2 = topBox2.left + topBox2.width / 2 - containerBox.left;
+                const midX = (startX1 + startX2) / 2;
+
+                // Üst ve alt kutuların ortası (dikeyde)
+                const startY = topBox1.bottom - containerBox.top;
+                const endY = bottomBox1.top - containerBox.top;
+                const midY = (startY + endY) / 2;
+
+                // Shield ikonunu oluştur
+                const shield = document.createElement('div');
+                shield.className = 'shield-icon';
+                shield.style.left = `${midX - 14}px`;
+                shield.style.top = `${midY - 14}px`;
+                shield.innerHTML = `<svg viewBox="0 0 28 28"><path class="shield-shape" d="M14 3 L24 7 Q23 18 14 25 Q5 18 4 7 Z"/></svg>`;
+                container.appendChild(shield);
+            }
+        }
+
+        // JS: Oyun süresi ile antivirüs süresini senkronize et
+        function updateAntivirusTimeDisplay() {
+            document.getElementById('antivirusTime').textContent = antivirusTime;
         }
     </script>
 </body>
