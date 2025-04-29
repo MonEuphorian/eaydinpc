@@ -367,6 +367,16 @@
                 margin-top: 96px;
             }
         }
+
+        /* Dikey kablo (wire) stilleri */
+        .monitor-vertical-wire {
+            position: absolute;
+            width: 2px;
+            background: #fff;
+            border-radius: 1px;
+            z-index: 1;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -447,8 +457,9 @@
             // Önce mevcut monitörleri temizle
             passwordRow.innerHTML = '';
             codeRow.innerHTML = '';
-            // Eski shield'ları temizle
+            // Eski shield'ları ve kabloları temizle
             document.querySelectorAll('.shield').forEach(shield => shield.remove());
+            document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.remove());
 
             for(let i = 0; i < 9; i++) {
                 // Şifre monitörleri
@@ -466,46 +477,12 @@
                 codeRow.appendChild(codeMonitor);
             }
 
-            // Kalkanları doğru konumlandır
-            setTimeout(positionShields, 0);
+            // Dikey kabloları ve shield'ları doğru konumlandır
+            setTimeout(() => {
+                positionVerticalWires();
+                positionShields();
+            }, 0);
             updateSelection();
-        }
-
-        // Her shield'ı passwordRow ve codeRow'daki i ve i+1 numaralı kutuların tam ortasına (hem yatayda hem dikeyde) yerleştir
-        function positionShields() {
-            // Eski shield'ları temizle
-            document.querySelectorAll('.shield').forEach(shield => shield.remove());
-            const passwordMonitors = passwordRow.children;
-            const codeMonitors = codeRow.children;
-            const container = document.getElementById('gameContainer');
-
-            for (let i = 0; i < passwordMonitors.length - 1; i++) {
-                // Üstteki iki kutunun ortası
-                const topBox1 = passwordMonitors[i].getBoundingClientRect();
-                const topBox2 = passwordMonitors[i+1].getBoundingClientRect();
-                // Alttaki iki kutunun ortası
-                const bottomBox1 = codeMonitors[i].getBoundingClientRect();
-                const bottomBox2 = codeMonitors[i+1].getBoundingClientRect();
-                const containerBox = container.getBoundingClientRect();
-
-                // X: iki kutunun ortalaması
-                const centerX = ((topBox1.left + topBox1.width/2) + (topBox2.left + topBox2.width/2) + (bottomBox1.left + bottomBox1.width/2) + (bottomBox2.left + bottomBox2.width/2)) / 4 - containerBox.left;
-                // Y: üst kutuların altı ile alt kutuların üstü arasında ortalama
-                // Yeni: passwordRow'un altı ile codeRow'un üstü arasındaki mesafenin ortası
-                const topY = (topBox1.bottom + topBox2.bottom) / 2;
-                const bottomY = (bottomBox1.top + bottomBox2.top) / 2;
-                const centerY = topY + (bottomY - topY) / 2 - containerBox.top;
-
-                // Shield'ı oluştur
-                const shield = document.createElement('div');
-                shield.className = 'shield';
-                shield.innerHTML = '✓';
-                shield.style.position = 'absolute';
-                shield.style.left = `${centerX}px`;
-                shield.style.top = `${centerY}px`;
-                shield.style.transform = 'translate(-50%, -50%)';
-                container.appendChild(shield);
-            }
         }
 
         // Monitör seçimini güncelle (sadece codeRow'da seçim efekti uygula)
@@ -651,10 +628,43 @@
             }
         });
 
-        // Ekran boyutu değişirse kalkanları yeniden konumlandır
+        // Ekran boyutu değişirse kabloları ve kalkanları yeniden konumlandır
         window.addEventListener('resize', () => {
-            setTimeout(positionShields, 0);
+            setTimeout(() => {
+                positionVerticalWires();
+                positionShields();
+            }, 0);
         });
+
+        // Her passwordRow-codeRow monitör çifti için dikey kablo çiz
+        function positionVerticalWires() {
+            // Eski kabloları temizle
+            document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.remove());
+            const passwordMonitors = passwordRow.children;
+            const codeMonitors = codeRow.children;
+            const container = document.getElementById('gameContainer');
+
+            for (let i = 0; i < passwordMonitors.length; i++) {
+                const topBox = passwordMonitors[i].getBoundingClientRect();
+                const bottomBox = codeMonitors[i].getBoundingClientRect();
+                const containerBox = container.getBoundingClientRect();
+
+                // Başlangıç noktası: üst kutunun alt merkezi
+                const startX = topBox.left + topBox.width / 2 - containerBox.left;
+                const startY = topBox.bottom - containerBox.top;
+                // Bitiş noktası: alt kutunun üst merkezi
+                const endY = bottomBox.top - containerBox.top;
+                const height = endY - startY;
+
+                // Kabloyu oluştur
+                const wire = document.createElement('div');
+                wire.className = 'monitor-vertical-wire';
+                wire.style.left = `${startX - 1}px`;
+                wire.style.top = `${startY}px`;
+                wire.style.height = `${height}px`;
+                container.appendChild(wire);
+            }
+        }
     </script>
 </body>
 </html> 
