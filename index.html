@@ -18,7 +18,7 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #0a0a0f;
+            background-color: #000;
             font-family: 'Roboto Mono', monospace;
             color: #fff;
             position: relative;
@@ -50,7 +50,7 @@
             justify-content: space-between;
             padding: 20px;
             z-index: 2;
-            background: linear-gradient(180deg, rgba(10,10,15,0.9) 0%, rgba(20,20,30,0.95) 100%);
+            background-color: #000;
         }
 
         /* Timer */
@@ -139,11 +139,10 @@
 
         /* Kontrol paneli */
         #controlPanel {
-            width: 100%;
             position: fixed;
             left: 0;
             right: 0;
-            bottom: 8px;
+            bottom: 64px;
             z-index: 10;
             width: 100vw;
             max-width: 100vw;
@@ -152,17 +151,17 @@
             flex-direction: column;
             align-items: center;
             gap: 20px;
-            background: linear-gradient(180deg, rgba(10,10,15,0.95) 60%, rgba(10,10,15,0.99) 100%);
+            background-color: #000;
             box-shadow: 0 -2px 24px 0 rgba(0,0,0,0.5);
         }
 
         .controlRow {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             width: 100%;
             max-width: 500px;
-            gap: 20px;
+            gap: 8px;
         }
 
         /* Kontrol butonları */
@@ -197,6 +196,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            margin-left: 16px;
+            margin-right: 16px;
         }
 
         #connectBtn {
@@ -355,7 +356,7 @@
             #controlPanel {
                 padding-bottom: 0;
                 min-height: 120px;
-                bottom: 36px;
+                bottom: 64px;
             }
             #gameArea {
                 padding-bottom: 140px;
@@ -366,16 +367,58 @@
             .monitorGrid {
                 margin-top: 96px;
             }
+            .controlRow {
+                gap: 2px;
+            }
+            .arrowBtn {
+                margin-left: 24px;
+                margin-right: 24px;
+            }
         }
 
         /* Dikey kablo (wire) stilleri */
         .monitor-vertical-wire {
             position: absolute;
             width: 2px;
-            background: #fff;
+            background: #222;
             border-radius: 1px;
             z-index: 1;
             pointer-events: none;
+            box-shadow: 0 0 8px #000, 0 2px 8px #444;
+        }
+
+        /* Oyun alanı (kutular ve kablolar) için ortalama kapsayıcı */
+        .gameField {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1 1 auto;
+            min-height: 0;
+            height: 100%;
+            margin-bottom: 40px;
+        }
+        #gameArea {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding-bottom: 120px;
+        }
+        @media (max-width: 600px) {
+            .gameField {
+                min-height: 0;
+                height: 100%;
+                justify-content: center;
+                margin-bottom: 40px;
+            }
+            #gameArea {
+                padding-bottom: 140px;
+            }
+            #controlPanel {
+                bottom: 64px;
+            }
         }
     </style>
 </head>
@@ -394,12 +437,14 @@
         <div id="gameArea" class="hidden">
             <div id="timer">60:00</div>
 
-            <div class="monitorGrid">
-                <div class="monitorRow" id="passwordRow">
-                    <!-- Şifre monitörleri JavaScript ile eklenecek -->
-                </div>
-                <div class="monitorRow" id="codeRow">
-                    <!-- Kod monitörleri JavaScript ile eklenecek -->
+            <div class="gameField">
+                <div class="monitorGrid">
+                    <div class="monitorRow" id="passwordRow">
+                        <!-- Şifre monitörleri JavaScript ile eklenecek -->
+                    </div>
+                    <div class="monitorRow" id="codeRow">
+                        <!-- Kod monitörleri JavaScript ile eklenecek -->
+                    </div>
                 </div>
             </div>
 
