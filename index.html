@@ -11,19 +11,20 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #000;
+            background-color: #0a0a0f;
             font-family: 'Roboto Mono', monospace;
             color: #fff;
             position: relative;
         }
 
-        /* Grid arka plan - daha subtle */
+        /* Grid arka plan - cyberpunk stil */
         .grid-overlay {
             position: fixed;
             top: 0;
@@ -31,14 +32,14 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(255, 0, 128, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 20px 20px;
             pointer-events: none;
             z-index: 1;
         }
 
-        /* Ana oyun konteyneri - mobil öncelikli */
+        /* Ana oyun konteyneri */
         #gameContainer {
             position: relative;
             width: 100%;
@@ -49,21 +50,21 @@
             justify-content: space-between;
             padding: 20px;
             z-index: 2;
-            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 100%);
+            background: linear-gradient(180deg, rgba(10,10,15,0.9) 0%, rgba(20,20,30,0.95) 100%);
         }
 
-        /* Timer - daha gerçekçi dijital saat görünümü */
+        /* Timer */
         #timer {
             font-size: min(15vw, 72px);
             font-weight: bold;
-            color: #ff3b3b;
-            text-shadow: 0 0 10px rgba(255, 59, 59, 0.5);
+            color: #ff2e6d;
+            text-shadow: 0 0 10px rgba(255, 46, 109, 0.5);
             margin: 10px 0;
             font-family: 'Digital-7', 'Roboto Mono', monospace;
             letter-spacing: 2px;
         }
 
-        /* Monitör grupları - mobil için optimize edilmiş */
+        /* Monitör grupları */
         .monitorGrid {
             width: 100%;
             max-width: 100%;
@@ -82,7 +83,7 @@
             max-width: 600px;
         }
 
-        /* Monitör stilleri - daha gerçekçi terminal görünümü */
+        /* Monitör stilleri */
         .monitor {
             width: min(8.5vw, 50px);
             height: min(8.5vw, 50px);
@@ -92,21 +93,22 @@
             justify-content: center;
             font-size: min(4vw, 24px);
             font-weight: bold;
-            background: #000;
+            background: rgba(10, 10, 15, 0.9);
             position: relative;
             transition: all 0.3s ease;
+            text-shadow: 0 0 5px currentColor;
         }
 
         .password-monitor {
-            border-color: #4a90e2;
-            color: #4a90e2;
-            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+            border-color: #00ffff;
+            color: #00ffff;
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
         }
 
         .code-monitor {
-            border-color: #e24a4a;
-            color: #e24a4a;
-            box-shadow: 0 0 5px rgba(226, 74, 74, 0.3);
+            border-color: #ff2e6d;
+            color: #ff2e6d;
+            box-shadow: 0 0 5px rgba(255, 46, 109, 0.3);
         }
 
         /* Seçili monitör efekti */
@@ -117,7 +119,7 @@
             z-index: 10;
         }
 
-        /* Kontrol paneli - mobil için büyütülmüş */
+        /* Kontrol paneli */
         #controlPanel {
             width: 100%;
             padding: 20px;
@@ -137,65 +139,74 @@
             gap: 20px;
         }
 
-        /* Kontrol butonları - mobil için optimize edilmiş */
+        /* Kontrol butonları */
         #usb {
             width: min(30vw, 120px);
             height: min(30vw, 120px);
-            border: 3px solid #e24a4a;
+            border: 3px solid #ff2e6d;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(10, 10, 15, 0.9);
             font-size: min(10vw, 40px);
+            box-shadow: 0 0 10px rgba(255, 46, 109, 0.3);
+        }
+
+        #usb.active {
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            color: #00ffff;
         }
 
         .arrowBtn {
             width: min(20vw, 80px);
             height: min(20vw, 80px);
-            border: 2px solid #4a90e2;
-            background: rgba(0, 0, 0, 0.8);
-            color: #4a90e2;
+            border: 2px solid #00ffff;
+            background: rgba(10, 10, 15, 0.9);
+            color: #00ffff;
             font-size: min(8vw, 32px);
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
 
         #connectBtn {
             width: min(80vw, 300px);
             height: min(15vw, 60px);
-            border: 2px solid #4a90e2;
-            background: rgba(0, 0, 0, 0.8);
-            color: #4a90e2;
+            border: 2px solid #00ffff;
+            background: rgba(10, 10, 15, 0.9);
+            color: #00ffff;
             font-size: min(5vw, 24px);
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             letter-spacing: 2px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
 
         /* Kalkan simgeleri */
         .shield {
             width: min(5vw, 25px);
             height: min(5vw, 25px);
-            border: 2px solid #4a90e2;
+            border: 2px solid #00ffff;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             position: absolute;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(10, 10, 15, 0.9);
             transition: all 0.3s ease;
             font-size: min(3vw, 14px);
-            color: #4a90e2;
+            color: #00ffff;
         }
 
         .shield.active {
-            border-color: #50e3c2;
-            color: #50e3c2;
-            box-shadow: 0 0 10px #50e3c2;
+            border-color: #ff2e6d;
+            color: #ff2e6d;
+            box-shadow: 0 0 10px rgba(255, 46, 109, 0.5);
         }
 
         /* Oyun ekranları */
@@ -209,7 +220,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(10, 10, 15, 0.95);
             z-index: 100;
             gap: 30px;
             padding: 20px;
@@ -217,10 +228,11 @@
 
         .screenTitle {
             font-size: min(8vw, 48px);
-            color: #4a90e2;
+            color: #00ffff;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
 
         .screenText {
@@ -230,18 +242,20 @@
             max-width: 600px;
             line-height: 1.5;
             padding: 0 20px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
 
         .bigBtn {
             padding: 15px 40px;
-            border: 3px solid #4a90e2;
-            background: rgba(0, 0, 0, 0.8);
-            color: #4a90e2;
+            border: 3px solid #00ffff;
+            background: rgba(10, 10, 15, 0.9);
+            color: #00ffff;
             font-size: min(5vw, 24px);
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
         }
 
         .hidden {
@@ -257,22 +271,22 @@
             transform: scale(0.95);
         }
 
-        /* Dokunmatik cihazlar için ek optimizasyonlar */
+        /* Dokunmatik cihazlar için hover efektleri */
         @media (hover: hover) {
             .arrowBtn:hover,
             #connectBtn:hover,
             .bigBtn:hover {
-                background: rgba(74, 144, 226, 0.1);
-                box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+                background: rgba(0, 255, 255, 0.1);
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
             }
 
             #usb:hover {
-                background: rgba(226, 74, 74, 0.1);
-                box-shadow: 0 0 15px rgba(226, 74, 74, 0.5);
+                background: rgba(255, 46, 109, 0.1);
+                box-shadow: 0 0 20px rgba(255, 46, 109, 0.5);
             }
         }
 
-        /* iPhone SE gibi küçük ekranlar için ek optimizasyonlar */
+        /* Küçük ekranlar için optimizasyonlar */
         @media (max-height: 667px) {
             #gameContainer {
                 padding: 10px;
