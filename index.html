@@ -83,6 +83,11 @@
             max-width: 600px;
         }
 
+        /* Üst ve alt kutular arasındaki mesafeyi artır */
+        #passwordRow {
+            margin-bottom: 60px;
+        }
+
         /* Monitör stilleri */
         .monitor {
             width: min(8.5vw, 50px);
@@ -122,12 +127,20 @@
         /* Kontrol paneli */
         #controlPanel {
             width: 100%;
-            padding: 20px;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 8px;
+            z-index: 10;
+            width: 100vw;
+            max-width: 100vw;
+            padding: 10px 0 0 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 20px;
-            margin-top: auto;
+            background: linear-gradient(180deg, rgba(10,10,15,0.95) 60%, rgba(10,10,15,0.99) 100%);
+            box-shadow: 0 -2px 24px 0 rgba(0,0,0,0.5);
         }
 
         .controlRow {
@@ -300,6 +313,40 @@
                 padding: 10px;
             }
         }
+
+        /* ShieldRow ve shield-wrapper için yeni CSS */
+        .shieldRow {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 30px;
+            position: relative;
+            z-index: 2;
+        }
+        .shield-wrapper {
+            flex: 1 1 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Oyun alanı ile kontrol paneli arasında boşluk bırak */
+        #gameArea {
+            padding-bottom: 120px;
+        }
+        @media (max-width: 600px) {
+            #controlPanel {
+                padding-bottom: 0;
+                min-height: 120px;
+            }
+            #gameArea {
+                padding-bottom: 140px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -321,7 +368,6 @@
                 <div class="monitorRow" id="passwordRow">
                     <!-- Şifre monitörleri JavaScript ile eklenecek -->
                 </div>
-                
                 <div class="monitorRow" id="codeRow">
                     <!-- Kod monitörleri JavaScript ile eklenecek -->
                 </div>
@@ -381,10 +427,8 @@
             // Önce mevcut monitörleri temizle
             passwordRow.innerHTML = '';
             codeRow.innerHTML = '';
-            
-            // Kalkanları temizle
-            const shields = document.querySelectorAll('.shield');
-            shields.forEach(shield => shield.remove());
+            // Eski shield'ları temizle
+            document.querySelectorAll('.shield').forEach(shield => shield.remove());
 
             for(let i = 0; i < 9; i++) {
                 // Şifre monitörleri
@@ -400,18 +444,48 @@
                 codeMonitor.textContent = '?';
                 codeMonitor.dataset.index = i;
                 codeRow.appendChild(codeMonitor);
+            }
 
-                // Kalkanlar
+            // Kalkanları doğru konumlandır
+            setTimeout(positionShields, 0);
+            updateSelection();
+        }
+
+        // Her shield'ı passwordRow ve codeRow'daki i ve i+1 numaralı kutuların tam ortasına (hem yatayda hem dikeyde) yerleştir
+        function positionShields() {
+            // Eski shield'ları temizle
+            document.querySelectorAll('.shield').forEach(shield => shield.remove());
+            const passwordMonitors = passwordRow.children;
+            const codeMonitors = codeRow.children;
+            const container = document.getElementById('gameContainer');
+
+            for (let i = 0; i < passwordMonitors.length - 1; i++) {
+                // Üstteki iki kutunun ortası
+                const topBox1 = passwordMonitors[i].getBoundingClientRect();
+                const topBox2 = passwordMonitors[i+1].getBoundingClientRect();
+                // Alttaki iki kutunun ortası
+                const bottomBox1 = codeMonitors[i].getBoundingClientRect();
+                const bottomBox2 = codeMonitors[i+1].getBoundingClientRect();
+                const containerBox = container.getBoundingClientRect();
+
+                // X: iki kutunun ortalaması
+                const centerX = ((topBox1.left + topBox1.width/2) + (topBox2.left + topBox2.width/2) + (bottomBox1.left + bottomBox1.width/2) + (bottomBox2.left + bottomBox2.width/2)) / 4 - containerBox.left;
+                // Y: üst kutuların altı ile alt kutuların üstü arasında ortalama
+                // Yeni: passwordRow'un altı ile codeRow'un üstü arasındaki mesafenin ortası
+                const topY = (topBox1.bottom + topBox2.bottom) / 2;
+                const bottomY = (bottomBox1.top + bottomBox2.top) / 2;
+                const centerY = topY + (bottomY - topY) / 2 - containerBox.top;
+
+                // Shield'ı oluştur
                 const shield = document.createElement('div');
                 shield.className = 'shield';
                 shield.innerHTML = '✓';
-                shield.style.left = `${(i * 11) + 5.5}%`;
-                shield.style.top = '50%';
-                shield.style.transform = 'translateY(-50%)';
-                document.querySelector('.monitorGrid').appendChild(shield);
+                shield.style.position = 'absolute';
+                shield.style.left = `${centerX}px`;
+                shield.style.top = `${centerY}px`;
+                shield.style.transform = 'translate(-50%, -50%)';
+                container.appendChild(shield);
             }
-
-            updateSelection();
         }
 
         // Seçili monitörü güncelle
@@ -559,6 +633,11 @@
                     leftBtn.click();
                 }
             }
+        });
+
+        // Ekran boyutu değişirse kalkanları yeniden konumlandır
+        window.addEventListener('resize', () => {
+            setTimeout(positionShields, 0);
         });
     </script>
 </body>
