@@ -3,39 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CyberBreak | Hack Simulator</title>
+    <title>CSI: Digital Evidence Unit</title>
     <style>
-        /* Reset ve temel stiller */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #0a0f18;
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-            color: #00ff9d;
+            background-color: #000;
+            font-family: 'Roboto Mono', monospace;
+            color: #fff;
             position: relative;
         }
 
-        /* Matrix rain effect için canvas */
-        #matrixCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.15;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* Grid arka plan */
+        /* Grid arka plan - daha subtle */
         .grid-overlay {
             position: fixed;
             top: 0;
@@ -43,193 +31,171 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(0, 255, 157, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 157, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 20px 20px;
             pointer-events: none;
-            z-index: 2;
+            z-index: 1;
         }
 
-        /* Ana oyun konteyneri */
+        /* Ana oyun konteyneri - mobil öncelikli */
         #gameContainer {
             position: relative;
-            width: 100vw;
+            width: 100%;
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
             padding: 20px;
-            z-index: 3;
+            z-index: 2;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 100%);
         }
 
-        /* Timer */
+        /* Timer - daha gerçekçi dijital saat görünümü */
         #timer {
-            font-size: 48px;
+            font-size: min(15vw, 72px);
             font-weight: bold;
-            color: #ff4b4b;
-            text-shadow: 0 0 10px rgba(255, 75, 75, 0.7);
-            margin: 20px 0;
-            font-family: 'Digital-7', monospace;
+            color: #ff3b3b;
+            text-shadow: 0 0 10px rgba(255, 59, 59, 0.5);
+            margin: 10px 0;
+            font-family: 'Digital-7', 'Roboto Mono', monospace;
             letter-spacing: 2px;
         }
 
-        /* Monitör grupları */
+        /* Monitör grupları - mobil için optimize edilmiş */
         .monitorGrid {
             width: 100%;
-            max-width: 1200px;
+            max-width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 40px;
+            gap: 20px;
             align-items: center;
+            padding: 0 10px;
         }
 
         .monitorRow {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 10px;
             width: 100%;
+            max-width: 600px;
         }
 
-        /* Monitör stilleri */
+        /* Monitör stilleri - daha gerçekçi terminal görünümü */
         .monitor {
-            width: 60px;
-            height: 60px;
+            width: min(8.5vw, 50px);
+            height: min(8.5vw, 50px);
             border: 2px solid;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: min(4vw, 24px);
             font-weight: bold;
-            background: rgba(10, 15, 24, 0.9);
+            background: #000;
             position: relative;
             transition: all 0.3s ease;
         }
 
         .password-monitor {
-            border-color: #00ff9d;
-            color: #00ff9d;
-            box-shadow: 0 0 10px rgba(0, 255, 157, 0.2);
+            border-color: #4a90e2;
+            color: #4a90e2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
         }
 
         .code-monitor {
-            border-color: #ff4b4b;
-            color: #ff4b4b;
-            box-shadow: 0 0 10px rgba(255, 75, 75, 0.2);
+            border-color: #e24a4a;
+            color: #e24a4a;
+            box-shadow: 0 0 5px rgba(226, 74, 74, 0.3);
         }
 
         /* Seçili monitör efekti */
         .monitor.selected {
             transform: scale(1.1);
             border-width: 3px;
-            box-shadow: 0 0 20px currentColor;
+            box-shadow: 0 0 15px currentColor;
             z-index: 10;
         }
 
-        /* Kalkan simgeleri */
-        .shield {
-            width: 30px;
-            height: 30px;
-            border: 2px solid #00ff9d;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            background: rgba(10, 15, 24, 0.9);
-            transition: all 0.3s ease;
-        }
-
-        .shield.active {
-            border-color: #00ff9d;
-            box-shadow: 0 0 15px #00ff9d;
-            animation: pulse 1.5s infinite;
-        }
-
-        /* Kontrol paneli */
+        /* Kontrol paneli - mobil için büyütülmüş */
         #controlPanel {
             width: 100%;
-            max-width: 600px;
-            margin-top: 40px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 20px;
+            margin-top: auto;
         }
 
         .controlRow {
             display: flex;
             align-items: center;
-            gap: 30px;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            gap: 20px;
         }
 
-        /* USB ve butonlar */
+        /* Kontrol butonları - mobil için optimize edilmiş */
         #usb {
-            width: 100px;
-            height: 100px;
-            border: 3px solid #ff4b4b;
+            width: min(30vw, 120px);
+            height: min(30vw, 120px);
+            border: 3px solid #e24a4a;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: rgba(10, 15, 24, 0.9);
-        }
-
-        #usb:hover {
-            box-shadow: 0 0 20px #ff4b4b;
-        }
-
-        #usb.active {
-            animation: usbPulse 1s infinite;
+            background: rgba(0, 0, 0, 0.8);
+            font-size: min(10vw, 40px);
         }
 
         .arrowBtn {
-            width: 60px;
-            height: 60px;
-            border: 2px solid #00ff9d;
-            background: transparent;
-            color: #00ff9d;
-            font-size: 24px;
+            width: min(20vw, 80px);
+            height: min(20vw, 80px);
+            border: 2px solid #4a90e2;
+            background: rgba(0, 0, 0, 0.8);
+            color: #4a90e2;
+            font-size: min(8vw, 32px);
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .arrowBtn:hover {
-            background: rgba(0, 255, 157, 0.1);
-            box-shadow: 0 0 15px #00ff9d;
-        }
-
         #connectBtn {
-            width: 200px;
-            height: 50px;
-            border: 2px solid #00ff9d;
-            background: transparent;
-            color: #00ff9d;
-            font-size: 20px;
+            width: min(80vw, 300px);
+            height: min(15vw, 60px);
+            border: 2px solid #4a90e2;
+            background: rgba(0, 0, 0, 0.8);
+            color: #4a90e2;
+            font-size: min(5vw, 24px);
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             letter-spacing: 2px;
         }
 
-        #connectBtn:hover {
-            background: rgba(0, 255, 157, 0.1);
-            box-shadow: 0 0 20px #00ff9d;
+        /* Kalkan simgeleri */
+        .shield {
+            width: min(5vw, 25px);
+            height: min(5vw, 25px);
+            border: 2px solid #4a90e2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            transition: all 0.3s ease;
+            font-size: min(3vw, 14px);
+            color: #4a90e2;
         }
 
-        /* Animasyonlar */
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes usbPulse {
-            0% { border-color: #ff4b4b; box-shadow: 0 0 10px #ff4b4b; }
-            50% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
-            100% { border-color: #ff4b4b; box-shadow: 0 0 10px #ff4b4b; }
+        .shield.active {
+            border-color: #50e3c2;
+            color: #50e3c2;
+            box-shadow: 0 0 10px #50e3c2;
         }
 
         /* Oyun ekranları */
@@ -243,101 +209,94 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(10, 15, 24, 0.95);
+            background: rgba(0, 0, 0, 0.95);
             z-index: 100;
             gap: 30px;
             padding: 20px;
         }
 
         .screenTitle {
-            font-size: 48px;
-            color: #00ff9d;
-            text-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+            font-size: min(8vw, 48px);
+            color: #4a90e2;
             text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         .screenText {
-            font-size: 24px;
-            color: #00ff9d;
+            font-size: min(4vw, 24px);
+            color: #fff;
             text-align: center;
             max-width: 600px;
             line-height: 1.5;
+            padding: 0 20px;
         }
 
         .bigBtn {
             padding: 15px 40px;
-            border: 3px solid #00ff9d;
-            background: transparent;
-            color: #00ff9d;
-            font-size: 24px;
+            border: 3px solid #4a90e2;
+            background: rgba(0, 0, 0, 0.8);
+            color: #4a90e2;
+            font-size: min(5vw, 24px);
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             letter-spacing: 2px;
         }
 
-        .bigBtn:hover {
-            background: rgba(0, 255, 157, 0.1);
-            box-shadow: 0 0 30px #00ff9d;
-        }
-
         .hidden {
             display: none !important;
         }
 
-        /* Mobil optimizasyonları */
-        @media (max-width: 768px) {
-            .monitor {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
+        /* Aktif durum efektleri */
+        .monitor.selected,
+        .arrowBtn:active,
+        #connectBtn:active,
+        #usb:active,
+        .bigBtn:active {
+            transform: scale(0.95);
+        }
+
+        /* Dokunmatik cihazlar için ek optimizasyonlar */
+        @media (hover: hover) {
+            .arrowBtn:hover,
+            #connectBtn:hover,
+            .bigBtn:hover {
+                background: rgba(74, 144, 226, 0.1);
+                box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
             }
 
-            .shield {
-                width: 20px;
-                height: 20px;
+            #usb:hover {
+                background: rgba(226, 74, 74, 0.1);
+                box-shadow: 0 0 15px rgba(226, 74, 74, 0.5);
+            }
+        }
+
+        /* iPhone SE gibi küçük ekranlar için ek optimizasyonlar */
+        @media (max-height: 667px) {
+            #gameContainer {
+                padding: 10px;
             }
 
-            #timer {
-                font-size: 36px;
+            .monitorGrid {
+                gap: 15px;
             }
 
-            .screenTitle {
-                font-size: 32px;
-            }
-
-            .screenText {
-                font-size: 18px;
-            }
-
-            #usb {
-                width: 80px;
-                height: 80px;
-            }
-
-            .arrowBtn {
-                width: 50px;
-                height: 50px;
-            }
-
-            #connectBtn {
-                width: 160px;
-                height: 45px;
-                font-size: 18px;
+            #controlPanel {
+                padding: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <canvas id="matrixCanvas"></canvas>
     <div class="grid-overlay"></div>
     
     <div id="gameContainer">
         <!-- Başlangıç ekranı -->
         <div id="startScreen" class="gameScreen">
-            <h1 class="screenTitle">CYBERBREAK</h1>
-            <p class="screenText">Hedef sisteme sızın ve güvenlik duvarını aşın. Her aşama için 60 saniyeniz var.</p>
-            <button id="startButton" class="bigBtn">HACK BAŞLAT</button>
+            <h1 class="screenTitle">CSI: Digital Evidence Unit</h1>
+            <p class="screenText">Şüpheli cihazın şifresini kırın ve delillere ulaşın. Her deneme için 60 saniyeniz var.</p>
+            <button id="startButton" class="bigBtn">BAŞLAT</button>
         </div>
 
         <!-- Ana oyun alanı -->
@@ -358,82 +317,37 @@
                 <div class="controlRow">
                     <button id="leftBtn" class="arrowBtn">←</button>
                     <div id="usb">
-                        <div id="usbIcon">🐞</div>
+                        <div id="usbIcon">⚡</div>
                     </div>
                     <button id="rightBtn" class="arrowBtn">→</button>
                 </div>
-                <button id="connectBtn">CONNECT</button>
+                <button id="connectBtn">BAĞLAN</button>
             </div>
         </div>
 
         <!-- Oyun sonu ekranı -->
         <div id="gameOverScreen" class="gameScreen hidden">
-            <h1 class="screenTitle">ERİŞİM ENGELLENDİ</h1>
-            <p class="screenText">Güvenlik sistemi saldırıyı tespit etti ve engelledi.</p>
-            <button id="restartButton" class="bigBtn">YENİDEN DENE</button>
+            <h1 class="screenTitle">ERİŞİM BAŞARISIZ</h1>
+            <p class="screenText">Güvenlik sistemi erişimi engelledi. Yeni bir deneme başlatın.</p>
+            <button id="restartButton" class="bigBtn">TEKRAR DENE</button>
         </div>
 
         <!-- Kazanma ekranı -->
         <div id="winScreen" class="gameScreen hidden">
-            <h1 class="screenTitle">ERİŞİM SAĞLANDI</h1>
-            <p class="screenText">Güvenlik duvarı aşıldı. Kalan süre: <span id="remainingTime">00:00</span></p>
-            <button id="nextLevelButton" class="bigBtn">İLERLE ></button>
+            <h1 class="screenTitle">ERİŞİM BAŞARILI</h1>
+            <p class="screenText">Şifre kırıldı. Kalan süre: <span id="remainingTime">00:00</span></p>
+            <button id="nextLevelButton" class="bigBtn">DEVAM ET</button>
         </div>
     </div>
 
     <script>
-        // Matrix yağmur efekti
-        const canvas = document.getElementById('matrixCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // Canvas boyutlarını ayarla
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        // Matrix karakterleri
-        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*";
-        const drops = [];
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-
-        // Her sütun için damla başlangıç pozisyonları
-        for(let x = 0; x < columns; x++) {
-            drops[x] = 1;
-        }
-
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(10, 15, 24, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#0F0';
-            ctx.font = fontSize + 'px monospace';
-
-            for(let i = 0; i < drops.length; i++) {
-                const text = matrix[Math.floor(Math.random() * matrix.length)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975)
-                    drops[i] = 0;
-
-                drops[i]++;
-            }
-        }
-
-        // Matrix animasyonunu başlat
-        setInterval(drawMatrix, 35);
-
         // Oyun değişkenleri
         let gameStarted = false;
         let timer = 60;
         let timerInterval;
         let selectedMonitorIndex = 0;
-        let spinning = false;
-        let spinningInterval;
+        let currentLevel = 1;
+        let isUSBActive = false;
 
         // DOM elementleri
         const gameArea = document.getElementById('gameArea');
@@ -445,50 +359,75 @@
         const codeRow = document.getElementById('codeRow');
         const usb = document.getElementById('usb');
         const connectBtn = document.getElementById('connectBtn');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
 
         // Monitörleri oluştur
         function createMonitors() {
-            for(let i = 0; i < 10; i++) {
+            // Önce mevcut monitörleri temizle
+            passwordRow.innerHTML = '';
+            codeRow.innerHTML = '';
+            
+            // Kalkanları temizle
+            const shields = document.querySelectorAll('.shield');
+            shields.forEach(shield => shield.remove());
+
+            for(let i = 0; i < 9; i++) {
                 // Şifre monitörleri
                 const passwordMonitor = document.createElement('div');
                 passwordMonitor.className = 'monitor password-monitor';
                 passwordMonitor.textContent = '?';
+                passwordMonitor.dataset.index = i;
                 passwordRow.appendChild(passwordMonitor);
 
                 // Kod monitörleri
                 const codeMonitor = document.createElement('div');
                 codeMonitor.className = 'monitor code-monitor';
                 codeMonitor.textContent = '?';
+                codeMonitor.dataset.index = i;
                 codeRow.appendChild(codeMonitor);
 
                 // Kalkanlar
-                if(i < 9) {
-                    const shield = document.createElement('div');
-                    shield.className = 'shield';
-                    shield.innerHTML = '✓';
-                    shield.style.left = `${(i * 75) + 67.5}px`;
-                    shield.style.top = '50%';
-                    document.querySelector('.monitorGrid').appendChild(shield);
-                }
+                const shield = document.createElement('div');
+                shield.className = 'shield';
+                shield.innerHTML = '✓';
+                shield.style.left = `${(i * 11) + 5.5}%`;
+                shield.style.top = '50%';
+                shield.style.transform = 'translateY(-50%)';
+                document.querySelector('.monitorGrid').appendChild(shield);
+            }
+
+            updateSelection();
+        }
+
+        // Seçili monitörü güncelle
+        function updateSelection() {
+            // Tüm monitörlerdeki seçim efektini kaldır
+            document.querySelectorAll('.monitor').forEach(monitor => {
+                monitor.classList.remove('selected');
+            });
+
+            // Seçili monitörleri işaretle
+            const passwordMonitors = passwordRow.children;
+            const codeMonitors = codeRow.children;
+
+            if (passwordMonitors[selectedMonitorIndex]) {
+                passwordMonitors[selectedMonitorIndex].classList.add('selected');
+            }
+            if (codeMonitors[selectedMonitorIndex]) {
+                codeMonitors[selectedMonitorIndex].classList.add('selected');
             }
         }
 
-        // Oyunu başlat
-        document.getElementById('startButton').addEventListener('click', () => {
-            startScreen.classList.add('hidden');
-            gameArea.classList.remove('hidden');
-            gameStarted = true;
-            createMonitors();
-            startTimer();
-        });
-
         // Timer fonksiyonu
         function startTimer() {
+            timer = 60;
+            updateTimerDisplay();
+
+            clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timer--;
-                const minutes = Math.floor(timer / 60);
-                const seconds = timer % 60;
-                timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                updateTimerDisplay();
 
                 if(timer <= 0) {
                     clearInterval(timerInterval);
@@ -497,27 +436,116 @@
             }, 1000);
         }
 
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
         // Oyun sonu
         function endGame(won) {
             gameStarted = false;
             clearInterval(timerInterval);
+            
             if(won) {
+                document.getElementById('remainingTime').textContent = timerElement.textContent;
                 winScreen.classList.remove('hidden');
+                gameArea.classList.add('hidden');
             } else {
                 gameOverScreen.classList.remove('hidden');
+                gameArea.classList.add('hidden');
             }
         }
 
-        // Event listeners
+        // Event Listeners
+        document.getElementById('startButton').addEventListener('click', () => {
+            startScreen.classList.add('hidden');
+            gameArea.classList.remove('hidden');
+            gameStarted = true;
+            createMonitors();
+            startTimer();
+        });
+
         document.getElementById('restartButton').addEventListener('click', () => {
             location.reload();
         });
 
         document.getElementById('nextLevelButton').addEventListener('click', () => {
-            location.reload();
+            currentLevel++;
+            gameArea.classList.remove('hidden');
+            winScreen.classList.add('hidden');
+            createMonitors();
+            startTimer();
         });
 
-        // Oyun mantığı buradan devam edecek...
+        // Kontrol butonları
+        leftBtn.addEventListener('click', () => {
+            if (!gameStarted) return;
+            selectedMonitorIndex = Math.max(0, selectedMonitorIndex - 1);
+            updateSelection();
+        });
+
+        rightBtn.addEventListener('click', () => {
+            if (!gameStarted) return;
+            selectedMonitorIndex = Math.min(8, selectedMonitorIndex + 1);
+            updateSelection();
+        });
+
+        usb.addEventListener('click', () => {
+            if (!gameStarted) return;
+            isUSBActive = !isUSBActive;
+            usb.classList.toggle('active');
+        });
+
+        // Klavye kontrolleri
+        document.addEventListener('keydown', (e) => {
+            if (!gameStarted) return;
+
+            switch(e.key) {
+                case 'ArrowLeft':
+                    leftBtn.click();
+                    break;
+                case 'ArrowRight':
+                    rightBtn.click();
+                    break;
+                case ' ':
+                    usb.click();
+                    break;
+                case 'Enter':
+                    connectBtn.click();
+                    break;
+            }
+        });
+
+        // Connect butonu
+        connectBtn.addEventListener('click', () => {
+            if (!gameStarted || !isUSBActive) return;
+
+            // Burada oyun mantığı devam edecek...
+            // Şimdilik test için hemen kazanma
+            endGame(true);
+        });
+
+        // Touch olayları için swipe desteği
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            if (!gameStarted) return;
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const diffX = touchEndX - touchStartX;
+
+            if (Math.abs(diffX) > 50) { // minimum swipe mesafesi
+                if (diffX > 0) {
+                    rightBtn.click();
+                } else {
+                    leftBtn.click();
+                }
+            }
+        });
     </script>
 </body>
 </html> 
