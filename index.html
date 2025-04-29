@@ -155,6 +155,20 @@
             box-shadow: 0 -2px 24px 0 rgba(0,0,0,0.5);
         }
 
+        /* Kontrol panelinin üstündeki yatay çizgi */
+        .control-separator {
+            width: 100vw;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #00ffff 40%, #00ffff 60%, transparent 100%);
+            box-shadow: 0 0 8px #00ffff, 0 0 2px #fff;
+            margin-bottom: 18px;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 20;
+        }
+
         .controlRow {
             display: flex;
             align-items: center;
@@ -418,6 +432,20 @@
             filter: drop-shadow(0 0 8px #ff2e6d);
         }
 
+        /* Shield altından cyan çizgiye inen beyaz kablo */
+        .shield-down-wire {
+            position: absolute;
+            width: 1px;
+            background: #222;
+            box-shadow: none;
+            opacity: 0.5;
+            z-index: 2;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+            border-radius: 1px;
+        }
+
         /* Oyun alanı (kutular ve kablolar) için ortalama kapsayıcı */
         .gameField {
             display: flex;
@@ -547,6 +575,7 @@
             </div>
 
             <div id="controlPanel">
+                <div class="control-separator"></div>
                 <div class="controlRow">
                     <button id="leftBtn" class="arrowBtn">←</button>
                     <div id="usb">
@@ -616,6 +645,7 @@
             document.querySelectorAll('.shield').forEach(shield => shield.remove());
             document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.remove());
             document.querySelectorAll('.shield-icon').forEach(icon => icon.remove());
+            document.querySelectorAll('.shield-down-wire').forEach(wire => wire.remove());
 
             for(let i = 0; i < 9; i++) {
                 // Şifre monitörleri
@@ -807,6 +837,7 @@
             // Eski kabloları temizle
             document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.remove());
             document.querySelectorAll('.shield-icon').forEach(icon => icon.remove());
+            document.querySelectorAll('.shield-down-wire').forEach(wire => wire.remove());
             const passwordMonitors = passwordRow.children;
             const codeMonitors = codeRow.children;
             const container = document.getElementById('gameContainer');
@@ -857,6 +888,26 @@
                 shield.style.top = `${midY - 14}px`;
                 shield.innerHTML = `<svg viewBox="0 0 28 28"><path class="shield-shape" d="M14 3 L24 7 Q23 18 14 25 Q5 18 4 7 Z"/></svg>`;
                 container.appendChild(shield);
+
+                // Shield'ın alt merkezinden cyan çizgiye kadar beyaz kablo çiz
+                // Shield'ın alt merkezi
+                const shieldBottomY = midY + 14; // shield yüksekliği/2
+                const shieldCenterX = midX;
+
+                // Kontrol paneli separator çizgisinin konumunu bul
+                const separator = document.querySelector('.control-separator');
+                if (separator) {
+                    const sepRect = separator.getBoundingClientRect();
+                    const sepY = sepRect.top - containerBox.top;
+                    // Kablonun uzunluğu: shield'ın altından separator çizgisinin biraz altına kadar
+                    const wireLength = sepY + 6 - shieldBottomY; // 6px aşağı taşsın
+                    const downWire = document.createElement('div');
+                    downWire.className = 'shield-down-wire';
+                    downWire.style.left = `${shieldCenterX - 0.5}px`;
+                    downWire.style.top = `${shieldBottomY}px`;
+                    downWire.style.height = `${wireLength}px`;
+                    container.appendChild(downWire);
+                }
             }
         }
 
