@@ -107,9 +107,9 @@
         }
 
         .password-monitor {
-            border-color: #00ffff;
-            color: #00ffff;
-            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+            border-color: #ff2e6d;
+            color: #ff2e6d;
+            box-shadow: 0 0 5px rgba(255, 46, 109, 0.3);
         }
 
         .code-monitor {
@@ -512,6 +512,8 @@
             z-index: 2;
             text-shadow: 0 0 12px #00ffe0, 0 0 2px #fff;
             pointer-events: none;
+            margin: 0;
+            padding: 0;
         }
         #antivirusSpinnerInner {
             stroke: #00ffe0;
@@ -547,6 +549,21 @@
                 width: 80px;
                 line-height: 80px;
             }
+        }
+
+        /* Cyan efekt stilleri */
+        .shield-icon.active-cyan svg .shield-shape { 
+            stroke: #00ffff !important; 
+            filter: drop-shadow(0 0 8px #00ffff); 
+        }
+        .monitor-vertical-wire.cable-glow { 
+            box-shadow: 0 0 4px rgba(0, 255, 255, 0.15), 0 0 1px rgba(0, 255, 255, 0.1); 
+            background: rgba(0, 255, 255, 0.2) !important; 
+        }
+        #usb.usb-cyan { 
+            border-color: #00ffff !important; 
+            box-shadow: 0 0 20px #00ffff, 0 0 10px #00ffff; 
+            color: #00ffff; 
         }
     </style>
 </head>
@@ -611,6 +628,19 @@
             <p class="screenText">Şifre kırıldı. Kalan süre: <span id="remainingTime">00:00</span></p>
             <button id="nextLevelButton" class="bigBtn">DEVAM ET</button>
         </div>
+
+        <!-- Tutorial Modal -->
+        <div id="tutorialModal" class="gameScreen" style="z-index: 200; display: none; background: rgba(0,0,0,0.97);">
+            <div id="tutorialContent" style="max-width: 400px; width: 90vw; text-align: center;">
+                <h2 id="tutorialTitle" style="color: #00ffff; margin-bottom: 18px;"></h2>
+                <div id="tutorialText" style="color: #fff; font-size: 1.2em; min-height: 80px; margin-bottom: 24px;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button id="tutorialPrev" class="arrowBtn">←</button>
+                    <button id="tutorialSkip" class="bigBtn" style="font-size: 1em; padding: 8px 18px;">ATLAMA</button>
+                    <button id="tutorialNext" class="arrowBtn">→</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -622,6 +652,46 @@
         let currentLevel = 1;
         let isUSBActive = false;
         let antivirusTime = 60;
+        
+        // Stage-1 için değişkenler
+        let activeShieldIndex = -1;        // Aktif olan shield'ın indeksi
+        let correctBoxIndex = -1;          // Doğru kutunun indeksi
+        let unlockedPasswordCount = 0;     // Açılan şifre sayısı
+        let unlockedBoxes = new Array(9).fill(null);  // Her shield için açılmış kutu indeksi
+
+        // ===== Stage-1: codeRow Otomatik Spin (Farklı Hızlar) =====
+        const SPIN_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let codeRowSpinIntervals = [];
+        let isSpinning = false;
+
+        function startCodeRowSpin() {
+            stopCodeRowSpin();
+            isSpinning = true;
+            const codeMonitors = codeRow.children;
+            for (let i = 0; i < codeMonitors.length; i++) {
+                // Her kutuya farklı hız (ör: 60ms + i*30ms)
+                const speed = 60 + i * 30;
+                codeRowSpinIntervals[i] = setInterval(() => {
+                    const randChar = SPIN_CHARS[Math.floor(Math.random() * SPIN_CHARS.length)];
+                    codeMonitors[i].textContent = randChar;
+                }, speed);
+            }
+        }
+
+        function stopCodeRowSpin() {
+            isSpinning = false;
+            for (let i = 0; i < codeRowSpinIntervals.length; i++) {
+                clearInterval(codeRowSpinIntervals[i]);
+            }
+            codeRowSpinIntervals = [];
+        }
+
+        // Oyun başında otomatik başlat (tutorial sonrası)
+        function startGame() {
+            createMonitors();
+            startCodeRowSpin();
+            startTimer(60); // Stage-1 için 60 saniye
+        }
 
         // DOM elementleri
         const gameArea = document.getElementById('gameArea');
@@ -644,8 +714,6 @@
             // Eski shield'ları ve kabloları temizle
             document.querySelectorAll('.shield').forEach(shield => shield.remove());
             document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.remove());
-            document.querySelectorAll('.shield-icon').forEach(icon => icon.remove());
-            document.querySelectorAll('.shield-down-wire').forEach(wire => wire.remove());
 
             for(let i = 0; i < 9; i++) {
                 // Şifre monitörleri
@@ -658,7 +726,10 @@
                 // Kod monitörleri
                 const codeMonitor = document.createElement('div');
                 codeMonitor.className = 'monitor code-monitor';
-                codeMonitor.textContent = '?';
+                codeMonitor.textContent = i.toString();
+                codeMonitor.style.fontSize = '2.7em'; // Kutunun izin verdiği en büyük ölçü (gerekirse artırılabilir)
+                codeMonitor.style.lineHeight = '1';
+                codeMonitor.style.fontWeight = 'bold';
                 codeMonitor.dataset.index = i;
                 codeRow.appendChild(codeMonitor);
             }
@@ -687,9 +758,9 @@
         }
 
         // Timer fonksiyonu
-        function startTimer() {
-            timer = 60;
-            antivirusTime = 60;
+        function startTimer(seconds) {
+            timer = seconds;
+            antivirusTime = seconds;
             updateTimerDisplay();
             updateAntivirusTimeDisplay();
 
@@ -706,7 +777,7 @@
                 }
                 // Antivirüs süresi sıfırlanırsa burada reset animasyonu ve şifre reseti eklenebilir
                 if(antivirusTime <= 0) {
-                    antivirusTime = 60;
+                    antivirusTime = seconds;
                     updateAntivirusTimeDisplay();
                     // TODO: Şifre resetleme ve animasyon efekti burada tetiklenecek
                 }
@@ -716,7 +787,10 @@
         function updateTimerDisplay() {
             const minutes = Math.floor(timer / 60);
             const seconds = timer % 60;
-            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            if (typeof timerElement !== 'undefined' && timerElement) timerElement.textContent = formatted;
+            const antivirusTimeEl = document.getElementById('antivirusTime');
+            if (antivirusTimeEl) antivirusTimeEl.textContent = timer;
         }
 
         // Oyun sonu
@@ -740,7 +814,7 @@
             gameArea.classList.remove('hidden');
             gameStarted = true;
             createMonitors();
-            startTimer();
+            startTimer(60);
         });
 
         document.getElementById('restartButton').addEventListener('click', () => {
@@ -752,7 +826,7 @@
             gameArea.classList.remove('hidden');
             winScreen.classList.add('hidden');
             createMonitors();
-            startTimer();
+            startTimer(60);
         });
 
         // Kontrol butonları
@@ -768,10 +842,223 @@
             updateSelection();
         });
 
+        // Rastgele shield seçme fonksiyonu
+        function pickRandomShield() {
+            // Seçilebilir shield'ları bul
+            const availableShields = [];
+            
+            // Her shield için kontrol et (0'dan 7'ye kadar)
+            for (let shieldIndex = 0; shieldIndex < 8; shieldIndex++) {
+                // Bu shield'ın sorumlu olduğu kutular
+                // Shield 0 -> Kutu 0,1
+                // Shield 1 -> Kutu 1,2
+                // Shield 2 -> Kutu 2,3 ...
+                const firstBox = shieldIndex;
+                const secondBox = shieldIndex + 1;
+                
+                // Her iki kutu da çözülmüşse bu shield'ı atla
+                const firstBoxSolved = unlockedBoxes.includes(firstBox);
+                const secondBoxSolved = unlockedBoxes.includes(secondBox);
+                
+                if (firstBoxSolved && secondBoxSolved) {
+                    // Bu shield'ın her iki kutusu da çözülmüş, bu shield'ı atla
+                    continue;
+                }
+                
+                // En az bir kutu çözülmemişse bu shield seçilebilir
+                availableShields.push(shieldIndex);
+            }
+
+            // Debug için konsola yazdır
+            console.log('Seçilebilir shield\'lar:', availableShields);
+            console.log('Çözülmüş kutular:', unlockedBoxes);
+
+            // Kullanılabilir shield kalmadıysa -1 döndür
+            if (availableShields.length === 0) return -1;
+
+            // Kullanılabilir shield'lardan birini rastgele seç
+            const randomIndex = Math.floor(Math.random() * availableShields.length);
+            const selectedShield = availableShields[randomIndex];
+            
+            // Debug için seçilen shield'ı yazdır
+            console.log('Seçilen shield:', selectedShield);
+            
+            return selectedShield;
+        }
+
+        // Shield'ın altındaki iki kutudan birini seç
+        function pickCorrectBox(shieldIndex) {
+            // Shield'ın sorumlu olduğu kutular
+            const firstBox = shieldIndex;
+            const secondBox = shieldIndex + 1;
+
+            // İki kutudan biri çözülmüşse, diğeri doğru olmalı
+            if (unlockedBoxes.includes(firstBox)) {
+                return secondBox;  // İlk kutu çözülmüşse ikinci kutu doğru
+            } else if (unlockedBoxes.includes(secondBox)) {
+                return firstBox;   // İkinci kutu çözülmüşse ilk kutu doğru
+            }
+
+            // Her iki kutu da çözülmemişse rastgele seç
+            return Math.random() < 0.5 ? firstBox : secondBox;
+        }
+
+        // Shield ve kabloları vurgulama fonksiyonu
+        function highlightShieldAndCables(shieldIndex) {
+            // Tüm shield ve kabloları reset
+            document.querySelectorAll('.shield-icon').forEach(shield => shield.classList.remove('active-cyan'));
+            document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.classList.remove('cable-glow'));
+
+            // Seçilen shield'ı vurgula
+            const shields = document.querySelectorAll('.shield-icon');
+            const selectedShield = shields[shieldIndex];
+            if (selectedShield) {
+                selectedShield.classList.add('active-cyan');
+            }
+
+            // Komşu kabloları kısa süreli vurgula
+            const wires = document.querySelectorAll('.monitor-vertical-wire');
+            if (wires[shieldIndex]) {
+                wires[shieldIndex].classList.add('cable-glow');
+                setTimeout(() => wires[shieldIndex].classList.remove('cable-glow'), 150);
+            }
+            if (wires[shieldIndex + 1]) {
+                wires[shieldIndex + 1].classList.add('cable-glow');
+                setTimeout(() => wires[shieldIndex + 1].classList.remove('cable-glow'), 150);
+            }
+        }
+
+        // Şifre açma kontrolü
+        function checkPassword() {
+            // Eğer aktif shield yoksa veya USB aktif değilse
+            if (activeShieldIndex === -1 || !isUSBActive) return false;
+
+            // Seçili kutu daha önce çözülmüş mü?
+            if (unlockedBoxes.includes(selectedMonitorIndex)) {
+                return false;
+            }
+
+            // Debug için konsola yazdır
+            console.log('Aktif shield:', activeShieldIndex);
+            console.log('Seçili kutu:', selectedMonitorIndex);
+            console.log('Doğru kutu:', correctBoxIndex);
+
+            // Seçili kutu, aktif shield'ın altındaki doğru kutu mu?
+            if (selectedMonitorIndex === correctBoxIndex) {
+                // Doğru kutuyu bulduk!
+                const passwordMonitors = document.querySelectorAll('.password-monitor');
+                const codeMonitors = document.querySelectorAll('.code-monitor');
+                
+                // Seçilen kutudaki karakteri al
+                const selectedChar = codeMonitors[correctBoxIndex].textContent;
+                
+                // Üstteki şifreyi güncelle
+                if (passwordMonitors[correctBoxIndex]) {
+                    passwordMonitors[correctBoxIndex].textContent = selectedChar;
+                    passwordMonitors[correctBoxIndex].style.color = '#00ffff'; // Harf cyan
+                    passwordMonitors[correctBoxIndex].style.borderColor = '#ff2e6d'; // Kutu fuşya
+                    passwordMonitors[correctBoxIndex].style.boxShadow = '0 0 10px #ff2e6d'; // Gölge fuşya
+                }
+
+                // Bu shield için açılan kutuyu kaydet
+                unlockedBoxes.push(correctBoxIndex);
+
+                // İlerlemeyi kaydet
+                unlockedPasswordCount++;
+
+                // Debug için konsola yazdır
+                console.log('Çözülen kutular:', unlockedBoxes);
+
+                // Tüm şifreler açıldı mı?
+                if (unlockedPasswordCount === 9) {
+                    setTimeout(() => endGame(true), 500);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        // USB tıklama olayını güncelle
         usb.addEventListener('click', () => {
             if (!gameStarted) return;
-            isUSBActive = !isUSBActive;
-            usb.classList.toggle('active');
+            
+            // USB'yi cyan yap ve 300ms sonra kaldır
+            usb.classList.add('usb-cyan');
+            setTimeout(() => usb.classList.remove('usb-cyan'), 300);
+
+            // Spin'i durdur/başlat
+            if (isSpinning) {
+                stopCodeRowSpin();
+                // Rastgele shield seç
+                activeShieldIndex = pickRandomShield();
+                
+                // Eğer kullanılabilir shield kaldıysa devam et
+                if (activeShieldIndex !== -1) {
+                    // Shield'ın altındaki kutulardan birini doğru kutu olarak belirle
+                    correctBoxIndex = pickCorrectBox(activeShieldIndex);
+                    highlightShieldAndCables(activeShieldIndex);
+                    isUSBActive = !isUSBActive;
+                    usb.classList.toggle('active');
+                }
+            } else {
+                startCodeRowSpin();
+                // Aktif shield'ı ve doğru kutuyu sıfırla
+                activeShieldIndex = -1;
+                correctBoxIndex = -1;
+                // Tüm efektleri temizle
+                document.querySelectorAll('.shield-icon').forEach(shield => shield.classList.remove('active-cyan'));
+                document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.classList.remove('cable-glow'));
+                isUSBActive = !isUSBActive;
+                usb.classList.toggle('active');
+            }
+        });
+
+        // Connect butonunu güncelle
+        connectBtn.addEventListener('click', () => {
+            if (!gameStarted || !isUSBActive) return;
+
+            if (checkPassword()) {
+                // Doğru kutuyu bulduk, efekt göster
+                const selectedMonitor = document.querySelectorAll('.code-monitor')[selectedMonitorIndex];
+                if (selectedMonitor) {
+                    selectedMonitor.style.color = '#00ffff';
+                    selectedMonitor.style.borderColor = '#00ffff';
+                    selectedMonitor.style.boxShadow = '0 0 20px #00ffff';
+                    setTimeout(() => {
+                        selectedMonitor.style.color = '';
+                        selectedMonitor.style.borderColor = '';
+                        selectedMonitor.style.boxShadow = '';
+                    }, 500);
+                }
+            } else {
+                // Yanlış kutu veya çözülmüş kutu, kırmızı efekt göster
+                const selectedMonitor = document.querySelectorAll('.code-monitor')[selectedMonitorIndex];
+                if (selectedMonitor) {
+                    selectedMonitor.style.color = '#ff2e6d';
+                    selectedMonitor.style.borderColor = '#ff2e6d';
+                    selectedMonitor.style.boxShadow = '0 0 20px #ff2e6d';
+                    setTimeout(() => {
+                        selectedMonitor.style.color = '';
+                        selectedMonitor.style.borderColor = '';
+                        selectedMonitor.style.boxShadow = '';
+                    }, 500);
+                }
+
+                // Spin'i tekrar başlat
+                startCodeRowSpin();
+                
+                // USB butonunu reset'le
+                isUSBActive = false;
+                usb.classList.remove('active');
+                activeShieldIndex = -1;
+                correctBoxIndex = -1;
+
+                // Shield ve kablo efektlerini temizle
+                document.querySelectorAll('.shield-icon').forEach(shield => shield.classList.remove('active-cyan'));
+                document.querySelectorAll('.monitor-vertical-wire').forEach(wire => wire.classList.remove('cable-glow'));
+            }
         });
 
         // Klavye kontrolleri
@@ -792,15 +1079,6 @@
                     connectBtn.click();
                     break;
             }
-        });
-
-        // Connect butonu
-        connectBtn.addEventListener('click', () => {
-            if (!gameStarted || !isUSBActive) return;
-
-            // Burada oyun mantığı devam edecek...
-            // Şimdilik test için hemen kazanma
-            endGame(true);
         });
 
         // Touch olayları için swipe desteği
@@ -915,6 +1193,62 @@
         function updateAntivirusTimeDisplay() {
             document.getElementById('antivirusTime').textContent = antivirusTime;
         }
+
+        // ===== Tutorial Data =====
+        const tutorialSlides = [
+            { title: "Hedef", text: "Şüpheli cihazın şifresini kır ve dijital delillere ulaş! Her aşama için zamanın kısıtlı." },
+            { title: "Zaman", text: "Antivirüs çemberi süreni gösterir. Stage-1: 60 sn, Stage-2: 90 sn." },
+            { title: "USB", text: "USB butonuna basarak kod döngüsünü başlat/durdur. Stage-1 ve Stage-2'de farklı işlevi var." },
+            { title: "Ok Tuşları", text: "Sağ/sol oklarla kutular arasında gez. Mobilde butonları kullanabilirsin." },
+            { title: "Bağlan", text: "Seçili kutuda doğru karakteri bulduğunda 'BAĞLAN' ile kilitle." },
+            { title: "Stage-1 Kuralı", text: "USB'ye basınca rastgele bir shield aktif olur. Sadece o iki kutudan birini seçebilirsin." },
+            { title: "Stage-2 Kuralı", text: "Üst satırdaki karakterleri tek tek eşleştir. USB ile döngüyü durdur, doğru karakteri bulunca BAĞLAN'a bas." }
+        ];
+        let tutorialIndex = 0;
+        let tutorialDone = false;
+
+        function showTutorial() {
+            const modal = document.getElementById('tutorialModal');
+            modal.style.display = 'flex';
+            updateTutorialSlide();
+        }
+        function hideTutorial() {
+            document.getElementById('tutorialModal').style.display = 'none';
+            tutorialDone = true;
+            // Oyun başlatılacaksa burada başlatılır
+            setTimeout(() => { startGame(); }, 0);
+        }
+        function updateTutorialSlide() {
+            const slide = tutorialSlides[tutorialIndex];
+            document.getElementById('tutorialTitle').textContent = slide.title;
+            document.getElementById('tutorialText').textContent = slide.text;
+            document.getElementById('tutorialPrev').disabled = tutorialIndex === 0;
+            document.getElementById('tutorialNext').textContent = tutorialIndex === tutorialSlides.length - 1 ? '✔' : '→';
+        }
+        document.getElementById('tutorialPrev').onclick = function() {
+            if (tutorialIndex > 0) { tutorialIndex--; updateTutorialSlide(); }
+        };
+        document.getElementById('tutorialNext').onclick = function() {
+            if (tutorialIndex < tutorialSlides.length - 1) {
+                tutorialIndex++;
+                updateTutorialSlide();
+            } else {
+                hideTutorial();
+            }
+        };
+        document.getElementById('tutorialSkip').onclick = function() { hideTutorial(); };
+        // Klavye ile gezinme
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('tutorialModal').style.display === 'flex') {
+                if (e.key === 'ArrowLeft') document.getElementById('tutorialPrev').click();
+                if (e.key === 'ArrowRight') document.getElementById('tutorialNext').click();
+                if (e.key === 'Escape') hideTutorial();
+            }
+        });
+        // Oyun başında otomatik aç
+        window.addEventListener('DOMContentLoaded', function() {
+            if (!tutorialDone) showTutorial();
+        });
     </script>
 </body>
 </html> 
