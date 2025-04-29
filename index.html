@@ -118,12 +118,23 @@
             box-shadow: 0 0 5px rgba(255, 46, 109, 0.3);
         }
 
-        /* Seçili monitör efekti */
-        .monitor.selected {
-            transform: scale(1.1);
-            border-width: 3px;
-            box-shadow: 0 0 15px currentColor;
+        /* Sadece alt monitörlerde (codeRow) seçim efekti olacak */
+        .code-monitor.selected {
+            border-color: #00ffe0 !important;
+            box-shadow: 0 0 24px #00ffe0, 0 0 8px #00ffe0;
+            background: rgba(0,255,224,0.10);
+            color: #00ffe0;
+            transform: scale(1.13);
             z-index: 10;
+        }
+        /* Üst monitörlerde seçim efekti olmasın */
+        .password-monitor.selected {
+            border-color: inherit;
+            box-shadow: none;
+            background: inherit;
+            color: inherit;
+            transform: none;
+            z-index: 1;
         }
 
         /* Kontrol paneli */
@@ -497,22 +508,18 @@
             }
         }
 
-        // Seçili monitörü güncelle
+        // Monitör seçimini güncelle (sadece codeRow'da seçim efekti uygula)
         function updateSelection() {
-            // Tüm monitörlerdeki seçim efektini kaldır
-            document.querySelectorAll('.monitor').forEach(monitor => {
+            // Tüm seçimleri kaldır
+            Array.from(passwordRow.children).forEach(monitor => {
                 monitor.classList.remove('selected');
             });
-
-            // Seçili monitörleri işaretle
-            const passwordMonitors = passwordRow.children;
-            const codeMonitors = codeRow.children;
-
-            if (passwordMonitors[selectedMonitorIndex]) {
-                passwordMonitors[selectedMonitorIndex].classList.add('selected');
-            }
-            if (codeMonitors[selectedMonitorIndex]) {
-                codeMonitors[selectedMonitorIndex].classList.add('selected');
+            Array.from(codeRow.children).forEach(monitor => {
+                monitor.classList.remove('selected');
+            });
+            // Sadece alt satırda seçim efekti uygula
+            if (codeRow.children[selectedMonitorIndex]) {
+                codeRow.children[selectedMonitorIndex].classList.add('selected');
             }
         }
 
