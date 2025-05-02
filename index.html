@@ -214,6 +214,7 @@
             z-index: 999;
             padding: 20px;
             text-align: center;
+            overflow-y: auto; /* İçerik sığmazsa scroll çubuğu göster */
         }
         
         .hidden {
@@ -267,6 +268,92 @@
         
         .shield {
             animation: shield-blink 0.8s infinite;
+        }
+
+        /* Çözüm durumundaki geçiş efekti için animasyon */
+        @keyframes connection-success {
+            0% { background-color: rgba(50, 50, 50, 0.7); } /* Koyu gri başlangıç */
+            50% { background-color: rgba(51, 255, 51, 0.7); } /* Yeşil vurgu */
+            100% { background-color: rgba(50, 50, 50, 0.7); } /* Koyu gri bitiş */
+        }
+
+        /* Bu stil, çözüm durumunda kutular arasındaki bağlantı çizgisinin animasyonunu sağlar */
+        .password-box.success::after {
+            animation: connection-success 1s forwards;
+        }
+
+        /* Kilit İkonu */
+        .lock-icon {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            z-index: 5; /* Bağlantı çizgilerinin üzerinde */
+            opacity: 0.7;
+            display: none; /* Başlangıçta gizli */
+            transform: translate(-50%, -50%); /* Tam merkeze hizala */
+            transition: all 0.3s ease;
+        }
+
+        /* Kilit ikonu içindeki SVG */
+        .lock-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: #555;
+            stroke: #33ff33;
+            stroke-width: 1px;
+            transition: all 0.3s ease;
+        }
+
+        /* Aktif kilit ikonu */
+        .lock-icon.active {
+            display: block;
+        }
+        
+        /* Vurgulanan kilit ikonu */
+        .lock-icon.highlight svg {
+            fill: #333;
+            stroke: #ffff00;
+            stroke-width: 2px;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.7));
+        }
+        
+        /* Çözülmüş kilit ikonu - rengini değiştirmiyoruz */
+        .lock-icon.solved svg {
+            fill: #555; /* Orijinal fill rengi korundu */
+            stroke: #33ff33; /* Orijinal stroke rengi korundu */
+            stroke-width: 1px; /* Orijinal çizgi kalınlığı korundu */
+        }
+        
+        /* Responsive kilit boyutları */
+        @media (min-width: 1200px) {
+            .lock-icon {
+                width: 28px;
+                height: 28px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .lock-icon {
+                width: 20px;
+                height: 20px;
+            }
+        }
+        
+        @media (max-width: 450px) {
+            .lock-icon {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        /* Başlangıç ekranı için genel ayarlamalar */
+        #start-screen {
+            padding: 20px;
+            justify-content: center;
+        }
+
+        #start-content {
+            display: none;
         }
 
         /* Yatay ekran için ek optimizasyonlar */
@@ -469,120 +556,19 @@
                 font-size: 1.5rem;
             }
         }
-
-        /* Çözüm durumundaki geçiş efekti için animasyon */
-        @keyframes connection-success {
-            0% { background-color: rgba(50, 50, 50, 0.7); } /* Koyu gri başlangıç */
-            50% { background-color: rgba(51, 255, 51, 0.7); } /* Yeşil vurgu */
-            100% { background-color: rgba(50, 50, 50, 0.7); } /* Koyu gri bitiş */
-        }
-
-        /* Bu stil, çözüm durumunda kutular arasındaki bağlantı çizgisinin animasyonunu sağlar */
-        .password-box.success::after {
-            animation: connection-success 1s forwards;
-        }
-
-        /* Kilit İkonu */
-        .lock-icon {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            z-index: 5; /* Bağlantı çizgilerinin üzerinde */
-            opacity: 0.7;
-            display: none; /* Başlangıçta gizli */
-            transform: translate(-50%, -50%); /* Tam merkeze hizala */
-            transition: all 0.3s ease;
-        }
-
-        /* Kilit ikonu içindeki SVG */
-        .lock-icon svg {
-            width: 100%;
-            height: 100%;
-            fill: #555;
-            stroke: #33ff33;
-            stroke-width: 1px;
-            transition: all 0.3s ease;
-        }
-
-        /* Aktif kilit ikonu */
-        .lock-icon.active {
-            display: block;
-        }
-        
-        /* Vurgulanan kilit ikonu */
-        .lock-icon.highlight svg {
-            fill: #333;
-            stroke: #ffff00;
-            stroke-width: 2px;
-            filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.7));
-        }
-        
-        /* Çözülmüş kilit ikonu - rengini değiştirmiyoruz */
-        .lock-icon.solved svg {
-            fill: #555; /* Orijinal fill rengi korundu */
-            stroke: #33ff33; /* Orijinal stroke rengi korundu */
-            stroke-width: 1px; /* Orijinal çizgi kalınlığı korundu */
-        }
-        
-        /* Responsive kilit boyutları */
-        @media (min-width: 1200px) {
-            .lock-icon {
-                width: 28px;
-                height: 28px;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .lock-icon {
-                width: 20px;
-                height: 20px;
-            }
-        }
-        
-        @media (max-width: 450px) {
-            .lock-icon {
-                width: 16px;
-                height: 16px;
-            }
-        }
     </style>
 </head>
 <body>
     <!-- Başlangıç Ekranı -->
     <div id="start-screen" class="screen">
         <h1 style="color: #33ff33; margin-bottom: 20px; font-size: 2.5rem; text-shadow: 0 0 10px rgba(51, 255, 51, 0.5);">CSI Kod Kırma Görevi</h1>
-        <p style="margin-bottom: 15px; font-size: 1.3rem;">Bir CSI ajanı olarak şüpheli cihazın 9 haneli kilidini kırmalısın.</p>
-        <p style="margin-bottom: 25px; font-size: 1.3rem;">Görev süresi kısıtlı, hızlı ve dikkatli ol!</p>
         
-        <!-- Oyun Talimatları -->
-        <div style="background-color: rgba(0, 0, 0, 0.5); border: 2px solid #33ff33; padding: 20px; border-radius: 8px; margin-bottom: 25px; max-width: 600px; text-align: left;">
-            <h3 style="color: #33ff33; margin-bottom: 15px; text-align: center;">OYUN TALİMATLARI</h3>
-            
-            <div style="margin-bottom: 15px;">
-                <h4 style="color: #ffff00; margin-bottom: 5px;">AŞAMA 1 (60 saniye):</h4>
-                <ul style="list-style-type: none; padding-left: 15px;">
-                    <li style="margin-bottom: 5px;">1. CONNECT butonuna tıkla - kilit ikonu parlar</li>
-                    <li style="margin-bottom: 5px;">2. Parlayan kilit ikonunun bağlı olduğu kutulardan birini seç</li>
-                    <li style="margin-bottom: 5px;">3. Doğru kutu seçilirse şifrenin bir parçası çözülür</li>
-                    <li style="margin-bottom: 5px;">4. SEARCH butonuna tıkla ve yeni bir kilit ikonu parlatmayı dene</li>
-                    <li style="margin-bottom: 5px;">5. Tüm karakterleri çöz ve 2. aşamaya geç</li>
-                </ul>
-            </div>
-            
-            <div>
-                <h4 style="color: #00ffff; margin-bottom: 5px;">AŞAMA 2 (90 saniye):</h4>
-                <ul style="list-style-type: none; padding-left: 15px;">
-                    <li style="margin-bottom: 5px;">1. Kutuya tıklayarak seç ve tekrar tıklayarak durdur</li>
-                    <li style="margin-bottom: 5px;">2. Üstteki şifre ile eşleşen karakteri bul</li>
-                    <li style="margin-bottom: 5px;">3. BAĞLAN butonuna tıkla</li>
-                    <li style="margin-bottom: 5px;">4. Tüm şifreyi doğru eşleştirerek kilidi aç</li>
-                </ul>
-            </div>
-        </div>
+        <p style="margin-bottom: 15px; font-size: 1.3rem;">Kilit ikonlarını takip ederek kutuları seç ve şifreyi çöz.</p>
+        <p style="margin-bottom: 25px; font-size: 1.3rem;">Görev süresi kısıtlı, hızlı ve dikkatli ol!</p>
         
         <!-- Yatay ekran uyarısı -->
         <div style="background-color: rgba(255, 153, 0, 0.2); border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
-            <p style="color: #ff9900; font-size: 1.3rem; margin: 0;"><strong>⚠️ Önemli:</strong> En iyi deneyim için cihazınızı yatay konumda kullanınız!</p>
+            <p style="color: #ff9900; font-size: 1.3rem; margin: 0;"><strong>⚠️</strong> En iyi deneyim için cihazınızı yatay konumda kullanınız!</p>
         </div>
         
         <button id="start-btn" class="btn" onclick="startGame()">GÖREVİ BAŞLAT</button>
