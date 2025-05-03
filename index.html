@@ -768,7 +768,7 @@
             </div>
             
             <!-- Yatay ekran uyarısı -->
-            <div style="background-color: rgba(255, 153, 0, 0.2); border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
+            <div id="orientation-warning" style="background-color: rgba(255, 153, 0, 0.2); border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: none;">
                 <p style="color: #ff9900; font-size: 1.3rem; margin: 0;"><strong>⚠️ Önemli:</strong> En iyi deneyim için cihazınızı yatay konumda kullanınız!</p>
             </div>
 
@@ -842,6 +842,21 @@
     <script>
         // Ses sistemi için EventListener'lar ekle
         document.addEventListener('DOMContentLoaded', function() {
+            // Sayfa yüklendiğinde ekran yönünü kontrol et
+            checkOrientation(false); // İlk başta alert gösterme
+            
+            // Ekran yönü değiştiğinde otomatik kontrol
+            window.addEventListener("orientationchange", function() {
+                setTimeout(function() {
+                    checkOrientation(false); // Ekran yönü değiştiğinde sessizce güncelle
+                }, 300); // Yön değişiminin etkinleşmesi için kısa bir gecikme
+            });
+            
+            // Ekran boyutu değiştiğinde de kontrol et
+            window.addEventListener("resize", function() {
+                checkOrientation(false);
+            });
+            
             // Ses kontrol butonuna tıklama olayını ekle
             const soundControl = document.getElementById('sound-control');
             const soundOn = document.getElementById('sound-on');
@@ -874,16 +889,35 @@
             if (fullscreenBtn) {
                 fullscreenBtn.addEventListener('click', function(e) {
                     e.preventDefault(); // Form gönderimini engelle
+                    
+                    // Önce tam ekrana geç
                     requestFullScreen();
+                    
+                    // Sonra ekran yönünü kontrol et (bir miktar gecikme ile)
+                    setTimeout(function() {
+                        // Ekran dikey modda ise uyarı göster, aksi halde gösterme
+                        if (window.innerWidth < window.innerHeight) {
+                            checkOrientation(false); // false: sessiz uyarı (alert gösterme)
+                        }
+                    }, 500);
                 });
                 
                 fullscreenBtn.addEventListener('touchend', function(e) {
                     e.preventDefault(); // Çift tıklama önleme
+                    
+                    // Önce tam ekrana geç
                     requestFullScreen();
                     
                     // Mobil cihazlar için ek tam ekran denemesi
                     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
                         setTimeout(tryMobileFullscreen, 300);
+                        
+                        // Sonra ekran yönünü kontrol et
+                        setTimeout(function() {
+                            if (window.innerWidth < window.innerHeight) {
+                                checkOrientation(false);
+                            }
+                        }, 500);
                     }
                 });
             }
@@ -2636,11 +2670,25 @@
         });
         
         // Ekran yönünü kontrol et
-        function checkOrientation() {
+        function checkOrientation(showAlert = true) {
             // Yatay ekran kontrolü
             if (window.innerWidth < window.innerHeight) {
                 // Dikey ekran, uyarı göster
-                alert("Bu oyun yatay ekranda daha iyi çalışır. Lütfen cihazınızı yatay konuma çevirin.");
+                if (showAlert) {
+                    alert("Bu oyun yatay ekranda daha iyi çalışır. Lütfen cihazınızı yatay konuma çevirin.");
+                }
+                
+                // Sarı uyarı bloğunu göster
+                const warningElem = document.getElementById('orientation-warning');
+                if (warningElem) {
+                    warningElem.style.display = "block";
+                }
+            } else {
+                // Yatay ekranda ise uyarı bloğunu gizle
+                const warningElem = document.getElementById('orientation-warning');
+                if (warningElem) {
+                    warningElem.style.display = "none";
+                }
             }
         }
 
