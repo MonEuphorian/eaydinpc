@@ -62,8 +62,6 @@
             padding: 30px; /* Daha fazla iç boşluk */
             box-shadow: 0 0 20px rgba(51, 255, 51, 0.3);
             position: relative;
-            outline: 2px solid #00ff00; /* Dış çizgi */
-            outline-offset: 5px; /* Dış çizgi ile iç çizgi arası mesafe */
         }
         
         /* Oyun Başlığı - Container içinde - Kaldırıldı */
@@ -192,25 +190,11 @@
             transition: all 0.3s;
             outline: none;
             touch-action: manipulation;
-            min-width: 140px; /* Minimum genişlik ekledim */
         }
         
         .btn:hover, .btn:active {
             background-color: #222;
             box-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
-        }
-        
-        /* Buton basılma efekti */
-        .btn:active {
-            transform: scale(0.95);
-        }
-        
-        /* Disable durumu */
-        .btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            border-color: #555;
-            color: #555;
         }
         
         /* Aktif buton vurgusu */
@@ -729,6 +713,47 @@
             z-index: 2;
             pointer-events: none;
         }
+
+        /* YENİ: Tamamlama animasyonları için CSS */
+        @keyframes decryption-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 5px rgba(0, 255, 255, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 255, 0.9); }
+            100% { transform: scale(1); box-shadow: 0 0 5px rgba(0, 255, 255, 0.5); }
+        }
+
+        @keyframes decrypt-character {
+            0% { opacity: 0.3; transform: scale(0.8); color: #33ff33; }
+            30% { opacity: 1; transform: scale(1.2); color: #33ff33; }
+            40% { opacity: 1; transform: scale(1.1); color: #00ffff; }
+            60% { opacity: 1; transform: scale(1); color: #00ffff; }
+            80% { transform: scale(1.05); }
+            100% { transform: scale(1); color: #00ffff; }
+        }
+
+        @keyframes decrypt-line {
+            0% { width: 2px; background-color: rgba(0, 255, 255, 0.2); }
+            50% { width: 4px; background-color: rgba(0, 255, 255, 0.8); }
+            100% { width: 2px; background-color: rgba(0, 255, 255, 0.4); }
+        }
+
+        @keyframes completion-flash {
+            0% { background-color: rgba(0, 0, 0, 0); }
+            10% { background-color: rgba(0, 255, 255, 0.2); }
+            100% { background-color: rgba(0, 0, 0, 0); }
+        }
+
+        .decrypt-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+
     </style>
 </head>
 <body>
@@ -787,6 +812,14 @@
             <div style="background-color: rgba(255, 153, 0, 0.2); border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
                 <p style="color: #ff9900; font-size: 1.3rem; margin: 0;"><strong>⚠️ Önemli:</strong> En iyi deneyim için cihazınızı yatay konumda kullanınız!</p>
             </div>
+
+            <!-- Tam Ekran Modu İçin Buton -->
+            <button id="fullscreen-btn" class="btn" style="margin-bottom: 20px;" onclick="requestFullScreen()">
+                <svg style="width: 20px; height: 20px; margin-right: 8px; vertical-align: bottom;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+                TAM EKRAN MODU
+            </button>
         </div>
         <button id="start-btn" class="btn" onclick="startGame()">GÖREVİ BAŞLAT</button>
     </div>
@@ -872,8 +905,15 @@
                 SoundSystem.enableAudioContext();
             }, { once: true });
             
-            // Tam ekran modu kaldırıldı - dokunmatik referanslar silindi
-            
+            // Tam ekran butonuna ek olaylar ekle
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault(); // Çift tıklama önleme
+                    requestFullScreen();
+                });
+            }
+
             // Mobil cihazlar için adres çubuğunu gizleme denemesi
             setTimeout(function() {
                 // iOS için adres çubuğunu gizlemeye yardımcı olur
@@ -898,18 +938,18 @@
             // Ses dosyalarını yükle
             init: function() {
                 const soundFiles = {
-                    click: 'assets/sounds/click.mp3',
-                    connect: 'assets/sounds/connect.mp3',
-                    success: 'assets/sounds/success.mp3', 
-                    error: 'assets/sounds/error.mp3',
-                    complete: 'assets/sounds/complete.mp3',
-                    pulse: 'assets/sounds/pulse.mp3',
-                    energy: 'assets/sounds/energy.mp3',
-                    particle: 'assets/sounds/particle.mp3',
-                    stageComplete: 'assets/sounds/stage_complete.mp3',
-                    gameWin: 'assets/sounds/win.mp3',
-                    timeUp: 'assets/sounds/time_up.mp3',
-                    boxStop: 'assets/sounds/box_stop.mp3'
+                    click: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/click.mp3',
+                    connect: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/connect.mp3',
+                    success: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/success.mp3', 
+                    error: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/error.mp3',
+                    complete: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/complete.mp3',
+                    pulse: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/pulse.mp3',
+                    energy: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/energy.mp3',
+                    particle: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/particle.mp3',
+                    stageComplete: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/stage_complete.mp3',
+                    gameWin: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/win.mp3',
+                    timeUp: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/time_up.mp3',
+                    boxStop: 'https://raw.githubusercontent.com/MonEuphorian/eaydinpc/main/assets/box_stop.mp3'
                 };
                 
                 this.loadSounds(soundFiles);
@@ -929,8 +969,9 @@
                     // MP3 ve WAV desteği
                     const audio = new Audio();
                     
-                    // Her format için kaynak ekle
-                    const mp3Src = src.replace('.mp3', '.mp3');
+                    // GitHub raw URL'lerini doğru şekilde ayarla
+                    const mp3Src = src; // MP3 URL'i doğrudan kullan
+                    // WAV dosyalarının URL'ini oluştur
                     const wavSrc = src.replace('.mp3', '.wav');
                     
                     audio.volume = this.settings.volume;
@@ -1115,16 +1156,49 @@
             SoundSystem.init();
             // Başlangıç sesi
             SoundSystem.play('connect');
-
-            // Tam ekran modu kaldırıldı
-
+            
+            // Tam ekran otomatik başlamıyor artık
+            
             initGame();
         }
 
-        // Tam ekran moduna geçiş için fonksiyon - devre dışı bırakıldı
+        // Tam ekran moduna geçiş için fonksiyon
         function requestFullScreen() {
-            // Bu fonksiyon artık devre dışı - tam ekran modu istenmiyor
-            console.log("Tam ekran modu devre dışı bırakıldı");
+            const docEl = document.documentElement;
+            
+            // Farklı tarayıcılar için tam ekran API desteği
+            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen ||
+                          docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+            
+            // Ekran kilitleme API'si (mobil cihazlar için)
+            const lockOrientation = screen.lockOrientation || screen.mozLockOrientation ||
+                         screen.msLockOrientation || (screen.orientation && screen.orientation.lock);
+            
+            // Tam ekran moduna geç
+            if (requestFullScreen) {
+                requestFullScreen.call(docEl)
+                    .then(() => {
+                        console.log("Fullscreen mode activated");
+                        // Yatay ekran modunu kilitlemeyi dene (mobil cihazlar için)
+                        if (lockOrientation) {
+                            try {
+                                lockOrientation("landscape");
+                                console.log("Screen orientation locked to landscape");
+                            } catch (e) {
+                                console.warn("Could not lock screen orientation:", e);
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.warn("Fullscreen request failed:", err);
+                    });
+            }
+
+            // iOS Safari için viewport tam ekran çözümü
+            // iOS tam ekran API'yi doğrudan desteklemediği için viewport ayarlarıyla benzer etki yaratma
+            setTimeout(() => {
+                window.scrollTo(0, 1); // Adres çubuğunu gizlemeye yardımcı olur
+            }, 300);
         }
 
         // Tam ekrandan çıkış için fonksiyon (kullanıcı oyun içinde çıkmak isterse)
@@ -1170,9 +1244,6 @@
             // Game state'i sıfırla
             GameState.reset();
             currentStage = GameState.currentStage;
-            
-            // İlk olarak buton aktif duruma getirilsin
-            connectBtn.disabled = false;
             
             // Aşama göstergesini güncelle
             stageIndicator.textContent = "AŞAMA 1/2";
@@ -1270,116 +1341,96 @@
         function startSpinning() {
             console.log("Starting spinning effect for stage:", GameState.currentStage);
             
-            // DOM'un güncellenmiş olduğundan emin olmak için kısa bir gecikme ekleyelim
-            setTimeout(() => {
-                // Önceki interval'leri temizle
-                if (GameState.spinningIntervals && GameState.spinningIntervals.length > 0) {
-                    GameState.spinningIntervals.forEach((interval, index) => {
-                        if (interval) {
-                            clearInterval(interval);
-                        }
-                    });
-                }
-                
-                // Interval'leri sıfırla
-                GameState.spinningIntervals = [];
-                spinningIntervals = GameState.spinningIntervals;
-                
-                const codeBoxes = codeRowEl.querySelectorAll('.box');
-                
-                // Eğer kutu sayısı 9'dan az ise, henüz DOM hazır değil demektir, bir süre daha bekleyelim
-                if (codeBoxes.length < 9) {
-                    console.log("Spinners not ready yet, retrying...");
-                    setTimeout(startSpinning, 100); // 100ms sonra tekrar dene
-                    return;
-                }
-                
-                // Aşama 1'de tüm kutularda tüm karakterler döner
-                if (GameState.currentStage === 1) {
-                    console.log("Setting up stage 1 spinning boxes");
-                    // Tüm kutular için aynı hızı kullan
-                    const speed = 150; // Aşama 1 için sabit hız
-                    
-                    codeBoxes.forEach((box, index) => {
-                        const spinner = box.querySelector('.spinner');
-                        if (!spinner) {
-                            console.warn("Spinner not found for box", index);
-                            return;
-                        }
-                        
-                        let charIndex = 0;
-                        
-                        const interval = setInterval(() => {
-                            charIndex = (charIndex + 1) % GameState.characterSets[index].length;
-                            spinner.textContent = GameState.characterSets[index][charIndex];
-                        }, speed);
-                        
-                        GameState.spinningIntervals.push(interval);
-                        spinningIntervals = GameState.spinningIntervals;
-                        
-                        GameState.boxStates[index] = true; // true = dönen
-                        boxStates = GameState.boxStates;
-                    });
-                } 
-                // Aşama 2'de üst kutudaki karaktere göre döner
-                else {
-                    // Aşama 2 kodu değişmeden kalacak
-                    console.log("Setting up stage 2 spinning boxes");
-                    // 2. aşama için hız değerleri (kutu bazında saklanacak)
-                    if (!GameState.boxSpeeds) {
-                        // İlk kez çağrıldığında hız değerlerini oluştur
-                        GameState.boxSpeeds = [];
-                        boxSpeeds = GameState.boxSpeeds;
-                        
-                        for (let i = 0; i < 9; i++) {
-                            GameState.boxSpeeds[i] = 100 + Math.random() * 100; // 100-200 ms arası
-                            boxSpeeds[i] = GameState.boxSpeeds[i];
-                        }
+            // Önceki interval'leri temizle
+            if (GameState.spinningIntervals && GameState.spinningIntervals.length > 0) {
+                GameState.spinningIntervals.forEach((interval, index) => {
+                    if (interval) {
+                        clearInterval(interval);
                     }
+                });
+            }
+            
+            // Interval'leri sıfırla
+            GameState.spinningIntervals = [];
+            spinningIntervals = GameState.spinningIntervals;
+            
+            const codeBoxes = codeRowEl.querySelectorAll('.box');
+            
+            // Aşama 1'de tüm kutularda tüm karakterler döner
+            if (GameState.currentStage === 1) {
+                console.log("Setting up stage 1 spinning boxes");
+                // Tüm kutular için aynı hızı kullan
+                const speed = 150; // Aşama 1 için sabit hız
+                
+                codeBoxes.forEach((box, index) => {
+                    const spinner = box.querySelector('.spinner');
+                    let charIndex = 0;
                     
-                    // Mevcut karakter indeksleri (kaldığı yerden devam için)
-                    if (!GameState.charIndices) {
-                        GameState.charIndices = Array(9).fill(0);
-                        charIndices = GameState.charIndices;
-                    }
+                    const interval = setInterval(() => {
+                        charIndex = (charIndex + 1) % GameState.characterSets[index].length;
+                        spinner.textContent = GameState.characterSets[index][charIndex];
+                    }, speed);
                     
-                    // Her kutu için ayrı bir interval oluştur ve spesifik indekse ata
-                    GameState.spinningIntervals = new Array(9).fill(null);
+                    GameState.spinningIntervals.push(interval);
                     spinningIntervals = GameState.spinningIntervals;
-                    GameState.boxStates = new Array(9).fill(true);
+                    
+                    GameState.boxStates[index] = true; // true = dönen
                     boxStates = GameState.boxStates;
+                });
+            } 
+            // Aşama 2'de üst kutudaki karaktere göre döner
+            else {
+                console.log("Setting up stage 2 spinning boxes");
+                // 2. aşama için hız değerleri (kutu bazında saklanacak)
+                if (!GameState.boxSpeeds) {
+                    // İlk kez çağrıldığında hız değerlerini oluştur
+                    GameState.boxSpeeds = [];
+                    boxSpeeds = GameState.boxSpeeds;
                     
-                    // Seçili kutuyu sıfırla
-                    GameState.selectedBox = null;
-                    selectedBox = null;
-                    
-                    codeBoxes.forEach((box, index) => {
-                        // Tüm seçim stillerini kaldır
-                        box.classList.remove('selected');
-                        
-                        // Bu kutu çözülmüş mü kontrol et
-                        if (GameState.correctBoxes.includes(index)) {
-                            console.log("Box", index, "is already solved, not spinning");
-                            box.classList.add('solved');
-                            GameState.boxStates[index] = false; // çözülmüş kutu dönmez
-                            boxStates = GameState.boxStates;
-                            return; // Çözülmüşse döngüye katma
-                        }
-                        
-                        // Kutu için döngüyü başlat
-                        startBoxSpinning(index);
-                    });
+                    for (let i = 0; i < 9; i++) {
+                        GameState.boxSpeeds[i] = 100 + Math.random() * 100; // 100-200 ms arası
+                        boxSpeeds[i] = GameState.boxSpeeds[i];
+                    }
                 }
                 
-                // Döngü durumunu güncelle
-                GameState.isSpinning = true;
-                isSpinning = GameState.isSpinning;
+                // Mevcut karakter indeksleri (kaldığı yerden devam için)
+                if (!GameState.charIndices) {
+                    GameState.charIndices = Array(9).fill(0);
+                    charIndices = GameState.charIndices;
+                }
                 
-                // Connect butonunun durumunu güncelle
-                updateConnectButton();
+                // Her kutu için ayrı bir interval oluştur ve spesifik indekse ata
+                GameState.spinningIntervals = new Array(9).fill(null);
+                spinningIntervals = GameState.spinningIntervals;
+                GameState.boxStates = new Array(9).fill(true);
+                boxStates = GameState.boxStates;
                 
-                console.log("Spinning started successfully");
-            }, 50); // 50ms gecikme ile başlat - DOM güncellemelerinin tamamlanmasını bekle
+                // Seçili kutuyu sıfırla
+                GameState.selectedBox = null;
+                selectedBox = null;
+                
+                codeBoxes.forEach((box, index) => {
+                    // Tüm seçim stillerini kaldır
+                    box.classList.remove('selected');
+                    
+                    // Bu kutu çözülmüş mü kontrol et
+                    if (GameState.correctBoxes.includes(index)) {
+                        console.log("Box", index, "is already solved, not spinning");
+                        box.classList.add('solved');
+                        GameState.boxStates[index] = false; // çözülmüş kutu dönmez
+                        boxStates = GameState.boxStates;
+                        return; // Çözülmüşse döngüye katma
+                    }
+                    
+                    // Kutu için döngüyü başlat
+                    startBoxSpinning(index);
+                });
+            }
+            
+            GameState.isSpinning = true;
+            isSpinning = GameState.isSpinning;
+            
+            updateConnectButton();
         }
         
         // Timer'ı güncelleme
@@ -1668,15 +1719,112 @@
             timer = 1; // Zamanlayıcıyı 1'e ayarla ki zamanlayıcı güncellemesi yeniden çalışırsa bile süre sıfırlanmadan önce oyun tamamlansın
             timerEl.textContent = timer;
             
-            // Üst kutularda dalgalanma efekti
+            // Şifre çözme sesi
+            SoundSystem.play('success');
+            
+            // Oyun container'da bir overlay oluştur
+            const gameContainer = document.querySelector('.game-container');
+            const overlay = document.createElement('div');
+            overlay.className = 'decrypt-overlay';
+            gameContainer.appendChild(overlay);
+            
+            // Flaş efekti
+            setTimeout(() => {
+                overlay.style.animation = 'completion-flash 0.8s forwards';
+            }, 500);
+            
+            // Şifre kutularında animasyon
             const passwordBoxes = passwordRowEl.querySelectorAll('.box');
-            passwordBoxes.forEach(box => {
-                box.style.animation = 'pulse 0.5s infinite alternate';
+            const codeBoxes = codeRowEl.querySelectorAll('.box');
+            
+            // Her şifre kutusunu vurgula (belirli bir sırayla)
+            passwordBoxes.forEach((box, index) => {
+                setTimeout(() => {
+                    // Başlangıçta box shadow'u kaldır
+                    box.style.boxShadow = 'none';
+                    box.style.animation = 'decrypt-character 1s forwards';
+                    
+                    // Kutunun arka planına ışıma efekti ekle
+                    const highlight = document.createElement('div');
+                    highlight.className = 'box-highlight';
+                    box.appendChild(highlight);
+                    highlight.style.opacity = '0.7';
+                    
+                    // Highlight'ı kaldır
+                    setTimeout(() => {
+                        if (highlight.parentNode === box) {
+                            box.removeChild(highlight);
+                        }
+                    }, 800);
+                    
+                    // Alt kutuda da aynı şekilde animasyon
+                    if (codeBoxes[index]) {
+                        codeBoxes[index].style.animation = 'decryption-pulse 1s infinite';
+                    }
+                    
+                    // Kutular arası bağlantıyı vurgula
+                    if (index < 8) {
+                        // CSS'teki after pseudo elementini doğrudan kontrol edemiyoruz,
+                        // bunun yerine bir yardımcı element oluşturalım
+                        const connectionLine = document.createElement('div');
+                        connectionLine.style.position = 'absolute';
+                        connectionLine.style.width = '2px';
+                        connectionLine.style.backgroundColor = 'rgba(0, 255, 255, 0.2)';
+                        connectionLine.style.zIndex = '3';
+                        connectionLine.style.animation = 'decrypt-line 0.8s infinite';
+                        
+                        // Box'un konumuna göre çizgiyi yerleştir
+                        const box1Rect = passwordBoxes[index].getBoundingClientRect();
+                        const box2Rect = passwordBoxes[index + 1].getBoundingClientRect();
+                        const containerRect = gameContainer.getBoundingClientRect();
+                        
+                        // Box'lar arası mesafe hesaplama
+                        const x1 = box1Rect.left + box1Rect.width / 2 - containerRect.left;
+                        const x2 = box2Rect.left + box2Rect.width / 2 - containerRect.left;
+                        const y = box1Rect.bottom - containerRect.top;
+                        
+                        // Yatay çizgiyi konumlandır
+                        connectionLine.style.left = `${x1}px`;
+                        connectionLine.style.top = `${y}px`;
+                        connectionLine.style.width = `${x2 - x1}px`;
+                        connectionLine.style.height = '2px';
+                        
+                        gameContainer.appendChild(connectionLine);
+                        
+                        // Belli bir süre sonra kaldır
+                        setTimeout(() => {
+                            if (connectionLine.parentNode === gameContainer) {
+                                gameContainer.removeChild(connectionLine);
+                            }
+                        }, 1000);
+                    }
+                    
+                    // Her kutu için efekt ses çal
+                    SoundSystem.play('pulse');
+                }, index * 200);
             });
             
-            // 3 saniye sonra tamamlanma ekranını göster
+            // 3.5 saniye sonra tamamlanma ekranını göster
             setTimeout(() => {
+                // Overlay'ı kaldır
+                if (overlay.parentNode === gameContainer) {
+                    gameContainer.removeChild(overlay);
+                }
+                
+                // Tüm animasyonları durdur
+                passwordBoxes.forEach((box) => {
+                    box.style.animation = '';
+                    box.style.boxShadow = '';
+                });
+                codeBoxes.forEach((box) => {
+                    box.style.animation = '';
+                });
+                
+                // Stage complete ekranını göster
                 stageComplete();
+                
+                // Tamamlanma sesi
+                SoundSystem.play('complete');
             }, 3000);
         }
         
@@ -2091,15 +2239,6 @@
         
         // Connect butonu tıklaması
         function handleConnectClick() {
-            // Butonun çalışabilir durumda olduğundan emin ol (özellikle oyun başlangıcında)
-            if (connectBtn.disabled) {
-                console.log("Connect butonu şu anda devre dışı");
-                return;
-            }
-            
-            // Kısa süreliğine butonu devre dışı bırak (çift tıklamayı önlemek için)
-            connectBtn.disabled = true;
-            
             if (GameState.currentStage === 1) {
                 // 1. aşama için yeni mantık
                 if (GameState.isSpinning) {
@@ -2144,11 +2283,6 @@
                 // Buton durumunu güncelle (eşleşme sonrası)
                 updateConnectButton();
             }
-            
-            // Butonu kısa bir süre sonra tekrar aktif et
-            setTimeout(() => {
-                connectBtn.disabled = false;
-            }, 300);
         }
         
         // Aktif kilit ikonunu seç
@@ -2431,11 +2565,13 @@
                     }, 800);
                 }
             } else if (GameState.selectedBox === null) {
-                // Hiç kutu seçili değilse uyarı
-                alert("Lütfen önce bir kutu seçin ve durdurun!");
+                // Hiç kutu seçili değilse uyarı - burayı değiştiriyoruz
+                // alert("Lütfen önce bir kutu seçin ve durdurun!");
+                showCustomAlert("1- Monitörü Aktifleştir<br>2- Doğru Anda Durdur<br>3- Bağlantıyı Kur");
             } else if (GameState.boxStates[GameState.selectedBox]) {
-                // Kutu seçili ama durdurulmamış
-                alert("Lütfen seçili kutuyu durdurmak için üzerine tıklayın!");
+                // Kutu seçili ama durdurulmamış - burayı değiştiriyoruz
+                // alert("Lütfen seçili kutuyu durdurmak için üzerine tıklayın!");
+                showCustomAlert("1- Monitörü Aktifleştir<br>2- Doğru Anda Durdur<br>3- Bağlantıyı Kur");
             }
         }
         
@@ -2630,6 +2766,53 @@
             
             // Kilit ikonlarının durumlarını güncelle
             updateLockIconStates();
+        }
+
+        // Özel uyarı mesajı gösterme fonksiyonu - yeni ekleniyor
+        function showCustomAlert(message) {
+            // Önceki alert varsa kaldır
+            const existingAlert = document.querySelector('.custom-alert');
+            if (existingAlert) {
+                document.body.removeChild(existingAlert);
+            }
+            
+            // Alert container oluştur
+            const alertContainer = document.createElement('div');
+            alertContainer.className = 'custom-alert';
+            alertContainer.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(17, 17, 17, 0.95);
+                border: 2px solid #00ffff;
+                border-radius: 8px;
+                padding: 20px;
+                color: #00ffff;
+                font-size: 1.2rem;
+                text-align: center;
+                z-index: 1000;
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+                min-width: 280px;
+            `;
+            
+            // Mesaj içeriği
+            alertContainer.innerHTML = `
+                <div style="margin-bottom: 20px;">${message}</div>
+                <button class="btn" style="background-color: #222; color: #00ffff; border-color: #00ffff; padding: 8px 15px; font-size: 1rem;">Tamam</button>
+            `;
+            
+            // Tamam butonuna tıklama olayı
+            const okButton = alertContainer.querySelector('button');
+            okButton.addEventListener('click', function() {
+                document.body.removeChild(alertContainer);
+            });
+            
+            // Alert'i body'ye ekle
+            document.body.appendChild(alertContainer);
+            
+            // Alert ses efekti
+            SoundSystem.play('click');
         }
     </script>
 </body>
