@@ -2,7 +2,10 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>CSI: CodeBreaker</title>
     <style>
         /* Temel Stil */
@@ -713,6 +716,25 @@
     </style>
 </head>
 <body>
+    <!-- Ses Kontrolü Butonu -->
+    <div id="sound-control" style="position: fixed; top: 15px; right: 15px; z-index: 1000; cursor: pointer;">
+        <svg id="sound-on" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#33ff33" stroke-width="2" style="display: block;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+        <svg id="sound-off" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff3333" stroke-width="2" style="display: none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+    </div>
+
+    <!-- Ses Dosyaları Konteyneri -->
+    <div id="sound-system" style="display: none;">
+        <!-- Ses dosyaları burada preload edilecek -->
+    </div>
+
     <!-- Başlangıç Ekranı -->
     <div id="start-screen" class="screen">
         <div class="scrollable">
@@ -749,6 +771,14 @@
             <div style="background-color: rgba(255, 153, 0, 0.2); border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
                 <p style="color: #ff9900; font-size: 1.3rem; margin: 0;"><strong>⚠️ Önemli:</strong> En iyi deneyim için cihazınızı yatay konumda kullanınız!</p>
             </div>
+
+            <!-- Tam Ekran Modu İçin Buton -->
+            <button id="fullscreen-btn" class="btn" style="margin-bottom: 20px;" onclick="requestFullScreen()">
+                <svg style="width: 20px; height: 20px; margin-right: 8px; vertical-align: bottom;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+                TAM EKRAN MODU
+            </button>
         </div>
         <button id="start-btn" class="btn" onclick="startGame()">GÖREVİ BAŞLAT</button>
     </div>
@@ -810,6 +840,172 @@
     </div>
 
     <script>
+        // Ses sistemi için EventListener'lar ekle
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ses kontrol butonuna tıklama olayını ekle
+            const soundControl = document.getElementById('sound-control');
+            const soundOn = document.getElementById('sound-on');
+            const soundOff = document.getElementById('sound-off');
+            
+            soundControl.addEventListener('click', function() {
+                const enabled = SoundSystem.toggleSound();
+                if (enabled) {
+                    soundOn.style.display = 'block';
+                    soundOff.style.display = 'none';
+                } else {
+                    soundOn.style.display = 'none';
+                    soundOff.style.display = 'block';
+                }
+            });
+            
+            // Mobil için dokunma olayı
+            document.addEventListener('touchstart', function() {
+                // İlk dokunuşta sessiz bir ses çal - mobil tarayıcılarda ses API'sini etkinleştirmek için
+                SoundSystem.enableAudioContext();
+            }, { once: true });
+            
+            // Tam ekran butonuna ek olaylar ekle
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault(); // Çift tıklama önleme
+                    requestFullScreen();
+                });
+            }
+
+            // Mobil cihazlar için adres çubuğunu gizleme denemesi
+            setTimeout(function() {
+                // iOS için adres çubuğunu gizlemeye yardımcı olur
+                window.scrollTo(0, 1);
+            }, 100);
+            
+            // Oyun başladığında ses sistemini başlat
+            SoundSystem.init();
+        });
+        
+        // Ses Sistemi - Oyun için ses yönetimi
+        const SoundSystem = {
+            // Ses dosyalarını hafızada tutan obje
+            sounds: {},
+            
+            // Ses ayarları
+            settings: {
+                enabled: true,
+                volume: 0.5
+            },
+            
+            // Ses dosyalarını yükle
+            init: function() {
+                const soundFiles = {
+                    click: 'assets/sounds/click.mp3',
+                    connect: 'assets/sounds/connect.mp3',
+                    success: 'assets/sounds/success.mp3', 
+                    error: 'assets/sounds/error.mp3',
+                    complete: 'assets/sounds/complete.mp3',
+                    pulse: 'assets/sounds/pulse.mp3',
+                    energy: 'assets/sounds/energy.mp3',
+                    particle: 'assets/sounds/particle.mp3',
+                    stageComplete: 'assets/sounds/stage_complete.mp3',
+                    gameWin: 'assets/sounds/win.mp3',
+                    timeUp: 'assets/sounds/time_up.mp3',
+                    boxStop: 'assets/sounds/box_stop.mp3'
+                };
+                
+                this.loadSounds(soundFiles);
+                this.enableAudioContext();
+                
+                // Mobile için ses çalma izni
+                document.addEventListener('touchstart', () => {
+                    this.enableAudioContext();
+                }, { once: true });
+            },
+            
+            // Ses dosyalarını yükle - MP3 ve WAV formatlarını destekler
+            loadSounds: function(files) {
+                const soundSystem = document.getElementById('sound-system');
+                
+                for (const [name, src] of Object.entries(files)) {
+                    // MP3 ve WAV desteği
+                    const audio = new Audio();
+                    
+                    // Her format için kaynak ekle
+                    const mp3Src = src.replace('.mp3', '.mp3');
+                    const wavSrc = src.replace('.mp3', '.wav');
+                    
+                    audio.volume = this.settings.volume;
+                    
+                    // Birden fazla kaynak ekle - tarayıcı desteklediği ilkini çalacak
+                    const sourceMP3 = document.createElement('source');
+                    sourceMP3.src = mp3Src;
+                    sourceMP3.type = 'audio/mpeg';
+                    
+                    const sourceWAV = document.createElement('source');
+                    sourceWAV.src = wavSrc;
+                    sourceWAV.type = 'audio/wav';
+                    
+                    audio.appendChild(sourceMP3);
+                    audio.appendChild(sourceWAV);
+                    
+                    // Preload ekle
+                    audio.load();
+                    
+                    // Sound system'a ekle
+                    soundSystem.appendChild(audio);
+                    
+                    // Objede sakla
+                    this.sounds[name] = audio;
+                    
+                    console.log(`Sound loaded: ${name}`);
+                }
+            },
+            
+            // AudioContext'i etkinleştir (mobil için)
+            enableAudioContext: function() {
+                // Web Audio API için context etkinleştir
+                if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    const audioCtx = new AudioContext();
+                    
+                    // AudioContext'i başlat (mobil için)
+                    if (audioCtx.state === 'suspended') {
+                        audioCtx.resume();
+                    }
+                }
+            },
+            
+            // Ses çal
+            play: function(name) {
+                if (!this.settings.enabled) return;
+                
+                const sound = this.sounds[name];
+                if (sound) {
+                    // Sesi başa sar ve çal
+                    sound.currentTime = 0;
+                    sound.play().catch(error => {
+                        console.warn(`Error playing sound ${name}:`, error);
+                    });
+                }
+            },
+            
+            // Sesleri açıp kapatma
+            toggleSound: function(enabled) {
+                this.settings.enabled = enabled !== undefined ? enabled : !this.settings.enabled;
+                return this.settings.enabled;
+            },
+            
+            // Ses seviyesini ayarla
+            setVolume: function(level) {
+                this.settings.volume = Math.min(1, Math.max(0, level));
+                
+                // Tüm ses dosyalarının seviyesini güncelle
+                for (const sound of Object.values(this.sounds)) {
+                    sound.volume = this.settings.volume;
+                }
+                
+                return this.settings.volume;
+            }
+        };
+        
         // Global Game State - Oyun durumu
         const GameState = {
             // Oyunun mevcut aşaması
@@ -914,7 +1110,82 @@
         // Oyunu başlat
         function startGame() {
             startScreen.classList.add('hidden');
+            // Ses sistemini başlat
+            SoundSystem.init();
+            // Başlangıç sesi
+            SoundSystem.play('connect');
+
+            // Tam ekran moduna geç
+            requestFullScreen();
+            
             initGame();
+        }
+
+        // Tam ekran moduna geçiş için fonksiyon
+        function requestFullScreen() {
+            const docEl = document.documentElement;
+            
+            // Farklı tarayıcılar için tam ekran API desteği
+            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen ||
+                          docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+            
+            // Ekran kilitleme API'si (mobil cihazlar için)
+            const lockOrientation = screen.lockOrientation || screen.mozLockOrientation ||
+                         screen.msLockOrientation || (screen.orientation && screen.orientation.lock);
+            
+            // Tam ekran moduna geç
+            if (requestFullScreen) {
+                requestFullScreen.call(docEl)
+                    .then(() => {
+                        console.log("Fullscreen mode activated");
+                        // Yatay ekran modunu kilitlemeyi dene (mobil cihazlar için)
+                        if (lockOrientation) {
+                            try {
+                                lockOrientation("landscape");
+                                console.log("Screen orientation locked to landscape");
+                            } catch (e) {
+                                console.warn("Could not lock screen orientation:", e);
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.warn("Fullscreen request failed:", err);
+                        // Başarısız olsa bile oyunu başlat
+                    });
+            }
+
+            // iOS Safari için viewport tam ekran çözümü
+            // iOS tam ekran API'yi doğrudan desteklemediği için viewport ayarlarıyla benzer etki yaratma
+            setTimeout(() => {
+                window.scrollTo(0, 1); // Adres çubuğunu gizlemeye yardımcı olur
+            }, 300);
+        }
+
+        // Tam ekrandan çıkış için fonksiyon (kullanıcı oyun içinde çıkmak isterse)
+        function exitFullScreen() {
+            const exitFullscreen = document.exitFullscreen || document.mozCancelFullScreen ||
+                       document.webkitExitFullscreen || document.msExitFullscreen;
+            
+            if (exitFullscreen) {
+                if (document.fullscreenElement || document.mozFullScreenElement ||
+                    document.webkitFullscreenElement || document.msFullscreenElement) {
+                    exitFullscreen.call(document);
+                }
+            }
+        }
+
+        // Tam ekran değişikliklerini izle
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+        // Tam ekran değiştiğinde çağrılacak
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement &&
+                !document.mozFullScreenElement && !document.msFullscreenElement) {
+                console.log("Fullscreen mode exited");
+            }
         }
         
         // Pencere yüklendiğinde ve yeniden boyutlandığında çağrılacak
@@ -1147,6 +1418,9 @@
             // Döngüleri durdur
             stopSpinning();
             
+            // Süre doldu sesi çal
+            SoundSystem.play('timeUp');
+            
             // Süre bitti ekranını göster
             timeUpScreen.classList.remove('hidden');
             
@@ -1207,6 +1481,9 @@
                         console.log("Correct box selected:", index);
                         // Doğru kutu seçildi
                         
+                        // Başarı sesi çal
+                        SoundSystem.play('success');
+                        
                         // Seçili kutunun o anki değerini al
                         const currentChar = codeBoxes[index].querySelector('.spinner').textContent;
                         
@@ -1230,6 +1507,7 @@
                         // Tüm kutular doğru mu kontrol et
                         if (correctBoxes.length === 9) {
                             setTimeout(() => {
+                                SoundSystem.play('complete');
                                 playCompletionAnimation();
                             }, 1000); // Animasyon tamamlandıktan sonra
                             return; // Oyun tamamlandı, fonksiyondan çık
@@ -1237,6 +1515,9 @@
                     } else {
                         console.log("Wrong box selected:", index, "correctBox was:", correctBox);
                         // Yanlış kutu seçildi
+                        
+                        // Hata sesi çal
+                        SoundSystem.play('error');
                         
                         // Hata animasyonu - kısa süreli kırmızı yanıp sönme
                         codeBoxes[index].classList.add('error');
@@ -1269,6 +1550,9 @@
             bottomBox.classList.add('animate-pulse');
             bottomBox.classList.add('success');
             
+            // Pulse sesi çal
+            SoundSystem.play('pulse');
+            
             // Kutu arasına enerji çizgisi ekle
             createEnergyFlow(index, bottomBox, topBox);
             
@@ -1277,6 +1561,9 @@
                 // Üst kutuya parlaklık ekle ve karakteri değiştir
                 topBox.classList.add('animate-box-glow');
                 topBox.classList.add('solved');
+                
+                // Parçacık sesi çal
+                SoundSystem.play('particle');
                 
                 // İç ışıma efekti
                 const boxHighlight = document.createElement('div');
@@ -1351,6 +1638,9 @@
             
             energyContainer.appendChild(particle);
             
+            // Enerji sesi çal
+            SoundSystem.play('energy');
+            
             // Animasyonları başlat
             requestAnimationFrame(() => {
                 energyLine.classList.add('animate-energy-flow');
@@ -1396,6 +1686,8 @@
         // Birinci aşama tamamlandı
         function stageComplete() {
             clearInterval(timerInterval);
+            // Aşama tamamlandı sesi çal
+            SoundSystem.play('stageComplete');
             stageCompleteScreen.classList.remove('hidden');
             stopSpinning();
         }
@@ -1403,6 +1695,9 @@
         // İkinci aşamayı başlat
         function startStage2() {
             console.log("Starting Stage 2...");
+            
+            // Aşama değişim sesi çal
+            SoundSystem.play('connect');
             
             // Tüm interval ve animasyonları temizle
             stopSpinning();
@@ -1533,6 +1828,8 @@
         // Oyun kazanıldı
         function winGame() {
             clearInterval(timerInterval);
+            // Oyun kazanma sesi çal
+            SoundSystem.play('gameWin');
             winScreen.classList.remove('hidden');
             stopSpinning();
         }
@@ -1601,6 +1898,9 @@
                 return; // Sadece aşama 2'de çalışmalı
             }
             
+            // Tıklama sesi çal
+            SoundSystem.play('click');
+            
             const codeBoxes = codeRowEl.querySelectorAll('.box');
             const box = codeBoxes[index];
             
@@ -1618,9 +1918,13 @@
                 if (GameState.boxStates[index]) {
                     // Kutu dönüyorsa durdur
                     stopBoxSpinning(index);
+                    // Kutu durma sesi çal
+                    SoundSystem.play('boxStop');
                 } else {
                     // Kutu durmuşsa başlat
                     startBoxSpinning(index);
+                    // Tıklama sesi çal
+                    SoundSystem.play('click');
                 }
             } 
             // 2. Senaryo: Farklı bir kutuya tıklanmış
@@ -1639,8 +1943,12 @@
                 // Kutu dönüyorsa durdur, durmuyorsa başlat
                 if (GameState.boxStates[index]) {
                     stopBoxSpinning(index);
+                    // Kutu durma sesi çal
+                    SoundSystem.play('boxStop');
                 } else {
                     startBoxSpinning(index);
+                    // Tıklama sesi çal
+                    SoundSystem.play('click');
                 }
             }
             
@@ -1767,6 +2075,9 @@
                     // Döngüyü durdur
                     stopSpinning();
                     
+                    // Connect sesi çal
+                    SoundSystem.play('connect');
+                    
                     // Aktif kilit ikonunu seç
                     selectActiveLock();
                     
@@ -1782,6 +2093,9 @@
                     // Parlayan kutuları temizle
                     clearHighlightedBoxes();
                     
+                    // Click sesi çal
+                    SoundSystem.play('click');
+                    
                     // Döngüyü yeniden başlat
                     startSpinning();
                     
@@ -1794,6 +2108,7 @@
                 }
             } else {
                 // 2. aşama için kutu eşleştirme kontrolü
+                SoundSystem.play('click');
                 checkStage2Match();
                 // Buton durumunu güncelle (eşleşme sonrası)
                 updateConnectButton();
@@ -2004,6 +2319,9 @@
                     codeBoxes[GameState.selectedBox].classList.add('success');
                     passwordBoxes[GameState.selectedBox].classList.add('success');
                     
+                    // Başarı sesi çal
+                    SoundSystem.play('success');
+                    
                     // Hafif titreşim animasyonu
                     codeBoxes[GameState.selectedBox].style.animation = 'pulse 0.5s';
                     passwordBoxes[GameState.selectedBox].style.animation = 'pulse 0.5s';
@@ -2045,12 +2363,18 @@
                     // Tüm kutular doğru mu kontrol et
                     if (GameState.correctBoxes.length === 9) {
                         console.log("All boxes matched! Starting final animation...");
-                        setTimeout(finalAnimation, 500);
+                        setTimeout(() => {
+                            SoundSystem.play('complete');
+                            finalAnimation();
+                        }, 500);
                     }
                 } else {
                     console.log("Match failed");
                     // Eşleşme yok - hata göster
                     codeBoxes[GameState.selectedBox].classList.add('error');
+                    
+                    // Hata sesi çal
+                    SoundSystem.play('error');
                     
                     // Geçici değişkenlerde seçili kutuyu saklayalım (setTimeout içinde kullanmak için)
                     const selectedBoxIndex = GameState.selectedBox;
