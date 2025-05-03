@@ -862,25 +862,68 @@
             document.addEventListener('touchstart', function() {
                 // İlk dokunuşta sessiz bir ses çal - mobil tarayıcılarda ses API'sini etkinleştirmek için
                 SoundSystem.enableAudioContext();
+                
+                // Mobil cihazlarda tam ekrana geçmeyi dene
+                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                    tryMobileFullscreen();
+                }
             }, { once: true });
             
             // Tam ekran butonuna ek olaylar ekle
             const fullscreenBtn = document.getElementById('fullscreen-btn');
             if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function(e) {
+                    e.preventDefault(); // Form gönderimini engelle
+                    requestFullScreen();
+                });
+                
                 fullscreenBtn.addEventListener('touchend', function(e) {
                     e.preventDefault(); // Çift tıklama önleme
                     requestFullScreen();
+                    
+                    // Mobil cihazlar için ek tam ekran denemesi
+                    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                        setTimeout(tryMobileFullscreen, 300);
+                    }
                 });
             }
 
             // Mobil cihazlar için adres çubuğunu gizleme denemesi
             setTimeout(function() {
-                // iOS için adres çubuğunu gizlemeye yardımcı olur
+                // iOS/Android için adres çubuğunu gizlemeye yardımcı olur
                 window.scrollTo(0, 1);
-            }, 100);
+                
+                // Bazı mobil tarayıcılarda ikinci deneme daha etkili
+                setTimeout(function() {
+                    window.scrollTo(0, 0);
+                }, 300);
+            }, 300);
             
             // Oyun başladığında ses sistemini başlat
             SoundSystem.init();
+            
+            // Mobil cihazlarda meta viewport ayarını güncelle
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+                let metaViewport = document.querySelector('meta[name="viewport"]');
+                if (metaViewport) {
+                    metaViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui, viewport-fit=cover';
+                }
+                
+                // iOS için apple-mobile-web-app ayarları
+                let metaApple = document.querySelector('meta[name="apple-mobile-web-app-capable"]');
+                if (!metaApple) {
+                    metaApple = document.createElement('meta');
+                    metaApple.name = 'apple-mobile-web-app-capable';
+                    metaApple.content = 'yes';
+                    document.head.appendChild(metaApple);
+                }
+                
+                // Body stil ayarları
+                document.body.style.height = '100vh';
+                document.body.style.position = 'fixed'; 
+                document.body.style.overflow = 'hidden';
+            }
         });
         
         // Ses Sistemi - Oyun için ses yönetimi
@@ -1107,20 +1150,6 @@
         const lettersOnly = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const numbersOnly = '0123456789';
         
-        // Oyunu başlat
-        function startGame() {
-            startScreen.classList.add('hidden');
-            // Ses sistemini başlat
-            SoundSystem.init();
-            // Başlangıç sesi
-            SoundSystem.play('connect');
-
-            // Tam ekran moduna geç
-            requestFullScreen();
-            
-            initGame();
-        }
-
         // Tam ekran moduna geçiş için fonksiyon
         function requestFullScreen() {
             const docEl = document.documentElement;
@@ -1151,14 +1180,78 @@
                     .catch(err => {
                         console.warn("Fullscreen request failed:", err);
                         // Başarısız olsa bile oyunu başlat
+                        
+                        // Mobil için alternatif çözüm
+                        tryMobileFullscreen();
                     });
+            } else {
+                // Tam ekran API'si desteklenmiyorsa alternatif çözüm dene
+                tryMobileFullscreen();
             }
 
             // iOS Safari için viewport tam ekran çözümü
-            // iOS tam ekran API'yi doğrudan desteklemediği için viewport ayarlarıyla benzer etki yaratma
             setTimeout(() => {
                 window.scrollTo(0, 1); // Adres çubuğunu gizlemeye yardımcı olur
             }, 300);
+        }
+
+        // Mobil cihazlar için alternatif tam ekran çözümü
+        function tryMobileFullscreen() {
+            // Mobil cihazlar için meta viewport ayarı güncelle
+            let metaViewport = document.querySelector('meta[name="viewport"]');
+            if (metaViewport) {
+                metaViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui, viewport-fit=cover';
+            }
+            
+            // iOS için özel tam ekran çözümü
+            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                // iOS için body'yi tam ekran yap
+                document.body.style.height = '100vh';
+                document.body.style.width = '100vw';
+                document.body.style.position = 'fixed';
+                
+                // Safari'de adres çubuğunu gizleme denemesi
+                setTimeout(function() {
+                    window.scrollTo(0, 1);
+                    // Sonra tekrar dene
+                    setTimeout(function() {
+                        window.scrollTo(0, 0);
+                    }, 100);
+                }, 100);
+            }
+            
+            // Android için özel tam ekran çözümü
+            if (navigator.userAgent.match(/Android/i)) {
+                // Android için body stil ayarları
+                document.body.style.height = '100%';
+                document.body.style.overflow = 'hidden';
+                
+                // Chrome adres çubuğunu gizleme denemesi
+                window.scrollTo(0, 1);
+            }
+        }
+
+        // Oyunu başlat
+        function startGame() {
+            startScreen.classList.add('hidden');
+            // Ses sistemini başlat
+            SoundSystem.init();
+            // Başlangıç sesi
+            SoundSystem.play('connect');
+
+            // Tam ekran moduna geç
+            requestFullScreen();
+            
+            // Mobil cihazlar için ek kontrol
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+                // İkinci bir deneme - bazı mobil tarayıcılar ilk denemede tam ekran izni vermeyebilir
+                setTimeout(() => {
+                    tryMobileFullscreen();
+                }, 1000);
+            }
+            
+            initGame();
         }
 
         // Tam ekrandan çıkış için fonksiyon (kullanıcı oyun içinde çıkmak isterse)
@@ -1661,6 +1754,11 @@
             // Tüm döngüleri durdur
             stopSpinning();
             
+            // Timer'ı hemen durdur
+            clearInterval(timerInterval);
+            timer = 1; // Zamanlayıcıyı 1'e ayarla ki zamanlayıcı güncellemesi yeniden çalışırsa bile süre sıfırlanmadan önce oyun tamamlansın
+            timerEl.textContent = timer;
+            
             // Üst kutularda dalgalanma efekti
             const passwordBoxes = passwordRowEl.querySelectorAll('.box');
             passwordBoxes.forEach(box => {
@@ -1690,6 +1788,21 @@
             SoundSystem.play('stageComplete');
             stageCompleteScreen.classList.remove('hidden');
             stopSpinning();
+            
+            // 1. aşamadayken üst satırdaki karakterleri kaydet, böylece 2. aşamaya aktarılsın
+            if (currentStage === 1) {
+                // Mevcut karakterleri al
+                const passwordBoxes = passwordRowEl.querySelectorAll('.box');
+                GameState.passwordRow = [];
+                passwordRow = [];
+                
+                // Karakterleri kaydet
+                for (let i = 0; i < 9; i++) {
+                    const boxValue = passwordBoxes[i].textContent;
+                    GameState.passwordRow.push(boxValue);
+                    passwordRow.push(boxValue);
+                }
+            }
         }
         
         // İkinci aşamayı başlat
