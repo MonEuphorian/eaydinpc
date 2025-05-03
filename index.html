@@ -2431,10 +2431,10 @@
                 }
             } else if (GameState.selectedBox === null) {
                 // Hiç kutu seçili değilse uyarı
-                alert("Lütfen önce bir kutu seçin ve durdurun!");
+                showCustomAlert("1- Monitörü Aktifleştir<br>2- Doğru Anda Durdur<br>3- Bağlantıyı Kur");
             } else if (GameState.boxStates[GameState.selectedBox]) {
                 // Kutu seçili ama durdurulmamış
-                alert("Lütfen seçili kutuyu durdurmak için üzerine tıklayın!");
+                showCustomAlert("1- Monitörü Aktifleştir<br>2- Doğru Anda Durdur<br>3- Bağlantıyı Kur");
             }
         }
         
@@ -2629,6 +2629,46 @@
             
             // Kilit ikonlarının durumlarını güncelle
             updateLockIconStates();
+        }
+
+        // Özel uyarı gösterme fonksiyonu
+        function showCustomAlert(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '50%';
+            alertDiv.style.left = '50%';
+            alertDiv.style.transform = 'translate(-50%, -50%)';
+            alertDiv.style.padding = '20px';
+            alertDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+            alertDiv.style.color = '#33ff33';
+            alertDiv.style.fontSize = '18px';
+            alertDiv.style.borderRadius = '8px';
+            alertDiv.style.boxShadow = '0 0 10px rgba(0, 255, 255, 0.5)';
+            alertDiv.style.zIndex = '1000';
+            alertDiv.style.textAlign = 'center';
+            alertDiv.style.maxWidth = '80%';
+            alertDiv.style.border = '2px solid #00ffff';
+            alertDiv.innerHTML = message;
+            
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Tamam';
+            closeButton.style.marginTop = '15px';
+            closeButton.style.padding = '8px 20px';
+            closeButton.style.backgroundColor = '#222';
+            closeButton.style.color = '#00ffff';
+            closeButton.style.border = 'none';
+            closeButton.style.borderRadius = '4px';
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.fontSize = '16px';
+            
+            alertDiv.appendChild(document.createElement('br'));
+            alertDiv.appendChild(closeButton);
+            
+            document.body.appendChild(alertDiv);
+            
+            closeButton.addEventListener('click', function() {
+                document.body.removeChild(alertDiv);
+            });
         }
     </script>
 </body>
