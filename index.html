@@ -13,8 +13,6 @@
             font-family: 'Courier New', monospace;
             user-select: none;
             -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent; /* Mobilde tıkladığınızda çıkan vurgulamayı kaldır */
-            touch-action: manipulation; /* Varsayılan dokunmatik davranışları optimize et */
         }
         
         body {
@@ -110,7 +108,7 @@
             width: 60px; /* Temel genişlik */
             height: 60px; /* Temel yükseklik */
             background-color: #000;
-            border: 3px solid #33ff33; /* Daha kalın kenarlık */
+            border: 3px solid #00ffff; /* Turkuaz kenarlık */
             border-radius: 8px; /* Hafif yuvarlatılmış köşeler */
             display: flex;
             justify-content: center;
@@ -118,14 +116,13 @@
             font-size: 2rem; /* Daha büyük yazı boyutu */
             position: relative;
             transition: all 0.3s ease;
-            cursor: pointer; /* Tıklanabilir olduğunu göster */
-            touch-action: manipulation; /* Mobil dokunmatik optimizasyonu */
         }
         
         .password-box {
             color: #fff;
             background-color: #222;
             position: relative;
+            border: 3px solid #33ff33; /* Password kutuları yeşil kalsın */
         }
         
         .password-box::after {
@@ -249,31 +246,32 @@
         
         /* Selected box */
         .selected {
-            border-color: yellow;
-            box-shadow: 0 0 15px rgba(255, 255, 0, 0.7); /* Daha parlak seçim vurgusu */
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); /* Turkuaz parıltı */
         }
         
         /* Success and error indicators */
         .success {
-            border-color: #00ff00;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.7); /* Daha parlak başarı vurgusu */
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); /* Turkuaz parıltı */
         }
         
         .error {
             border-color: #ff0000;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.7); /* Daha parlak hata vurgusu */
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.7); /* Kırmızı parıltı - aynı kalsın */
         }
 
         /* Yeni eklenen stil - parlayan çiftler ve çözülmüş kutu */
         .highlight {
-            border-color: #ffff00;
-            box-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            animation: highlight-pulse 1.5s infinite;
         }
 
         .solved {
-            color: #00ffff !important; /* Sadece karakter rengi turkuaz kalacak */
-            border-color: #33ff33; /* Kutunun kenarı yeşil kalacak */
-            box-shadow: 0 0 5px rgba(51, 255, 51, 0.3); /* Çok hafif yeşil parlama */
+            color: #00ffff !important; /* Karakter rengi turkuaz */
+            border-color: #00ffff; /* Kutunun kenarı turkuaz */
+            box-shadow: 0 0 5px rgba(0, 255, 255, 0.3); /* Hafif turkuaz parlama */
         }
 
         /* Animasyonlar */
@@ -417,16 +415,10 @@
             animation: glitch 2s infinite;
         }
         
-        .highlight {
-            border-color: #ffff00;
-            box-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
-            animation: highlight-pulse 1.5s infinite;
-        }
-        
         @keyframes highlight-pulse {
-            0% { box-shadow: 0 0 15px rgba(255, 255, 0, 0.7); }
-            50% { box-shadow: 0 0 25px rgba(255, 255, 0, 0.9); }
-            100% { box-shadow: 0 0 15px rgba(255, 255, 0, 0.7); }
+            0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); }
+            50% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.9); }
+            100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); }
         }
 
         /* Geniş ekranlar için özel ayarlar */
@@ -497,7 +489,7 @@
         /* Çözüm durumundaki geçiş efekti için animasyon */
         @keyframes connection-success {
             0% { background-color: rgba(50, 50, 50, 0.7); } /* Koyu gri başlangıç */
-            50% { background-color: rgba(51, 255, 51, 0.7); } /* Yeşil vurgu */
+            50% { background-color: rgba(0, 255, 255, 0.7); } /* Turkuaz vurgu */
             100% { background-color: rgba(50, 50, 50, 0.7); } /* Koyu gri bitiş */
         }
 
@@ -523,7 +515,7 @@
             width: 100%;
             height: 100%;
             fill: #555;
-            stroke: #33ff33;
+            stroke: #00ffff;
             stroke-width: 1px;
             transition: all 0.3s ease;
         }
@@ -536,15 +528,15 @@
         /* Vurgulanan kilit ikonu */
         .lock-icon.highlight svg {
             fill: #333;
-            stroke: #ffff00;
+            stroke: #00ffff;
             stroke-width: 2px;
-            filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.7));
+            filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.7));
         }
         
         /* Çözülmüş kilit ikonu */
         .lock-icon.solved svg {
             fill: #555; /* Orijinal fill rengi korunuyor */
-            stroke: #33ff33; /* Orijinal stroke rengi korunuyor */
+            stroke: #00ffff; /* Turkuaz stroke rengi */
             stroke-width: 1px; /* Orijinal çizgi kalınlığı korunuyor */
             filter: none; /* Drop shadow efektini kaldır */
         }
@@ -573,26 +565,150 @@
 
         /* Geçici çözülme vurgusu için stil */
         .temp-highlight {
-            border-color: #33ff33 !important;
-            box-shadow: 0 0 15px rgba(51, 255, 51, 0.7) !important;
+            border-color: #00ffff !important;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7) !important;
         }
 
-        /* CSS içerisine yeni renkler ve animasyonlar için stil ekleyelim */
-        .stage1-box {
-            border-color: #00ffff !important; /* Turkuaz renk */
-            color: #00ffff !important;
-        }
-        
-        .box.success-stage1 {
-            border-color: #00ffff !important;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7) !important; /* Turkuaz parlama */
-            animation: stage1-pulse 1s !important;
-        }
-        
+        /* YENİ: Aşama 1 Animasyonları */
+        /* Pulse animasyonu - Alt kutu için */
         @keyframes stage1-pulse {
-            0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); }
-            50% { box-shadow: 0 0 25px rgba(0, 255, 255, 1); }
-            100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); filter: brightness(1.3); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Enerji akışı animasyonu */
+        @keyframes energy-flow {
+            0% { 
+                height: 0%; 
+                opacity: 0.7; 
+                background-position: 0% 100%; 
+            }
+            100% { 
+                height: 100%; 
+                opacity: 0; 
+                background-position: 0% 0%; 
+            }
+        }
+        
+        /* Parçacık animasyonu */
+        @keyframes particle-flow {
+            0% { 
+                transform: translateY(0); 
+                opacity: 0.9;
+                filter: blur(1px) brightness(1.5);
+            }
+            100% { 
+                transform: translateY(-100%); 
+                opacity: 0;
+                filter: blur(0px) brightness(1);
+            }
+        }
+        
+        /* Üst kutu parlaması */
+        @keyframes top-box-glow {
+            0% { 
+                box-shadow: 0 0 2px #00ffff, 0 0 5px #00ffff;
+                border-color: #00ffff; 
+            }
+            50% { 
+                box-shadow: 0 0 15px #00ffff, 0 0 25px #00ffff;
+                border-color: #00ffff; 
+            }
+            100% { 
+                box-shadow: 0 0 2px #00ffff, 0 0 5px #00ffff;
+                border-color: #00ffff; 
+            }
+        }
+        
+        /* Karakter renk değişimi */
+        @keyframes char-color-change {
+            0% { color: #fff; }
+            100% { color: #00ffff; }
+        }
+        
+        /* Enerji akışı kapsayıcısı */
+        .energy-flow-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 6;
+        }
+        
+        /* Enerji çizgisi */
+        .energy-line {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to top, #00ffff, rgba(0, 255, 255, 0.3));
+            height: 0%;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.7;
+            display: none;
+            z-index: 6;
+            pointer-events: none;
+        }
+        
+        /* Parçacık */
+        .energy-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #00ffff;
+            box-shadow: 0 0 10px #00ffff, 0 0 15px #00ffff;
+            left: 50%;
+            transform: translate(-50%, 0%) scale(0);
+            opacity: 0;
+            z-index: 7;
+            pointer-events: none;
+        }
+        
+        /* Animasyon sınıfları */
+        .animate-pulse {
+            animation: stage1-pulse 0.5s ease-in-out;
+        }
+        
+        .animate-energy-flow {
+            display: block;
+            animation: energy-flow 0.8s ease-out forwards;
+        }
+        
+        .animate-particle {
+            animation: particle-flow 0.8s ease-out forwards;
+            opacity: 1;
+            transform: translate(-50%, 0%) scale(1);
+        }
+        
+        .animate-box-glow {
+            animation: top-box-glow 0.8s ease-out;
+        }
+        
+        .animate-char-color {
+            animation: char-color-change 0.3s ease-out forwards;
+        }
+        
+        /* İç ışık yansıması */
+        .inner-glow {
+            box-shadow: inset 0 0 15px #00ffff;
+        }
+        
+        /* Işıma efekti */
+        .box-highlight {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 6px;
+            background-color: rgba(0, 255, 255, 0.2);
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -834,12 +950,14 @@
             codeRowEl.innerHTML = '';
             for (let i = 0; i < 9; i++) {
                 const box = document.createElement('div');
-                box.className = 'box spinning stage1-box'; // Turkuaz renk için stage1-box ekledik
+                box.className = 'box spinning';
                 box.innerHTML = '<div class="spinner">?</div>';
                 box.dataset.index = i; // Tıklama için indeks ekle
                 
-                // Mobil-uyumlu event'leri ekle
-                setupMobileEvents(box, i);
+                // Kutuya tıklama olayı ekle
+                box.addEventListener('click', function() {
+                    handleBoxClick(i);
+                });
                 
                 codeRowEl.appendChild(box);
             }
@@ -1079,6 +1197,12 @@
                     const codeBoxes = codeRowEl.querySelectorAll('.box');
                     const passwordBoxes = passwordRowEl.querySelectorAll('.box');
                     
+                    // Eğer bu kutu zaten çözülmüşse, işlemi atlayalım
+                    if (GameState.correctBoxes.includes(index)) {
+                        console.log("Box already solved, ignoring click:", index);
+                        return;
+                    }
+                    
                     if (index === correctBox) {
                         console.log("Correct box selected:", index);
                         // Doğru kutu seçildi
@@ -1088,42 +1212,28 @@
                         
                         // Password kutusuna ata
                         passwordBoxes[index].textContent = currentChar;
-                        passwordBoxes[index].classList.add('solved');
                         
-                        // Kutunun çerçevesini kısa süre vurgula, sonra normal hale getir
-                        passwordBoxes[index].classList.add('temp-highlight');
-                        setTimeout(() => {
-                            passwordBoxes[index].classList.remove('temp-highlight');
-                        }, 500);
+                        // Animasyon sistemini başlat
+                        playSuccessAnimation(index, codeBoxes[index], passwordBoxes[index], currentChar);
                         
-                        // Yukarı taşınma efekti - pulse animasyonu
-                        passwordBoxes[index].style.animation = 'pulse 0.5s';
-                        setTimeout(() => {
-                            passwordBoxes[index].style.animation = '';
-                        }, 500);
-                        
-                        // Doğru kutuları kaydet
-                        GameState.correctBoxes.push(index);
-                        correctBoxes = GameState.correctBoxes;
-                        
-                        // Başarı göstergesi - Turkuaz parlama efekti
-                        codeBoxes[index].classList.add('success-stage1');
-                        setTimeout(() => {
-                            codeBoxes[index].classList.remove('success-stage1');
-                        }, 1000);
+                        // Doğru kutuları kaydet - ancak sadece yeni eklemeleri yap
+                        if (!GameState.correctBoxes.includes(index)) {
+                            GameState.correctBoxes.push(index);
+                            correctBoxes = GameState.correctBoxes;
+                            
+                            console.log("Updated correctBoxes array:", correctBoxes);
+                        }
                         
                         // Kilit ikonlarının durumunu güncelle
                         updateLockIconStates();
                         
                         // Tüm kutular doğru mu kontrol et
                         if (correctBoxes.length === 9) {
-                            playCompletionAnimation();
+                            setTimeout(() => {
+                                playCompletionAnimation();
+                            }, 1000); // Animasyon tamamlandıktan sonra
                             return; // Oyun tamamlandı, fonksiyondan çık
                         }
-                        
-                        // Kutuların vurgulanmasını sürdür (SEARCH butonuna basılana kadar)
-                        // isSpinning = false kalacak, böylece buton "SEARCH" olarak gösterilecek
-                        // CONNECT butonuna basıldığında spin başlayacak ve buton CONNECT'e dönecek
                     } else {
                         console.log("Wrong box selected:", index, "correctBox was:", correctBox);
                         // Yanlış kutu seçildi
@@ -1148,6 +1258,112 @@
                 // Aşama 2 için doğrudan toggleBoxSpinning fonksiyonunu çağır
                 toggleBoxSpinning(index);
             }
+        }
+        
+        // YENİ: Başarılı doğru seçim animasyonunu oynat (Aşama 1)
+        function playSuccessAnimation(index, bottomBox, topBox, character) {
+            // Animasyon sırasında tüm tıklamaları engelle
+            document.body.style.pointerEvents = 'none';
+            
+            // Alt kutu için pulse animasyonu
+            bottomBox.classList.add('animate-pulse');
+            bottomBox.classList.add('success');
+            
+            // Kutu arasına enerji çizgisi ekle
+            createEnergyFlow(index, bottomBox, topBox);
+            
+            // Üst kutu için zamanlama
+            setTimeout(() => {
+                // Üst kutuya parlaklık ekle ve karakteri değiştir
+                topBox.classList.add('animate-box-glow');
+                topBox.classList.add('solved');
+                
+                // İç ışıma efekti
+                const boxHighlight = document.createElement('div');
+                boxHighlight.className = 'box-highlight';
+                topBox.appendChild(boxHighlight);
+                
+                // Highlight efektini göster ve kaybol
+                boxHighlight.style.opacity = '0.8';
+                setTimeout(() => {
+                    boxHighlight.style.opacity = '0';
+                    setTimeout(() => {
+                        if (boxHighlight.parentNode === topBox) {
+                            topBox.removeChild(boxHighlight);
+                        }
+                    }, 300);
+                }, 300);
+                
+                // 1 saniye sonra tüm animasyonları temizle
+                setTimeout(() => {
+                    // Tüm animasyon sınıflarını temizle
+                    bottomBox.classList.remove('animate-pulse', 'success');
+                    topBox.classList.remove('animate-box-glow');
+                    
+                    // Tıklamaları geri aç
+                    document.body.style.pointerEvents = 'auto';
+                    
+                    // Enerji animasyonlarını temizle
+                    const energyContainer = document.querySelector(`.energy-container-${index}`);
+                    if (energyContainer) {
+                        energyContainer.remove();
+                    }
+                }, 800);
+            }, 400); // Üst kutu animasyonu için gecikme
+        }
+        
+        // YENİ: Enerji akışı animasyonu oluştur
+        function createEnergyFlow(index, bottomBox, topBox) {
+            // Kutular arasındaki bağlantıyı hesapla
+            const bottomRect = bottomBox.getBoundingClientRect();
+            const topRect = topBox.getBoundingClientRect();
+            
+            // Enerji akışı için konteynır oluştur
+            const energyContainer = document.createElement('div');
+            energyContainer.className = `energy-flow-container energy-container-${index}`;
+            document.body.appendChild(energyContainer);
+            
+            // Enerji çizgisi oluştur
+            const energyLine = document.createElement('div');
+            energyLine.className = 'energy-line';
+            
+            // Konumunu hesapla
+            const startX = bottomRect.left + bottomRect.width / 2;
+            const startY = bottomRect.top;
+            const endY = topRect.bottom;
+            const lineHeight = startY - endY;
+            
+            // Stil uygula
+            energyLine.style.left = `${startX}px`;
+            energyLine.style.top = `${endY}px`;
+            energyLine.style.height = '0%';
+            energyLine.style.maxHeight = `${lineHeight}px`;
+            
+            energyContainer.appendChild(energyLine);
+            
+            // Parçacık oluştur
+            const particle = document.createElement('div');
+            particle.className = 'energy-particle';
+            
+            // Parçacık konumunu ayarla - ALT KUTUDAN BAŞLAMALI
+            particle.style.left = `${startX}px`;
+            particle.style.top = `${bottomRect.top}px`; // Alt kutunun üst kenarından başla
+            
+            energyContainer.appendChild(particle);
+            
+            // Animasyonları başlat
+            requestAnimationFrame(() => {
+                energyLine.classList.add('animate-energy-flow');
+                
+                // Parçacık animasyonu için kısa gecikme
+                setTimeout(() => {
+                    particle.classList.add('animate-particle');
+                    
+                    // Animasyon: Alt kutudan üst kutuya hareket
+                    particle.style.transition = 'top 0.8s ease-out';
+                    particle.style.top = `${endY}px`; // Üst kutunun alt kenarına git
+                }, 100);
+            });
         }
         
         // Özel tamamlanma animasyonu
@@ -1226,19 +1442,13 @@
                 passwordRow.push(boxValue);
                 
                 // Tüm kutuların animasyonlarını ve stillerini temizle
-                codeBoxes[i].classList.remove('solved', 'success', 'selected', 'error', 'highlight', 'glitch-effect', 'success-stage1', 'stage1-box');
+                codeBoxes[i].classList.remove('solved', 'success', 'selected', 'error', 'highlight', 'glitch-effect');
                 passwordBoxes[i].classList.remove('success', 'error', 'highlight', 'glitch-effect', 'temp-highlight');
                 codeBoxes[i].style.animation = '';
                 passwordBoxes[i].style.animation = '';
                 
                 // Password kutularını solved stilinde göster
                 passwordBoxes[i].classList.add('solved');
-                
-                // Yeni event listener'ları eklemeden önce eski event listener'ları kaldır
-                cleanupEventListeners(codeBoxes[i]);
-                
-                // Kutuya mobil uyumlu dokunmatik olayları ekle
-                setupMobileEvents(codeBoxes[i], i);
             }
             
             // 2. aşama için değişkenleri hazırla
@@ -1601,50 +1811,117 @@
                 return;
             }
             
-            for (let i = 0; i < 8; i++) {
-                // Bir kilit ikonu, iki kutuyu bağlar (i ve i+1)
-                // Eğer bu kilit ikonunu seçebilmek için, iki kutusundan en az birinin henüz onaylanmamış olması gerekir
-                if (!GameState.correctBoxes.includes(i) || !GameState.correctBoxes.includes(i+1)) {
-                    candidates.push(i);
+            console.log("Current correctBoxes before selecting lock:", GameState.correctBoxes);
+            
+            // Çözülmemiş kutuları bul
+            const unsolvedBoxes = [];
+            for (let i = 0; i < 9; i++) {
+                if (!GameState.correctBoxes.includes(i)) {
+                    unsolvedBoxes.push(i);
                 }
             }
             
-            // Eğer aday yoksa ama GameState.correctBoxes 9'dan azsa, demek ki son kutu kaldı
-            if (candidates.length === 0 && GameState.correctBoxes.length < 9) {
-                // Son kutuyu manuel olarak vurgula ve doğru kutu olarak işaretle
-                GameState.highlightedBoxes = [7, 8]; // Son iki kutu (indeks 7 ve 8)
+            console.log("Unsolved boxes:", unsolvedBoxes);
+            
+            // Yan yana çözülmemiş kutular için kilit adayları oluştur
+            for (let i = 0; i < 8; i++) {
+                // Bir kilit ikonu, iki kutuyu bağlar (i ve i+1)
+                // Bu kilit ikonunu seçebilmek için, en az biri çözülmemiş olmalı
+                if (!GameState.correctBoxes.includes(i) || !GameState.correctBoxes.includes(i+1)) {
+                    // Öncelikle, her iki kutu da çözülmemişse bu kilidi aday göster
+                    if (!GameState.correctBoxes.includes(i) && !GameState.correctBoxes.includes(i+1)) {
+                        candidates.push({
+                            lockIndex: i,
+                            priority: 2  // İki kutu da çözülmemiş - yüksek öncelik
+                        });
+                    } 
+                    // Sadece bir kutu çözülmemişse, ikinci öncelik ver
+                    else {
+                        candidates.push({
+                            lockIndex: i,
+                            priority: 1  // Bir kutu çözülmüş, diğeri çözülmemiş - düşük öncelik
+                        });
+                    }
+                }
+            }
+            
+            console.log("Lock candidates:", candidates);
+            
+            // Eğer aday yoksa ama çözülmemiş kutular varsa, son çözülmemiş kutuyu bul
+            if (candidates.length === 0 && unsolvedBoxes.length > 0) {
+                console.log("No candidates but still have unsolved boxes");
+                // Son çözülmemiş kutuyu seç
+                const lastUnsolvedIndex = unsolvedBoxes[0];
+                
+                // Bu kutu ile yan yana olan kutulardan bir tanesini seç
+                let neighborIndex;
+                if (lastUnsolvedIndex > 0) {
+                    neighborIndex = lastUnsolvedIndex - 1;
+                } else if (lastUnsolvedIndex < 8) {
+                    neighborIndex = lastUnsolvedIndex + 1;
+                } else {
+                    neighborIndex = 7; // Son çare, eğer 8. kutuysa 7 ile bağla
+                }
+                
+                GameState.highlightedBoxes = [Math.min(lastUnsolvedIndex, neighborIndex), Math.max(lastUnsolvedIndex, neighborIndex)];
                 highlightedBoxes = GameState.highlightedBoxes;
-                GameState.correctBox = 8; // Son kutu (indeks 8)
+                GameState.correctBox = lastUnsolvedIndex; // Çözülmemiş kutuyu doğru olarak işaretle
                 correctBox = GameState.correctBox;
-                highlightLockIcon();
+                
+                console.log("Manually selecting last unsolved box:", lastUnsolvedIndex, "with neighbor:", neighborIndex);
+                
+                // Sadece kilit ikonunu vurgula, kutuları vurgulama
+                highlightLockIcon(true);
                 return;
             }
             
-            // Adaylar arasından rastgele bir kilit ikonu seç
-            const randomIndex = Math.floor(Math.random() * candidates.length);
-            const activeLockIndex = candidates[randomIndex];
+            // Adayları önceliğe göre sırala (2 > 1)
+            candidates.sort((a, b) => b.priority - a.priority);
+            
+            // Yüksek öncelikli adaylar arasından rastgele seç
+            const highPriorityCandidates = candidates.filter(c => c.priority === candidates[0].priority);
+            const randomIndex = Math.floor(Math.random() * highPriorityCandidates.length);
+            const activeLockIndex = highPriorityCandidates[randomIndex].lockIndex;
             
             // Bu kilit ikonunun işaret ettiği iki kutu
             GameState.highlightedBoxes = [activeLockIndex, activeLockIndex + 1];
             highlightedBoxes = GameState.highlightedBoxes;
             
-            // Kutulardan doğru olanı belirle
+            // Kutulardan doğru olanı belirle - sadece çözülmemiş kutuları doğru olarak işaretle
             if (GameState.correctBoxes.includes(activeLockIndex)) {
-                // İlk kutu onaylanmışsa, ikinci kutu doğrudur
+                // İlk kutu çözülmüşse, ikinci kutu doğrudur (eğer çözülmemişse)
                 GameState.correctBox = activeLockIndex + 1;
                 correctBox = GameState.correctBox;
             } else if (GameState.correctBoxes.includes(activeLockIndex + 1)) {
-                // İkinci kutu onaylanmışsa, ilk kutu doğrudur
+                // İkinci kutu çözülmüşse, ilk kutu doğrudur (eğer çözülmemişse)
                 GameState.correctBox = activeLockIndex;
                 correctBox = GameState.correctBox;
             } else {
-                // İkisi de onaylanmamışsa, rastgele birini doğru belirle
+                // İkisi de çözülmemişse, rastgele birini doğru belirle
                 GameState.correctBox = Math.random() < 0.5 ? activeLockIndex : activeLockIndex + 1;
                 correctBox = GameState.correctBox;
             }
             
-            // İlgili kilit ikonunu parlat
-            highlightLockIcon();
+            // Doğru kutunun çözülmemiş olduğundan emin ol
+            if (GameState.correctBoxes.includes(correctBox)) {
+                console.warn("Warning: The system tried to select an already solved box as correct!");
+                // Diğer kutuyu seç - o da çözülmüşse bir sonraki çözülmemiş kutuyu bul
+                if (correctBox === activeLockIndex) {
+                    GameState.correctBox = activeLockIndex + 1;
+                } else {
+                    GameState.correctBox = activeLockIndex;
+                }
+                correctBox = GameState.correctBox;
+                
+                // Eğer bu da çözülmüşse, çözülmemiş ilk kutuyu bul
+                if (GameState.correctBoxes.includes(correctBox) && unsolvedBoxes.length > 0) {
+                    GameState.correctBox = unsolvedBoxes[0];
+                    correctBox = GameState.correctBox;
+                }
+            }
+            
+            // Sadece kilit ikonunu vurgula, kutuları vurgulama
+            highlightLockIcon(true);
             
             console.log("Selected lock:", activeLockIndex, "highlighted boxes:", highlightedBoxes, "correct box:", correctBox);
         }
@@ -1669,7 +1946,7 @@
         }
         
         // İlgili kilit ikonunu vurgula
-        function highlightLockIcon() {
+        function highlightLockIcon(skipBoxHighlight = false) {
             if (highlightedBoxes.length === 2 && highlightedBoxes[0] + 1 === highlightedBoxes[1]) {
                 // Yan yana iki kutu varsa, aralarındaki kilidi vurgula
                 const lockIcons = document.querySelectorAll('.lock-icon');
@@ -1682,12 +1959,14 @@
                     lockIcons[lockIndex].classList.add('highlight');
                 }
                 
-                // İlgili kutuları vurgulama (1. aşamada kutuları vurgulamıyoruz artık, sadece kilit parıldıyor)
-                // 1. aşamada kutuları parıldatmak istemiyoruz, bu yüzden bu kodu kaldırıyoruz
-                // const codeBoxes = codeRowEl.querySelectorAll('.box');
-                // highlightedBoxes.forEach(index => {
-                //     codeBoxes[index].classList.add('highlight');
-                // });
+                // Kutuları vurgulama seçeneği
+                if (!skipBoxHighlight) {
+                    // İlgili kutuları da vurgula
+                    const codeBoxes = codeRowEl.querySelectorAll('.box');
+                    highlightedBoxes.forEach(index => {
+                        codeBoxes[index].classList.add('highlight');
+                    });
+                }
             }
         }
         
@@ -1865,76 +2144,6 @@
             });
         }
         
-        // Eski event listener'ları temizleme fonksiyonu
-        function cleanupEventListeners(element) {
-            if (element._clickHandler) {
-                element.removeEventListener('click', element._clickHandler);
-            }
-            if (element._touchstartHandler) {
-                element.removeEventListener('touchstart', element._touchstartHandler);
-            }
-            if (element._touchendHandler) {
-                element.removeEventListener('touchend', element._touchendHandler);
-            }
-        }
-        
-        // Mobil-uyumlu event'ler ekleyen fonksiyon
-        function setupMobileEvents(element, index) {
-            // Tıklama ve dokunma olaylarını ayarla
-            element._clickHandler = function(e) {
-                e.preventDefault();
-                handleBoxClick(index);
-            };
-            
-            // Mobil için dokunmatik olayları
-            let touchStartTime = 0;
-            let touchTimeout = null;
-            
-            element._touchstartHandler = function(e) {
-                e.preventDefault(); // Varsayılan davranışı engelle
-                
-                // Dokunma zamanını kaydet
-                touchStartTime = Date.now();
-                
-                // Önceki zamanlayıcıyı temizle
-                if (touchTimeout) {
-                    clearTimeout(touchTimeout);
-                }
-                
-                // Hemen tepki ver - mobilde hızlı çift tıklama için
-                if (GameState.currentStage === 2) {
-                    toggleBoxSpinning(index);
-                } else {
-                    handleBoxClick(index);
-                }
-            };
-            
-            element._touchendHandler = function(e) {
-                e.preventDefault();
-            };
-            
-            // Event'leri ekle
-            element.addEventListener('click', element._clickHandler);
-            element.addEventListener('touchstart', element._touchstartHandler, { passive: false });
-            element.addEventListener('touchend', element._touchendHandler, { passive: false });
-        }
-
-        // Butonun dokunma olayını optimize et
-        function setupConnectButtonEvents() {
-            // Mevcut olayları temizle
-            cleanupEventListeners(connectBtn);
-            
-            // Yeni olayları ekle
-            connectBtn.addEventListener('click', handleConnectClick);
-            
-            // Mobil cihazlar için dokunmatik olayı
-            connectBtn.addEventListener('touchstart', function(e) {
-                e.preventDefault(); // Varsayılan davranışı engelle
-                // Hemen yanıt ver
-                handleConnectClick();
-            }, { passive: false });
-        }
-        
         // Orijinal olay dinleyicileri - diğer event listenerlarınız buraya
         window.addEventListener('load', function() {
             // Mevcut load event listener içeriği
@@ -1942,7 +2151,34 @@
             checkOrientation();
             
             // Connect butonu olayını ayarla
-            setupConnectButtonEvents();
+            connectBtn.addEventListener('click', handleConnectClick);
+            connectBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                handleConnectClick();
+            });
+            
+            // Aşama 2 için kutu tıklama olaylarını ekle
+            const codeBoxes = codeRowEl.querySelectorAll('.box');
+            codeBoxes.forEach((box, index) => {
+                // Olay dinleyicilerini temizle (çakışmaları önlemek için)
+                box.removeEventListener('click', box._clickHandler);
+                box.removeEventListener('touchstart', box._touchHandler);
+                
+                // Click olayı - kutunun durumunu değiştir
+                box._clickHandler = function(e) {
+                    handleBoxClick(index);
+                };
+                
+                // Dokunmatik olay - kutunun durumunu değiştir
+                box._touchHandler = function(e) {
+                    e.preventDefault(); // Tıklama olayının tetiklenmesini engelle
+                    handleBoxClick(index);
+                };
+                
+                // Olayları bağla
+                box.addEventListener('click', box._clickHandler);
+                box.addEventListener('touchstart', box._touchHandler);
+            });
             
             // Klavye olaylarını dinle (Boşluk/Enter tuşları için)
             document.addEventListener('keydown', function(e) {
