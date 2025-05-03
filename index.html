@@ -713,27 +713,6 @@
             z-index: 2;
             pointer-events: none;
         }
-        
-        /* Tam ekran butonu için "nefes alma" animasyonu */
-        @keyframes fullscreen-button-pulse {
-            0% { box-shadow: 0 0 0 0 rgba(51, 255, 51, 0.4); }
-            50% { box-shadow: 0 0 0 5px rgba(51, 255, 51, 0.1); }
-            100% { box-shadow: 0 0 0 0 rgba(51, 255, 51, 0.4); }
-        }
-        
-        /* Tam ekran butonu için simge geçiş efekti */
-        #in-game-fullscreen svg {
-            transition: transform 0.3s ease;
-        }
-        
-        #in-game-fullscreen:hover svg {
-            transform: scale(1.1);
-        }
-        
-        /* Tam ekran butonu için simge değişimi animasyonu */
-        #in-game-fullscreen svg {
-            transition: all 0.3s ease;
-        }
     </style>
 </head>
 <body>
@@ -789,7 +768,7 @@
             </div>
             
             <!-- Yatay ekran uyarısı -->
-            <div id="orientation-warning" style="background-color: rgba(255, 153, 0, 0.2); border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 25px; display: none;">
+            <div style="background-color: rgba(255, 153, 0, 0.2); border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
                 <p style="color: #ff9900; font-size: 1.3rem; margin: 0;"><strong>⚠️ Önemli:</strong> En iyi deneyim için cihazınızı yatay konumda kullanınız!</p>
             </div>
 
@@ -807,13 +786,6 @@
     <!-- Oyun Alanı -->
     <!-- <h1 class="title">CSI Kod Kırma Operasyonu</h1> --> <!-- Başlık kaldırıldı -->
     <div class="game-container">
-        <!-- Tam ekran butonu - Oyun içi -->
-        <div id="in-game-fullscreen" style="position: absolute; top: 15px; left: 15px; cursor: pointer; z-index: 100; width: 30px; height: 30px; background-color: rgba(0, 0, 0, 0.5); border-radius: 5px; display: flex; justify-content: center; align-items: center; animation: fullscreen-button-pulse 2s infinite;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#33ff33" stroke-width="2">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-            </svg>
-        </div>
-        
         <!-- Aşama göstergesi -->
         <div class="stage-indicator" id="stage-indicator">AŞAMA 1/2</div>
         <div class="timer">60</div>
@@ -870,21 +842,6 @@
     <script>
         // Ses sistemi için EventListener'lar ekle
         document.addEventListener('DOMContentLoaded', function() {
-            // Sayfa yüklendiğinde ekran yönünü kontrol et
-            checkOrientation(false); // İlk başta alert gösterme
-            
-            // Ekran yönü değiştiğinde otomatik kontrol
-            window.addEventListener("orientationchange", function() {
-                setTimeout(function() {
-                    checkOrientation(false); // Ekran yönü değiştiğinde sessizce güncelle
-                }, 300); // Yön değişiminin etkinleşmesi için kısa bir gecikme
-            });
-            
-            // Ekran boyutu değiştiğinde de kontrol et
-            window.addEventListener("resize", function() {
-                checkOrientation(false);
-            });
-            
             // Ses kontrol butonuna tıklama olayını ekle
             const soundControl = document.getElementById('sound-control');
             const soundOn = document.getElementById('sound-on');
@@ -905,87 +862,25 @@
             document.addEventListener('touchstart', function() {
                 // İlk dokunuşta sessiz bir ses çal - mobil tarayıcılarda ses API'sini etkinleştirmek için
                 SoundSystem.enableAudioContext();
-                
-                // Mobil cihazlarda tam ekrana geçmeyi dene
-                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    tryMobileFullscreen();
-                }
             }, { once: true });
             
             // Tam ekran butonuna ek olaylar ekle
             const fullscreenBtn = document.getElementById('fullscreen-btn');
             if (fullscreenBtn) {
-                fullscreenBtn.addEventListener('click', function(e) {
-                    e.preventDefault(); // Form gönderimini engelle
-                    
-                    // Önce tam ekrana geç
-                    requestFullScreen();
-                    
-                    // Sonra ekran yönünü kontrol et (bir miktar gecikme ile)
-                    setTimeout(function() {
-                        // Ekran dikey modda ise uyarı göster, aksi halde gösterme
-                        if (window.innerWidth < window.innerHeight) {
-                            checkOrientation(false); // false: sessiz uyarı (alert gösterme)
-                        }
-                    }, 500);
-                });
-                
                 fullscreenBtn.addEventListener('touchend', function(e) {
                     e.preventDefault(); // Çift tıklama önleme
-                    
-                    // Önce tam ekrana geç
                     requestFullScreen();
-                    
-                    // Mobil cihazlar için ek tam ekran denemesi
-                    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                        setTimeout(tryMobileFullscreen, 300);
-                        
-                        // Sonra ekran yönünü kontrol et
-                        setTimeout(function() {
-                            if (window.innerWidth < window.innerHeight) {
-                                checkOrientation(false);
-                            }
-                        }, 500);
-                    }
                 });
             }
 
             // Mobil cihazlar için adres çubuğunu gizleme denemesi
             setTimeout(function() {
-                // iOS/Android için adres çubuğunu gizlemeye yardımcı olur
+                // iOS için adres çubuğunu gizlemeye yardımcı olur
                 window.scrollTo(0, 1);
-                
-                // Bazı mobil tarayıcılarda ikinci deneme daha etkili
-                setTimeout(function() {
-                    window.scrollTo(0, 0);
-                }, 300);
-            }, 300);
+            }, 100);
             
             // Oyun başladığında ses sistemini başlat
             SoundSystem.init();
-            
-            // Mobil cihazlarda meta viewport ayarını güncelle
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isMobile) {
-                let metaViewport = document.querySelector('meta[name="viewport"]');
-                if (metaViewport) {
-                    metaViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui, viewport-fit=cover';
-                }
-                
-                // iOS için apple-mobile-web-app ayarları
-                let metaApple = document.querySelector('meta[name="apple-mobile-web-app-capable"]');
-                if (!metaApple) {
-                    metaApple = document.createElement('meta');
-                    metaApple.name = 'apple-mobile-web-app-capable';
-                    metaApple.content = 'yes';
-                    document.head.appendChild(metaApple);
-                }
-                
-                // Body stil ayarları
-                document.body.style.height = '100vh';
-                document.body.style.position = 'fixed'; 
-                document.body.style.overflow = 'hidden';
-            }
         });
         
         // Ses Sistemi - Oyun için ses yönetimi
@@ -1212,71 +1107,6 @@
         const lettersOnly = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const numbersOnly = '0123456789';
         
-        // Tam ekran moduna geçiş için fonksiyon
-        function requestFullScreen() {
-            const docEl = document.documentElement;
-            
-            try {
-                // Tarayıcılar arası tam ekran API desteği - sırayla hepsini deneyelim
-                if (docEl.requestFullscreen) {
-                    docEl.requestFullscreen().catch(err => {
-                        console.warn("Fullscreen request failed:", err);
-                        tryMobileFullscreen();
-                    });
-                } else if (docEl.mozRequestFullScreen) { // Firefox
-                    docEl.mozRequestFullScreen();
-                } else if (docEl.webkitRequestFullscreen) { // Chrome, Safari
-                    docEl.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                } else if (docEl.msRequestFullscreen) { // IE/Edge
-                    docEl.msRequestFullscreen();
-                } else {
-                    // Tam ekran API'si desteklenmiyorsa alternatif çözüm dene
-                    console.warn("No fullscreen API support detected");
-                    tryMobileFullscreen();
-                }
-                
-                // Ekran kilitleme API'si (mobil cihazlar için)
-                try {
-                    const lockFunction = screen.orientation?.lock || 
-                                        screen.lockOrientation || 
-                                        screen.mozLockOrientation || 
-                                        screen.msLockOrientation;
-                    
-                    if (lockFunction) {
-                        lockFunction("landscape").catch(e => console.warn("Screen lock failed:", e));
-                    }
-                } catch (e) {
-                    console.warn("Could not lock screen orientation:", e);
-                }
-            } catch (error) {
-                console.error("Error requesting fullscreen:", error);
-                tryMobileFullscreen();
-            }
-
-            // iOS Safari için viewport tam ekran çözümü
-            setTimeout(() => {
-                window.scrollTo(0, 1); // Adres çubuğunu gizlemeye yardımcı olur
-            }, 300);
-        }
-
-        // Tam ekrandan çıkış için fonksiyon (kullanıcı oyun içinde çıkmak isterse)
-        function exitFullScreen() {
-            try {
-                // Farklı tarayıcılarda tam ekrandan çıkış
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.mozCancelFullScreen) { // Firefox
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) { // Chrome, Safari
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { // IE/Edge
-                    document.msExitFullscreen();
-                }
-            } catch (error) {
-                console.error("Error exiting fullscreen:", error);
-            }
-        }
-
         // Oyunu başlat
         function startGame() {
             startScreen.classList.add('hidden');
@@ -1288,16 +1118,47 @@
             // Tam ekran moduna geç
             requestFullScreen();
             
-            // Mobil cihazlar için ek kontrol
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isMobile) {
-                // İkinci bir deneme - bazı mobil tarayıcılar ilk denemede tam ekran izni vermeyebilir
-                setTimeout(() => {
-                    tryMobileFullscreen();
-                }, 1000);
-            }
-            
             initGame();
+        }
+
+        // Tam ekran moduna geçiş için fonksiyon
+        function requestFullScreen() {
+            const docEl = document.documentElement;
+            
+            // Farklı tarayıcılar için tam ekran API desteği
+            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen ||
+                          docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+            
+            // Ekran kilitleme API'si (mobil cihazlar için)
+            const lockOrientation = screen.lockOrientation || screen.mozLockOrientation ||
+                         screen.msLockOrientation || (screen.orientation && screen.orientation.lock);
+            
+            // Tam ekran moduna geç
+            if (requestFullScreen) {
+                requestFullScreen.call(docEl)
+                    .then(() => {
+                        console.log("Fullscreen mode activated");
+                        // Yatay ekran modunu kilitlemeyi dene (mobil cihazlar için)
+                        if (lockOrientation) {
+                            try {
+                                lockOrientation("landscape");
+                                console.log("Screen orientation locked to landscape");
+                            } catch (e) {
+                                console.warn("Could not lock screen orientation:", e);
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.warn("Fullscreen request failed:", err);
+                        // Başarısız olsa bile oyunu başlat
+                    });
+            }
+
+            // iOS Safari için viewport tam ekran çözümü
+            // iOS tam ekran API'yi doğrudan desteklemediği için viewport ayarlarıyla benzer etki yaratma
+            setTimeout(() => {
+                window.scrollTo(0, 1); // Adres çubuğunu gizlemeye yardımcı olur
+            }, 300);
         }
 
         // Tam ekrandan çıkış için fonksiyon (kullanıcı oyun içinde çıkmak isterse)
@@ -1321,13 +1182,9 @@
 
         // Tam ekran değiştiğinde çağrılacak
         function handleFullscreenChange() {
-            // Tam ekran durumunu güncelledikten sonra simgeyi değiştir
-            updateFullscreenButtonIcon();
-            
-            if (!isFullScreen()) {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement &&
+                !document.mozFullScreenElement && !document.msFullscreenElement) {
                 console.log("Fullscreen mode exited");
-            } else {
-                console.log("Fullscreen mode entered");
             }
         }
         
@@ -1677,6 +1534,19 @@
                             updateConnectButton();
                         }, 200); // 0.2 saniye hata gösterimi
                     }
+                } else if (!isSpinning) {
+                    // Vurgulanmamış herhangi bir kutuya tıklanırsa da döngüyü yeniden başlat
+                    console.log("Clicked on non-highlighted box, restarting spinning");
+                    
+                    // Hata sesi çal
+                    SoundSystem.play('error');
+                    
+                    // Parlayan kutuları temizle
+                    clearHighlightedBoxes();
+                    
+                    // Döngüyü yeniden başlat
+                    startSpinning();
+                    updateConnectButton();
                 }
             } else if (currentStage === 2) {
                 // Aşama 2 için doğrudan toggleBoxSpinning fonksiyonunu çağır
@@ -2637,46 +2507,6 @@
             // Ekran yönünü kontrol et
             checkOrientation();
             
-            // Oyun içi tam ekran butonuna tıklama olayı ekle
-            const inGameFullscreenBtn = document.getElementById('in-game-fullscreen');
-            if (inGameFullscreenBtn) {
-                // İlk yüklemede tam ekran durumunu kontrol et ve simgeyi güncelle
-                updateFullscreenButtonIcon();
-                
-                // Fare ile üzerine gelince efekt
-                inGameFullscreenBtn.addEventListener('mouseenter', function() {
-                    this.style.boxShadow = '0 0 8px #33ff33';
-                    this.style.backgroundColor = 'rgba(51, 255, 51, 0.2)';
-                });
-                
-                inGameFullscreenBtn.addEventListener('mouseleave', function() {
-                    this.style.boxShadow = 'none';
-                    this.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-                });
-                
-                // Tıklama olayı
-                inGameFullscreenBtn.addEventListener('click', function() {
-                    toggleFullScreen();
-                    // Pulsing animasyon ekle - tıklandığında görsel geri bildirim
-                    this.style.animation = 'pulse 0.5s';
-                    setTimeout(() => {
-                        this.style.animation = '';
-                    }, 500);
-                });
-                
-                // Dokunmatik aygıtlar için
-                inGameFullscreenBtn.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    this.style.backgroundColor = 'rgba(51, 255, 51, 0.2)';
-                });
-                
-                inGameFullscreenBtn.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    this.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-                    toggleFullScreen();
-                });
-            }
-            
             // Connect butonu olayını ayarla
             connectBtn.addEventListener('click', handleConnectClick);
             connectBtn.addEventListener('touchstart', function(e) {
@@ -2726,25 +2556,11 @@
         });
         
         // Ekran yönünü kontrol et
-        function checkOrientation(showAlert = true) {
+        function checkOrientation() {
             // Yatay ekran kontrolü
             if (window.innerWidth < window.innerHeight) {
                 // Dikey ekran, uyarı göster
-                if (showAlert) {
-                    alert("Bu oyun yatay ekranda daha iyi çalışır. Lütfen cihazınızı yatay konuma çevirin.");
-                }
-                
-                // Sarı uyarı bloğunu göster
-                const warningElem = document.getElementById('orientation-warning');
-                if (warningElem) {
-                    warningElem.style.display = "block";
-                }
-            } else {
-                // Yatay ekranda ise uyarı bloğunu gizle
-                const warningElem = document.getElementById('orientation-warning');
-                if (warningElem) {
-                    warningElem.style.display = "none";
-                }
+                alert("Bu oyun yatay ekranda daha iyi çalışır. Lütfen cihazınızı yatay konuma çevirin.");
             }
         }
 
@@ -2811,140 +2627,6 @@
             
             // Kilit ikonlarının durumlarını güncelle
             updateLockIconStates();
-        }
-
-        // Tam ekran modunu açar veya kapatır
-        function toggleFullScreen() {
-            if (!isFullScreen()) {
-                requestFullScreen();
-                
-                // Mobil cihazlar için ek tam ekran denemesi
-                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    setTimeout(tryMobileFullscreen, 300);
-                }
-            } else {
-                exitFullScreen();
-            }
-            
-            // Tam ekran buton simgesini güncelle (bir miktar gecikme ile)
-            setTimeout(updateFullscreenButtonIcon, 300);
-        }
-
-        // Mevcut tam ekran durumunu kontrol eder
-        function isFullScreen() {
-            // Standart tam ekran API'leri
-            if (document.fullscreenElement) return true;
-            
-            // Firefox için
-            if (document.mozFullScreenElement) return true;
-            
-            // Safari ve Chrome için
-            if (document.webkitFullscreenElement) return true;
-            
-            // IE/Edge için
-            if (document.msFullscreenElement) return true;
-            
-            // Safari ve eski iOS cihazlar için alternatif kontrol
-            if (window.navigator.standalone) return true;
-            
-            // Bazı tarayıcılar için ikinci kontrol
-            if (window.innerHeight === screen.height) return true;
-            
-            // Son olarak false dön
-            return false;
-        }
-
-        // Tam ekran butonunun simgesini günceller
-        function updateFullscreenButtonIcon() {
-            const fullscreenBtn = document.getElementById('in-game-fullscreen');
-            if (!fullscreenBtn) return;
-            
-            if (isFullScreen()) {
-                // Tam ekrandaysa, çıkış simgesi göster
-                fullscreenBtn.innerHTML = `
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#33ff33" stroke-width="2">
-                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
-                    </svg>
-                `;
-            } else {
-                // Tam ekran değilse, giriş simgesi göster
-                fullscreenBtn.innerHTML = `
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#33ff33" stroke-width="2">
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-                    </svg>
-                `;
-            }
-        }
-
-        // Mobil cihazlar için alternatif tam ekran çözümü
-        function tryMobileFullscreen() {
-            // Mobil cihazlar için meta viewport ayarı güncelle
-            let metaViewport = document.querySelector('meta[name="viewport"]');
-            if (metaViewport) {
-                metaViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui, viewport-fit=cover';
-            }
-            
-            // iOS için özel tam ekran çözümü
-            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-                // iOS için body'yi tam ekran yap
-                document.body.style.height = '100vh';
-                document.body.style.width = '100vw';
-                document.body.style.position = 'fixed';
-                
-                // Safari'de adres çubuğunu gizleme denemesi
-                setTimeout(function() {
-                    window.scrollTo(0, 1);
-                    // Sonra tekrar dene
-                    setTimeout(function() {
-                        window.scrollTo(0, 0);
-                    }, 100);
-                }, 100);
-            }
-            
-            // Android için özel tam ekran çözümü
-            if (navigator.userAgent.match(/Android/i)) {
-                // Android için body stil ayarları
-                document.body.style.height = '100%';
-                document.body.style.width = '100%';
-                document.body.style.overflow = 'hidden';
-                document.body.style.position = 'fixed';
-                
-                // Chrome adres çubuğunu gizleme denemesi
-                window.scrollTo(0, 1);
-                
-                // Chrome için video element yöntemi
-                if (navigator.userAgent.match(/Chrome/i)) {
-                    try {
-                        // Chrome'da tam ekran API'sine erişim için
-                        // Video elementi aracılığıyla ek deneme yapabiliriz
-                        const tempVideo = document.createElement('video');
-                        tempVideo.style.position = 'absolute';
-                        tempVideo.style.opacity = '0';
-                        tempVideo.style.pointerEvents = 'none';
-                        tempVideo.style.zIndex = '-1';
-                        document.body.appendChild(tempVideo);
-                        
-                        // Video hazır olduğunda tam ekran dene
-                        tempVideo.addEventListener('canplay', function() {
-                            if (tempVideo.webkitEnterFullscreen) {
-                                tempVideo.webkitEnterFullscreen();
-                                // Sonra videoyu temizle - UI etkilenmesin
-                                setTimeout(() => {
-                                    if (document.body.contains(tempVideo)) {
-                                        document.body.removeChild(tempVideo);
-                                    }
-                                }, 1000);
-                            }
-                        }, { once: true });
-                        
-                        // Kaynak atayarak video yüklenmesini tetikle
-                        tempVideo.src = 'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAC721kYXQhEAUgpBv/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
-                        tempVideo.load();
-                    } catch (e) {
-                        console.warn('Chrome video element fullscreen attempt failed:', e);
-                    }
-                }
-            }
         }
     </script>
 </body>
