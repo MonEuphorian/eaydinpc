@@ -1216,38 +1216,40 @@
         function requestFullScreen() {
             const docEl = document.documentElement;
             
-            // Farklı tarayıcılar için tam ekran API desteği
-            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen ||
-                          docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
-            
-            // Ekran kilitleme API'si (mobil cihazlar için)
-            const lockOrientation = screen.lockOrientation || screen.mozLockOrientation ||
-                         screen.msLockOrientation || (screen.orientation && screen.orientation.lock);
-            
-            // Tam ekran moduna geç
-            if (requestFullScreen) {
-                requestFullScreen.call(docEl)
-                    .then(() => {
-                        console.log("Fullscreen mode activated");
-                        // Yatay ekran modunu kilitlemeyi dene (mobil cihazlar için)
-                        if (lockOrientation) {
-                            try {
-                                lockOrientation("landscape");
-                                console.log("Screen orientation locked to landscape");
-                            } catch (e) {
-                                console.warn("Could not lock screen orientation:", e);
-                            }
-                        }
-                    })
-                    .catch(err => {
+            try {
+                // Tarayıcılar arası tam ekran API desteği - sırayla hepsini deneyelim
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen().catch(err => {
                         console.warn("Fullscreen request failed:", err);
-                        // Başarısız olsa bile oyunu başlat
-                        
-                        // Mobil için alternatif çözüm
                         tryMobileFullscreen();
                     });
-            } else {
-                // Tam ekran API'si desteklenmiyorsa alternatif çözüm dene
+                } else if (docEl.mozRequestFullScreen) { // Firefox
+                    docEl.mozRequestFullScreen();
+                } else if (docEl.webkitRequestFullscreen) { // Chrome, Safari
+                    docEl.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                } else if (docEl.msRequestFullscreen) { // IE/Edge
+                    docEl.msRequestFullscreen();
+                } else {
+                    // Tam ekran API'si desteklenmiyorsa alternatif çözüm dene
+                    console.warn("No fullscreen API support detected");
+                    tryMobileFullscreen();
+                }
+                
+                // Ekran kilitleme API'si (mobil cihazlar için)
+                try {
+                    const lockFunction = screen.orientation?.lock || 
+                                        screen.lockOrientation || 
+                                        screen.mozLockOrientation || 
+                                        screen.msLockOrientation;
+                    
+                    if (lockFunction) {
+                        lockFunction("landscape").catch(e => console.warn("Screen lock failed:", e));
+                    }
+                } catch (e) {
+                    console.warn("Could not lock screen orientation:", e);
+                }
+            } catch (error) {
+                console.error("Error requesting fullscreen:", error);
                 tryMobileFullscreen();
             }
 
@@ -1257,39 +1259,21 @@
             }, 300);
         }
 
-        // Mobil cihazlar için alternatif tam ekran çözümü
-        function tryMobileFullscreen() {
-            // Mobil cihazlar için meta viewport ayarı güncelle
-            let metaViewport = document.querySelector('meta[name="viewport"]');
-            if (metaViewport) {
-                metaViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui, viewport-fit=cover';
-            }
-            
-            // iOS için özel tam ekran çözümü
-            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-                // iOS için body'yi tam ekran yap
-                document.body.style.height = '100vh';
-                document.body.style.width = '100vw';
-                document.body.style.position = 'fixed';
-                
-                // Safari'de adres çubuğunu gizleme denemesi
-                setTimeout(function() {
-                    window.scrollTo(0, 1);
-                    // Sonra tekrar dene
-                    setTimeout(function() {
-                        window.scrollTo(0, 0);
-                    }, 100);
-                }, 100);
-            }
-            
-            // Android için özel tam ekran çözümü
-            if (navigator.userAgent.match(/Android/i)) {
-                // Android için body stil ayarları
-                document.body.style.height = '100%';
-                document.body.style.overflow = 'hidden';
-                
-                // Chrome adres çubuğunu gizleme denemesi
-                window.scrollTo(0, 1);
+        // Tam ekrandan çıkış için fonksiyon (kullanıcı oyun içinde çıkmak isterse)
+        function exitFullScreen() {
+            try {
+                // Farklı tarayıcılarda tam ekrandan çıkış
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) { // Firefox
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) { // Chrome, Safari
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { // IE/Edge
+                    document.msExitFullscreen();
+                }
+            } catch (error) {
+                console.error("Error exiting fullscreen:", error);
             }
         }
 
@@ -2848,10 +2832,26 @@
 
         // Mevcut tam ekran durumunu kontrol eder
         function isFullScreen() {
-            return !!(document.fullscreenElement || 
-                      document.webkitFullscreenElement || 
-                      document.mozFullScreenElement || 
-                      document.msFullscreenElement);
+            // Standart tam ekran API'leri
+            if (document.fullscreenElement) return true;
+            
+            // Firefox için
+            if (document.mozFullScreenElement) return true;
+            
+            // Safari ve Chrome için
+            if (document.webkitFullscreenElement) return true;
+            
+            // IE/Edge için
+            if (document.msFullscreenElement) return true;
+            
+            // Safari ve eski iOS cihazlar için alternatif kontrol
+            if (window.navigator.standalone) return true;
+            
+            // Bazı tarayıcılar için ikinci kontrol
+            if (window.innerHeight === screen.height) return true;
+            
+            // Son olarak false dön
+            return false;
         }
 
         // Tam ekran butonunun simgesini günceller
@@ -2873,6 +2873,77 @@
                         <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
                     </svg>
                 `;
+            }
+        }
+
+        // Mobil cihazlar için alternatif tam ekran çözümü
+        function tryMobileFullscreen() {
+            // Mobil cihazlar için meta viewport ayarı güncelle
+            let metaViewport = document.querySelector('meta[name="viewport"]');
+            if (metaViewport) {
+                metaViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui, viewport-fit=cover';
+            }
+            
+            // iOS için özel tam ekran çözümü
+            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                // iOS için body'yi tam ekran yap
+                document.body.style.height = '100vh';
+                document.body.style.width = '100vw';
+                document.body.style.position = 'fixed';
+                
+                // Safari'de adres çubuğunu gizleme denemesi
+                setTimeout(function() {
+                    window.scrollTo(0, 1);
+                    // Sonra tekrar dene
+                    setTimeout(function() {
+                        window.scrollTo(0, 0);
+                    }, 100);
+                }, 100);
+            }
+            
+            // Android için özel tam ekran çözümü
+            if (navigator.userAgent.match(/Android/i)) {
+                // Android için body stil ayarları
+                document.body.style.height = '100%';
+                document.body.style.width = '100%';
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                
+                // Chrome adres çubuğunu gizleme denemesi
+                window.scrollTo(0, 1);
+                
+                // Chrome için video element yöntemi
+                if (navigator.userAgent.match(/Chrome/i)) {
+                    try {
+                        // Chrome'da tam ekran API'sine erişim için
+                        // Video elementi aracılığıyla ek deneme yapabiliriz
+                        const tempVideo = document.createElement('video');
+                        tempVideo.style.position = 'absolute';
+                        tempVideo.style.opacity = '0';
+                        tempVideo.style.pointerEvents = 'none';
+                        tempVideo.style.zIndex = '-1';
+                        document.body.appendChild(tempVideo);
+                        
+                        // Video hazır olduğunda tam ekran dene
+                        tempVideo.addEventListener('canplay', function() {
+                            if (tempVideo.webkitEnterFullscreen) {
+                                tempVideo.webkitEnterFullscreen();
+                                // Sonra videoyu temizle - UI etkilenmesin
+                                setTimeout(() => {
+                                    if (document.body.contains(tempVideo)) {
+                                        document.body.removeChild(tempVideo);
+                                    }
+                                }, 1000);
+                            }
+                        }, { once: true });
+                        
+                        // Kaynak atayarak video yüklenmesini tetikle
+                        tempVideo.src = 'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAC721kYXQhEAUgpBv/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
+                        tempVideo.load();
+                    } catch (e) {
+                        console.warn('Chrome video element fullscreen attempt failed:', e);
+                    }
+                }
             }
         }
     </script>
