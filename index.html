@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CSI Kod Kırma Görevi</title>
+    <title>CSI: CodeBreaker</title>
     <style>
         /* Temel Stil */
         * {
@@ -13,6 +13,8 @@
             font-family: 'Courier New', monospace;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent; /* Mobilde tıkladığınızda çıkan vurgulamayı kaldır */
+            touch-action: manipulation; /* Varsayılan dokunmatik davranışları optimize et */
         }
         
         body {
@@ -116,6 +118,8 @@
             font-size: 2rem; /* Daha büyük yazı boyutu */
             position: relative;
             transition: all 0.3s ease;
+            cursor: pointer; /* Tıklanabilir olduğunu göster */
+            touch-action: manipulation; /* Mobil dokunmatik optimizasyonu */
         }
         
         .password-box {
@@ -214,6 +218,29 @@
             z-index: 999;
             padding: 20px;
             text-align: center;
+        }
+        
+        /* Start ekranı flex kolon düzeni */
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        /* İçerik bloğu büyüsün, taşınca kaydırsın */
+        #start-screen .scrollable {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Buton hep altında kalsın */
+        #start-btn {
+            flex-shrink: 0;
         }
         
         .hidden {
@@ -549,46 +576,64 @@
             border-color: #33ff33 !important;
             box-shadow: 0 0 15px rgba(51, 255, 51, 0.7) !important;
         }
+
+        /* CSS içerisine yeni renkler ve animasyonlar için stil ekleyelim */
+        .stage1-box {
+            border-color: #00ffff !important; /* Turkuaz renk */
+            color: #00ffff !important;
+        }
+        
+        .box.success-stage1 {
+            border-color: #00ffff !important;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7) !important; /* Turkuaz parlama */
+            animation: stage1-pulse 1s !important;
+        }
+        
+        @keyframes stage1-pulse {
+            0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); }
+            50% { box-shadow: 0 0 25px rgba(0, 255, 255, 1); }
+            100% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.7); }
+        }
     </style>
 </head>
 <body>
     <!-- Başlangıç Ekranı -->
     <div id="start-screen" class="screen">
-        <h1 style="color: #33ff33; margin-bottom: 20px; font-size: 2.5rem; text-shadow: 0 0 10px rgba(51, 255, 51, 0.5);">CSI Kod Kırma Görevi</h1>
-        <p style="margin-bottom: 15px; font-size: 1.3rem;">Bir CSI ajanı olarak şüpheli cihazın 9 haneli kilidini kırmalısın.</p>
-        <p style="margin-bottom: 25px; font-size: 1.3rem;">Görev süresi kısıtlı, hızlı ve dikkatli ol!</p>
-        
-        <!-- Oyun Talimatları -->
-        <div style="background-color: rgba(0, 0, 0, 0.5); border: 2px solid #33ff33; padding: 20px; border-radius: 8px; margin-bottom: 25px; max-width: 600px; text-align: left;">
-            <h3 style="color: #33ff33; margin-bottom: 15px; text-align: center;">OYUN TALİMATLARI</h3>
+        <div class="scrollable">
+            <h1 style="color: #33ff33; margin-bottom: 20px; font-size: 2.5rem; text-shadow: 0 0 10px rgba(51, 255, 51, 0.5);">CSI: CodeBreaker</h1>
+            <p style="margin-bottom: 15px; font-size: 1.3rem;">Gizlenmiş klasörlere erişebilmek için cihazın güvenlik duvarını manipüle et ve şifreyi deşifre et.</p>
             
-            <div style="margin-bottom: 15px;">
-                <h4 style="color: #ffff00; margin-bottom: 5px;">AŞAMA 1 (60 saniye):</h4>
-                <ul style="list-style-type: none; padding-left: 15px;">
-                    <li style="margin-bottom: 5px;">1. CONNECT butonuna tıkla - kilit ikonu parlar</li>
-                    <li style="margin-bottom: 5px;">2. Parlayan kilit ikonunun bağlı olduğu kutulardan birini seç</li>
-                    <li style="margin-bottom: 5px;">3. Doğru kutu seçilirse şifrenin bir parçası çözülür</li>
-                    <li style="margin-bottom: 5px;">4. SEARCH butonuna tıkla ve yeni bir kilit ikonu parlatmayı dene</li>
-                    <li style="margin-bottom: 5px;">5. Tüm karakterleri çöz ve 2. aşamaya geç</li>
-                </ul>
+            <!-- Oyun Talimatları -->
+            <div style="background-color: rgba(0, 0, 0, 0.5); border: 2px solid #33ff33; padding: 20px; border-radius: 8px; margin-bottom: 25px; max-width: 600px; text-align: left;">
+                <h3 style="color: #33ff33; margin-bottom: 15px; text-align: center;">GÖREV TALİMATLARI</h3>
+                
+                <div style="margin-bottom: 15px;">
+                    <h4 style="color: #ffff00; margin-bottom: 5px;">AŞAMA 1 (Kripto Anahtarlarını Ortaya Çıkar):</h4>
+                    <ul style="list-style-type: none; padding-left: 15px;">
+                        <li style="margin-bottom: 5px;">1. CONNECT ile güvenlik bağlantısını kur</li>
+                        <li style="margin-bottom: 5px;">2. Döngü durduğunda, sinyal veren kilidin altındaki iki monitörden birini seç</li>
+                        <li style="margin-bottom: 5px;">3. Seçim doğruysa, kripto anahtarı üstteki monitöre kaydedilir</li>
+                        <li style="margin-bottom: 5px;">4. Yanlış seçimde döngü otomatik başlar; tekrar CONNECT ile bağlantı ara</li>
+                        <li style="margin-bottom: 5px;">5. 9 kripto anahtarı elde edildiğinde sistem 2. aşamaya geçer</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 style="color: #00ffff; margin-bottom: 5px;">AŞAMA 2 (Kripto Karakterlerini Eşle):</h4>
+                    <ul style="list-style-type: none; padding-left: 15px;">
+                        <li style="margin-bottom: 5px;">1. Alt monitörlerden birine dokunarak monitörü aktif et</li>
+                        <li style="margin-bottom: 5px;">2. Doğru karakter eşleştiği anda tekrar dokunarak senkronizasyon sağla</li>
+                        <li style="margin-bottom: 5px;">3. BAĞLAN butonu ile eşleşmeyi kontrol et</li>
+                        <li style="margin-bottom: 5px;">4. Tüm 9 senkronizasyon tamamlandığında kripto şifre kırılır</li>
+                    </ul>
+                </div>
             </div>
             
-            <div>
-                <h4 style="color: #00ffff; margin-bottom: 5px;">AŞAMA 2 (90 saniye):</h4>
-                <ul style="list-style-type: none; padding-left: 15px;">
-                    <li style="margin-bottom: 5px;">1. Kutuya tıklayarak seç ve tekrar tıklayarak durdur</li>
-                    <li style="margin-bottom: 5px;">2. Üstteki şifre ile eşleşen karakteri bul</li>
-                    <li style="margin-bottom: 5px;">3. BAĞLAN butonuna tıkla</li>
-                    <li style="margin-bottom: 5px;">4. Tüm şifreyi doğru eşleştirerek kilidi aç</li>
-                </ul>
+            <!-- Yatay ekran uyarısı -->
+            <div style="background-color: rgba(255, 153, 0, 0.2); border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
+                <p style="color: #ff9900; font-size: 1.3rem; margin: 0;"><strong>⚠️ Önemli:</strong> En iyi deneyim için cihazınızı yatay konumda kullanınız!</p>
             </div>
         </div>
-        
-        <!-- Yatay ekran uyarısı -->
-        <div style="background-color: rgba(255, 153, 0, 0.2); border: 2px solid #ff9900; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
-            <p style="color: #ff9900; font-size: 1.3rem; margin: 0;"><strong>⚠️ Önemli:</strong> En iyi deneyim için cihazınızı yatay konumda kullanınız!</p>
-        </div>
-        
         <button id="start-btn" class="btn" onclick="startGame()">GÖREVİ BAŞLAT</button>
     </div>
 
@@ -622,17 +667,17 @@
     
     <!-- Aşama Tamamlandı Ekranı -->
     <div id="stage-complete" class="screen hidden">
-        <h2 style="color: #33ff33; margin-bottom: 20px; font-size: 2.2rem;">Güvenlik Denetimi Aşıldı!</h2>
-        <p style="margin-bottom: 25px; font-size: 1.3rem;">Şimdi şifre dizisini çözme zamanı.</p>
+        <h2 style="color: #33ff33; margin-bottom: 20px; font-size: 2.2rem;">KRİPTO DEŞİFRE ANAHTARI ONAYLANDI</h2>
+        <p style="margin-bottom: 25px; font-size: 1.3rem;">Şifre eşleştirmesi ekranı hazır.</p>
         <button id="next-stage-btn" class="btn" onclick="startStage2()">2. AŞAMAYA GEÇ</button>
     </div>
     
     <!-- Oyun Sonu Ekranı -->
     <div id="win-screen" class="screen hidden">
-        <h2 style="color: #33ff33; margin-bottom: 20px; font-size: 2.2rem;">GÖREVİ TAMAMLADIN!</h2>
-        <p style="margin-bottom: 15px; font-size: 1.3rem;">Tebrikler! Kod başarıyla kırıldı ve delillere ulaşıldı.</p>
+        <h2 style="color: #33ff33; margin-bottom: 20px; font-size: 2.2rem;">AES-256 KRİPTO KORUMALI VERİ DEŞİFRE EDİLDİ</h2>
+        <p style="margin-bottom: 15px; font-size: 1.5rem; color: #ffff00;">ŞİFRE: E-A-Y-D-I-N-1-2-3</p>
         <div style="background: #111; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p id="clue" style="color: #ff9900; font-size: 1.5rem;">Dosya konumu: /gizli/deliller/dosya451.bin</p>
+            <p id="clue" style="color: #ff9900; font-size: 1.3rem;">Kurtarılan Dosya: <a href="https://raw.githubusercontent.com/MonEuphorian/eaydinpc/refs/heads/main/assets/nk2.jpg" target="_blank" style="color: #ff9900; text-decoration: underline;">https://raw.githubusercontent.com/MonEuphorian/eaydinpc/refs/heads/main/assets/nk2.jpg</a></p>
         </div>
         <button id="restart-btn" class="btn" onclick="initGame(); winScreen.classList.add('hidden');">YENİDEN BAŞLAT</button>
     </div>
@@ -649,23 +694,81 @@
     </div>
 
     <script>
-        // Oyun Değişkenleri
-        let currentStage = 1; // 1: İlk aşama, 2: İkinci aşama
-        let timer = currentStage === 1 ? 60 : 90; // Süre (saniye)
-        let timerInterval;
-        let selectedBoxIndex = 0; // Seçili kutu indeksi
-        let passwordRow = []; // Şifre satırı
-        let characterSets = []; // Her kutu için olası karakterler
-        let spinningIntervals = []; // Dönen kutuların interval'leri
-        let correctBoxes = []; // Doğru tahmin edilen kutular
-        let isSpinning = true; // Döngü durumu
-        let highlightedBoxes = []; // Parlayan kutu çifti
-        let correctBox = null; // Doğru kutu
-        let selectedBox = null; // 2. aşama için seçilen kutu
-        let boxStates = []; // Her kutunun durumu (dönen/duran)
-        let boxSpeeds = null; // Her kutunun dönme hızı (2. aşama için)
-        let charIndices = null; // Her kutunun mevcut karakter indeksi (2. aşama için)
-        let finalCharacters = ['E', 'A', 'Y', 'D', 'I', 'N', '1', '2', '3']; // Final animasyonu için karakterler
+        // Global Game State - Oyun durumu
+        const GameState = {
+            // Oyunun mevcut aşaması
+            currentStage: 1, // 1: İlk aşama, 2: İkinci aşama
+            
+            // Süre takibi
+            timer: 60,
+            timerInterval: null,
+            
+            // Password (Şifre) satırı
+            passwordRow: [],
+            
+            // Karakter setleri ve dönme durumları
+            characterSets: [], 
+            spinningIntervals: [],
+            isSpinning: true,
+            
+            // Doğru tahmin edilen kutular
+            correctBoxes: [],
+            
+            // Vurgulanan kutu ve seçimler
+            highlightedBoxes: [],
+            correctBox: null,
+            selectedBox: null,
+            
+            // Her kutunun durumu
+            boxStates: [],
+            
+            // 2. aşama için özel değişkenler
+            boxSpeeds: null,
+            charIndices: null,
+            
+            // Final karakterleri
+            finalCharacters: ['E', 'A', 'Y', 'D', 'I', 'N', '1', '2', '3'],
+            
+            // Game state'i ilk haline getirme
+            reset: function() {
+                this.currentStage = 1;
+                this.timer = 60;
+                this.passwordRow = [];
+                this.characterSets = [];
+                this.spinningIntervals = [];
+                this.isSpinning = true;
+                this.correctBoxes = [];
+                this.highlightedBoxes = [];
+                this.correctBox = null;
+                this.selectedBox = null;
+                this.boxStates = [];
+                this.boxSpeeds = null;
+                this.charIndices = null;
+                
+                // Timer'ı temizle
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+        };
+        
+        // Oyun Değişkenleri - Referans kolaylığı için eski değişken adlarını koruyoruz
+        let currentStage = GameState.currentStage; // 1: İlk aşama, 2: İkinci aşama
+        let timer = GameState.timer; // Süre (saniye)
+        let timerInterval = GameState.timerInterval;
+        let passwordRow = GameState.passwordRow; // Şifre satırı
+        let characterSets = GameState.characterSets; // Her kutu için olası karakterler
+        let spinningIntervals = GameState.spinningIntervals; // Dönen kutuların interval'leri
+        let correctBoxes = GameState.correctBoxes; // Doğru tahmin edilen kutular
+        let isSpinning = GameState.isSpinning; // Döngü durumu
+        let highlightedBoxes = GameState.highlightedBoxes; // Parlayan kutu çifti
+        let correctBox = GameState.correctBox; // Doğru kutu
+        let selectedBox = GameState.selectedBox; // 2. aşama için seçilen kutu
+        let boxStates = GameState.boxStates; // Her kutunun durumu (dönen/duran)
+        let boxSpeeds = GameState.boxSpeeds; // Her kutunun dönme hızı (2. aşama için)
+        let charIndices = GameState.charIndices; // Her kutunun mevcut karakter indeksi (2. aşama için)
+        let finalCharacters = GameState.finalCharacters; // Final animasyonu için karakterler
         
         // DOM Elementleri
         const passwordRowEl = document.getElementById('password-row');
@@ -711,6 +814,10 @@
         
         // Oyunu başlat
         function initGame() {
+            // Game state'i sıfırla
+            GameState.reset();
+            currentStage = GameState.currentStage;
+            
             // Aşama göstergesini güncelle
             stageIndicator.textContent = "AŞAMA 1/2";
             
@@ -727,50 +834,60 @@
             codeRowEl.innerHTML = '';
             for (let i = 0; i < 9; i++) {
                 const box = document.createElement('div');
-                box.className = 'box spinning';
+                box.className = 'box spinning stage1-box'; // Turkuaz renk için stage1-box ekledik
                 box.innerHTML = '<div class="spinner">?</div>';
                 box.dataset.index = i; // Tıklama için indeks ekle
                 
-                // Kutuya tıklama olayı ekle
-                box.addEventListener('click', function() {
-                    handleBoxClick(i);
-                });
+                // Mobil-uyumlu event'leri ekle
+                setupMobileEvents(box, i);
                 
                 codeRowEl.appendChild(box);
             }
             
             // Her kutu için rastgele karakter seti oluştur
-            characterSets = [];
+            GameState.characterSets = [];
+            characterSets = GameState.characterSets;
+            
             for (let i = 0; i < 9; i++) {
                 // Her kutu için olası karakterleri karıştır
-                characterSets.push(shuffleString(characters));
+                GameState.characterSets.push(shuffleString(characters));
+                characterSets = GameState.characterSets;
             }
             
             // Doğru şifre oluştur (rastgele)
-            passwordRow = [];
+            GameState.passwordRow = [];
+            passwordRow = GameState.passwordRow;
+            
             for (let i = 0; i < 9; i++) {
                 const randomIndex = Math.floor(Math.random() * characters.length);
-                passwordRow.push(characters[randomIndex]);
+                GameState.passwordRow.push(characters[randomIndex]);
+                passwordRow = GameState.passwordRow;
             }
             
             // Kutular için spinning efekti başlat
             startSpinning();
             
             // İlk aşama için süreyi ayarla
-            timer = 60;
+            GameState.timer = 60;
+            timer = GameState.timer;
             updateTimer();
             
             // Timer'ı başlat
-            clearInterval(timerInterval);
-            timerInterval = setInterval(updateTimer, 1000);
+            clearInterval(GameState.timerInterval);
+            GameState.timerInterval = setInterval(updateTimer, 1000);
+            timerInterval = GameState.timerInterval;
             
             // Doğru kutuların sayısını sıfırla
-            correctBoxes = [];
+            GameState.correctBoxes = [];
+            correctBoxes = GameState.correctBoxes;
             
             // Durum değişkenlerini sıfırla
-            isSpinning = true;
-            highlightedBoxes = [];
-            correctBox = null;
+            GameState.isSpinning = true;
+            isSpinning = GameState.isSpinning;
+            GameState.highlightedBoxes = [];
+            highlightedBoxes = GameState.highlightedBoxes;
+            GameState.correctBox = null;
+            correctBox = GameState.correctBox;
             
             // Timer rengini başlangıçta yeşil yap
             timerEl.style.color = '#33ff33';
@@ -787,18 +904,32 @@
             
             // Kilit ikonlarını oluştur
             setTimeout(createLockIcons, 100);
+            
+            console.log("Oyun sıfırlandı ve başlatıldı - Aşama 1");
         }
         
         // Kutulardaki karakterleri döndürme efekti
         function startSpinning() {
+            console.log("Starting spinning effect for stage:", GameState.currentStage);
+            
             // Önceki interval'leri temizle
-            spinningIntervals.forEach(interval => clearInterval(interval));
-            spinningIntervals = [];
+            if (GameState.spinningIntervals && GameState.spinningIntervals.length > 0) {
+                GameState.spinningIntervals.forEach((interval, index) => {
+                    if (interval) {
+                        clearInterval(interval);
+                    }
+                });
+            }
+            
+            // Interval'leri sıfırla
+            GameState.spinningIntervals = [];
+            spinningIntervals = GameState.spinningIntervals;
             
             const codeBoxes = codeRowEl.querySelectorAll('.box');
             
             // Aşama 1'de tüm kutularda tüm karakterler döner
-            if (currentStage === 1) {
+            if (GameState.currentStage === 1) {
+                console.log("Setting up stage 1 spinning boxes");
                 // Tüm kutular için aynı hızı kullan
                 const speed = 150; // Aşama 1 için sabit hız
                 
@@ -807,66 +938,69 @@
                     let charIndex = 0;
                     
                     const interval = setInterval(() => {
-                        charIndex = (charIndex + 1) % characterSets[index].length;
-                        spinner.textContent = characterSets[index][charIndex];
+                        charIndex = (charIndex + 1) % GameState.characterSets[index].length;
+                        spinner.textContent = GameState.characterSets[index][charIndex];
                     }, speed);
                     
-                    spinningIntervals.push(interval);
-                    boxStates[index] = true; // true = dönen
+                    GameState.spinningIntervals.push(interval);
+                    spinningIntervals = GameState.spinningIntervals;
+                    
+                    GameState.boxStates[index] = true; // true = dönen
+                    boxStates = GameState.boxStates;
                 });
             } 
             // Aşama 2'de üst kutudaki karaktere göre döner
             else {
+                console.log("Setting up stage 2 spinning boxes");
                 // 2. aşama için hız değerleri (kutu bazında saklanacak)
-                if (!boxSpeeds) {
+                if (!GameState.boxSpeeds) {
                     // İlk kez çağrıldığında hız değerlerini oluştur
-                    boxSpeeds = [];
+                    GameState.boxSpeeds = [];
+                    boxSpeeds = GameState.boxSpeeds;
+                    
                     for (let i = 0; i < 9; i++) {
-                        boxSpeeds[i] = 100 + Math.random() * 100; // 100-200 ms arası
+                        GameState.boxSpeeds[i] = 100 + Math.random() * 100; // 100-200 ms arası
+                        boxSpeeds[i] = GameState.boxSpeeds[i];
                     }
                 }
                 
                 // Mevcut karakter indeksleri (kaldığı yerden devam için)
-                if (!charIndices) {
-                    charIndices = Array(9).fill(0);
+                if (!GameState.charIndices) {
+                    GameState.charIndices = Array(9).fill(0);
+                    charIndices = GameState.charIndices;
                 }
                 
+                // Her kutu için ayrı bir interval oluştur ve spesifik indekse ata
+                GameState.spinningIntervals = new Array(9).fill(null);
+                spinningIntervals = GameState.spinningIntervals;
+                GameState.boxStates = new Array(9).fill(true);
+                boxStates = GameState.boxStates;
+                
+                // Seçili kutuyu sıfırla
+                GameState.selectedBox = null;
+                selectedBox = null;
+                
                 codeBoxes.forEach((box, index) => {
+                    // Tüm seçim stillerini kaldır
+                    box.classList.remove('selected');
+                    
                     // Bu kutu çözülmüş mü kontrol et
-                    if (correctBoxes.includes(index)) {
+                    if (GameState.correctBoxes.includes(index)) {
+                        console.log("Box", index, "is already solved, not spinning");
                         box.classList.add('solved');
+                        GameState.boxStates[index] = false; // çözülmüş kutu dönmez
+                        boxStates = GameState.boxStates;
                         return; // Çözülmüşse döngüye katma
                     }
                     
-                    const spinner = box.querySelector('.spinner');
-                    
-                    // Üst kutudaki karakteri kontrol et
-                    const upperBoxChar = passwordRow[index];
-                    
-                    // Karakter tipine göre uygun set belirle
-                    let charSet;
-                    if (!isNaN(upperBoxChar)) {
-                        // Rakam ise
-                        charSet = numbersOnly;
-                    } else {
-                        // Harf ise
-                        charSet = lettersOnly;
-                    }
-                    
-                    // Mevcut hızı kullan
-                    const speed = boxSpeeds[index];
-                    
-                    const interval = setInterval(() => {
-                        charIndices[index] = (charIndices[index] + 1) % charSet.length;
-                        spinner.textContent = charSet[charIndices[index]];
-                    }, speed);
-                    
-                    spinningIntervals.push(interval);
-                    boxStates[index] = true; // true = dönen
+                    // Kutu için döngüyü başlat
+                    startBoxSpinning(index);
                 });
             }
             
-            isSpinning = true;
+            GameState.isSpinning = true;
+            isSpinning = GameState.isSpinning;
+            
             updateConnectButton();
         }
         
@@ -914,248 +1048,39 @@
         
         // Tüm dönmeleri durdur
         function stopSpinning() {
-            spinningIntervals.forEach(interval => clearInterval(interval));
-            spinningIntervals = [];
+            console.log("Stopping all spinning boxes");
+            
+            // Tüm interval'leri temizle
+            if (GameState.spinningIntervals && GameState.spinningIntervals.length > 0) {
+                GameState.spinningIntervals.forEach((interval, index) => {
+                    if (interval) {
+                        clearInterval(interval);
+                        console.log("Cleared interval at index", index);
+                    }
+                });
+            }
+            
+            // Interval'leri sıfırla
+            GameState.spinningIntervals = new Array(9).fill(null);
+            spinningIntervals = new Array(9).fill(null);
+            
+            // Döngü durumunu güncelle
+            GameState.isSpinning = false;
             isSpinning = false;
-        }
-        
-        // Tek bir kutuyu başlat/durdur (2. aşama için)
-        function toggleBoxSpinning(index) {
-            const codeBoxes = codeRowEl.querySelectorAll('.box');
-            const box = codeBoxes[index];
-            
-            // Bu kutu çözülmüş mü?
-            if (correctBoxes.includes(index)) {
-                return; // Çözülmüş kutuyu değiştirme
-            }
-            
-            // Kutu zaten seçili mi?
-            if (selectedBox === index) {
-                // Seçili kutuya tekrar tıklandı - durdur/başlat
-                if (boxStates[index]) {
-                    // Kutu dönüyorsa durdur
-                    clearInterval(spinningIntervals[index]);
-                    spinningIntervals[index] = null;
-                    boxStates[index] = false;
-                    box.classList.add('selected');
-                } else {
-                    // Kutu duruyorsa yeniden başlat
-                    const upperBoxChar = passwordRow[index];
-                    let charSet;
-                    
-                    if (!isNaN(upperBoxChar)) {
-                        // Rakam ise
-                        charSet = numbersOnly;
-                    } else {
-                        // Harf ise
-                        charSet = lettersOnly;
-                    }
-                    
-                    const spinner = box.querySelector('.spinner');
-                    // Mevcut karakter indeksinden devam et - bu değişmedi
-                    
-                    // Mevcut hızı kullan, yeni hız oluşturma
-                    const speed = boxSpeeds[index];
-                    
-                    const interval = setInterval(() => {
-                        charIndices[index] = (charIndices[index] + 1) % charSet.length;
-                        spinner.textContent = charSet[charIndices[index]];
-                    }, speed);
-                    
-                    spinningIntervals[index] = interval;
-                    boxStates[index] = true;
-                    
-                    // Seçimi koru, sadece döndür
-                    box.classList.add('selected');
-                }
-            } else {
-                // Yeni bir kutu seçildi
-                // Önceki seçili kutuyu temizle
-                if (selectedBox !== null) {
-                    const prevSelectedBox = codeBoxes[selectedBox];
-                    prevSelectedBox.classList.remove('selected'); // Parlama efektini kaldır
-                    
-                    // Önceki seçili kutu duruyorsa, tekrar başlat
-                    if (!boxStates[selectedBox]) {
-                        // Önceki kutuyu yeniden başlat
-                        const upperBoxChar = passwordRow[selectedBox];
-                        let charSet;
-                        
-                        if (!isNaN(upperBoxChar)) {
-                            charSet = numbersOnly;
-                        } else {
-                            charSet = lettersOnly;
-                        }
-                        
-                        const spinner = prevSelectedBox.querySelector('.spinner');
-                        const speed = boxSpeeds[selectedBox];
-                        
-                        const interval = setInterval(() => {
-                            charIndices[selectedBox] = (charIndices[selectedBox] + 1) % charSet.length;
-                            spinner.textContent = charSet[charIndices[selectedBox]];
-                        }, speed);
-                        
-                        spinningIntervals[selectedBox] = interval;
-                        boxStates[selectedBox] = true;
-                    }
-                }
-                
-                // Yeni kutuyu seçili olarak işaretle
-                selectedBox = index;
-                box.classList.add('selected');
-                
-                // Kutu durumunu değiştirme - sadece seçili olarak işaretle
-                // İkinci bir tıklama gerçekleştiğinde kutu durdurulacak
-            }
-            
-            // Connect butonunu güncelle
-            updateConnectButton();
-        }
-        
-        // Connect butonunun durumunu güncelle
-        function updateConnectButton() {
-            if (currentStage === 1) {
-                // Aşama 1 için CONNECT/SEARCH
-                if (isSpinning) {
-                    connectBtn.textContent = 'CONNECT';
-                    connectBtn.classList.remove('btn-active');
-                    connectBtn.classList.remove('connect-stage2');
-                } else {
-                    connectBtn.textContent = 'SEARCH';
-                    connectBtn.classList.add('btn-active');
-                    connectBtn.classList.remove('connect-stage2');
-                }
-            } else {
-                // Aşama 2 için BAĞLAN
-                connectBtn.textContent = 'BAĞLAN';
-                connectBtn.classList.add('connect-stage2');
-                
-                // Eğer seçili kutu varsa butonu aktif yap
-                if (selectedBox !== null && !boxStates[selectedBox]) {
-                    connectBtn.classList.add('btn-active');
-                } else {
-                    connectBtn.classList.remove('btn-active');
-                }
-            }
-        }
-        
-        // Connect butonu tıklaması
-        function handleConnectClick() {
-            if (currentStage === 1) {
-                // 1. aşama için yeni mantık
-                if (isSpinning) {
-                    // Döngüyü durdur
-                    stopSpinning();
-                    
-                    // Aktif kilit ikonunu seç
-                    selectActiveLock();
-                    
-                    // Connect butonunu güncelle
-                    updateConnectButton();
-                } else {
-                    // Start butonuna tıklandı - döngüyü yeniden başlat
-                    
-                    // Parlayan kutuları temizle
-                    clearHighlightedBoxes();
-                    
-                    // Döngüyü yeniden başlat
-                    startSpinning();
-                    
-                    // Connect butonunu güncelle
-                    updateConnectButton();
-                }
-            } else {
-                // 2. aşama için kutu eşleştirme kontrolü - değişiklik yok
-                checkStage2Match();
-                // Buton durumunu güncelle (eşleşme sonrası)
-                updateConnectButton();
-            }
-        }
-        
-        // Aktif kilit ikonunu seç
-        function selectActiveLock() {
-            // Onaylanmamış kilit ikonları için aday listesi oluştur
-            const candidates = [];
-            
-            for (let i = 0; i < 8; i++) {
-                // Bir kilit ikonu, iki kutuyu bağlar (i ve i+1)
-                // Eğer bu kilit ikonunu seçebilmek için, iki kutusundan en az birinin henüz onaylanmamış olması gerekir
-                if (!correctBoxes.includes(i) || !correctBoxes.includes(i+1)) {
-                    candidates.push(i);
-                }
-            }
-            
-            // Eğer aday yoksa, tüm kutular zaten onaylanmış demektir - oyun tamamlandı
-            if (candidates.length === 0) {
-                stageComplete();
-                return;
-            }
-            
-            // Adaylar arasından rastgele bir kilit ikonu seç
-            const randomIndex = Math.floor(Math.random() * candidates.length);
-            const activeLockIndex = candidates[randomIndex];
-            
-            // Bu kilit ikonunun işaret ettiği iki kutu
-            highlightedBoxes = [activeLockIndex, activeLockIndex + 1];
-            
-            // Kutulardan doğru olanı belirle
-            if (correctBoxes.includes(activeLockIndex)) {
-                // İlk kutu onaylanmışsa, ikinci kutu doğrudur
-                correctBox = activeLockIndex + 1;
-            } else if (correctBoxes.includes(activeLockIndex + 1)) {
-                // İkinci kutu onaylanmışsa, ilk kutu doğrudur
-                correctBox = activeLockIndex;
-            } else {
-                // İkisi de onaylanmamışsa, rastgele birini doğru belirle
-                correctBox = Math.random() < 0.5 ? activeLockIndex : activeLockIndex + 1;
-            }
-            
-            // İlgili kilit ikonunu parlat
-            highlightLockIcon();
-        }
-        
-        // Parlayan kutuları temizle
-        function clearHighlightedBoxes() {
-            const codeBoxes = codeRowEl.querySelectorAll('.box');
-            highlightedBoxes.forEach(index => {
-                codeBoxes[index].classList.remove('highlight');
-            });
-            highlightedBoxes = [];
-            correctBox = null;
-            
-            // Tüm kilit ikonlarından highlight sınıfını kaldır
-            const lockIcons = document.querySelectorAll('.lock-icon');
-            lockIcons.forEach(icon => {
-                icon.classList.remove('highlight');
-            });
-        }
-        
-        // İlgili kilit ikonunu vurgula
-        function highlightLockIcon() {
-            if (highlightedBoxes.length === 2 && highlightedBoxes[0] + 1 === highlightedBoxes[1]) {
-                // Yan yana iki kutu varsa, aralarındaki kilidi vurgula
-                const lockIcons = document.querySelectorAll('.lock-icon');
-                const lockIndex = highlightedBoxes[0];
-                
-                if (lockIcons[lockIndex]) {
-                    // Diğer vurguları temizle
-                    lockIcons.forEach(icon => icon.classList.remove('highlight'));
-                    // İlgili kilidi vurgula
-                    lockIcons[lockIndex].classList.add('highlight');
-                }
-            }
         }
         
         // Kutuya tıklama işleyicisi
         function handleBoxClick(index) {
             // 1. aşamada sadece döngü durduğunda tepki versin
             if (currentStage === 1) {
+                console.log("Stage 1 box click:", index, "isSpinning:", isSpinning, "highlightedBoxes:", highlightedBoxes, "correctBox:", correctBox);
                 // Sadece döngü durdurulmuşsa tıklamayı işle
                 if (!isSpinning && highlightedBoxes.includes(index)) {
                     const codeBoxes = codeRowEl.querySelectorAll('.box');
                     const passwordBoxes = passwordRowEl.querySelectorAll('.box');
                     
                     if (index === correctBox) {
+                        console.log("Correct box selected:", index);
                         // Doğru kutu seçildi
                         
                         // Seçili kutunun o anki değerini al
@@ -1178,13 +1103,14 @@
                         }, 500);
                         
                         // Doğru kutuları kaydet
-                        correctBoxes.push(index);
+                        GameState.correctBoxes.push(index);
+                        correctBoxes = GameState.correctBoxes;
                         
-                        // Başarı göstergesi
-                        codeBoxes[index].classList.add('success');
+                        // Başarı göstergesi - Turkuaz parlama efekti
+                        codeBoxes[index].classList.add('success-stage1');
                         setTimeout(() => {
-                            codeBoxes[index].classList.remove('success');
-                        }, 500);
+                            codeBoxes[index].classList.remove('success-stage1');
+                        }, 1000);
                         
                         // Kilit ikonlarının durumunu güncelle
                         updateLockIconStates();
@@ -1199,6 +1125,7 @@
                         // isSpinning = false kalacak, böylece buton "SEARCH" olarak gösterilecek
                         // CONNECT butonuna basıldığında spin başlayacak ve buton CONNECT'e dönecek
                     } else {
+                        console.log("Wrong box selected:", index, "correctBox was:", correctBox);
                         // Yanlış kutu seçildi
                         
                         // Hata animasyonu - kısa süreli kırmızı yanıp sönme
@@ -1218,7 +1145,7 @@
                     }
                 }
             } else if (currentStage === 2) {
-                // 2. aşamada kutu seçme ve durdurma/başlatma mantığı
+                // Aşama 2 için doğrudan toggleBoxSpinning fonksiyonunu çağır
                 toggleBoxSpinning(index);
             }
         }
@@ -1259,7 +1186,17 @@
         
         // İkinci aşamayı başlat
         function startStage2() {
+            console.log("Starting Stage 2...");
+            
+            // Tüm interval ve animasyonları temizle
+            stopSpinning();
+            clearAllAnimations();
+            
+            // Aşama durumunu güncelle
+            GameState.currentStage = 2;
             currentStage = 2;
+            
+            // Aşama 1 tamamlandı ekranını gizle
             stageCompleteScreen.classList.add('hidden');
             
             // Kilit ikonlarını gizle (Aşama 2'de gösterilmeyecek)
@@ -1275,30 +1212,50 @@
             const passwordBoxes = passwordRowEl.querySelectorAll('.box');
             const codeBoxes = codeRowEl.querySelectorAll('.box');
             
-            // Önceki çözümleri temizle - süre dolduğunda tüm kutular yeniden başlatılsın
+            // Aşama 2 için durumu temizle
+            GameState.correctBoxes = [];
+            GameState.passwordRow = [];
             correctBoxes = [];
             passwordRow = [];
             
+            // Üst sıradaki kutuların değerlerini al ve stillerini ayarla
             for (let i = 0; i < 9; i++) {
-                // Üst kutulardaki değerleri al
-                passwordRow.push(passwordBoxes[i].textContent);
+                // Üst kutulardaki değerleri kaydet
+                const boxValue = passwordBoxes[i].textContent;
+                GameState.passwordRow.push(boxValue);
+                passwordRow.push(boxValue);
                 
-                // Önceki çözüm stillerini kaldır
-                codeBoxes[i].classList.remove('solved', 'success', 'selected', 'error', 'highlight');
+                // Tüm kutuların animasyonlarını ve stillerini temizle
+                codeBoxes[i].classList.remove('solved', 'success', 'selected', 'error', 'highlight', 'glitch-effect', 'success-stage1', 'stage1-box');
+                passwordBoxes[i].classList.remove('success', 'error', 'highlight', 'glitch-effect', 'temp-highlight');
+                codeBoxes[i].style.animation = '';
+                passwordBoxes[i].style.animation = '';
                 
-                // Password kutularını solved stilinde göster (ama success stilini kaldır)
-                passwordBoxes[i].classList.remove('success');
+                // Password kutularını solved stilinde göster
                 passwordBoxes[i].classList.add('solved');
+                
+                // Yeni event listener'ları eklemeden önce eski event listener'ları kaldır
+                cleanupEventListeners(codeBoxes[i]);
+                
+                // Kutuya mobil uyumlu dokunmatik olayları ekle
+                setupMobileEvents(codeBoxes[i], i);
             }
             
             // 2. aşama için değişkenleri hazırla
-            boxSpeeds = [];
-            charIndices = Array(9).fill(0);
-            spinningIntervals = []; // Önceki interval'leri temizle
+            GameState.boxSpeeds = [];
+            GameState.charIndices = Array(9).fill(0);
+            boxSpeeds = GameState.boxSpeeds;
+            charIndices = GameState.charIndices;
             
-            // Her kutu için sabit bir hız belirle (oyun boyunca değişmeyecek)
+            // Önceki interval'leri temizle
+            stopSpinning();
+            GameState.spinningIntervals = new Array(9).fill(null);
+            spinningIntervals = GameState.spinningIntervals;
+            
+            // Her kutu için sabit bir hız belirle
             for (let i = 0; i < 9; i++) {
-                boxSpeeds[i] = 100 + Math.random() * 100; // 100-200 ms arası
+                GameState.boxSpeeds[i] = 100 + Math.random() * 100; // 100-200 ms arası
+                boxSpeeds[i] = GameState.boxSpeeds[i];
             }
             
             // Connect butonunun metnini değiştir
@@ -1307,26 +1264,32 @@
             connectBtn.classList.remove('btn-active');
             
             // Timer'ı sıfırla ve yeniden başlat
-            timer = 90;
+            GameState.timer = 90;
+            timer = GameState.timer;
             timerEl.textContent = timer;
             timerEl.style.animation = '';
             timerEl.style.color = '#33ff33'; // Yeşil renk başlangıçta
             
             // Timer'ı başlat
-            clearInterval(timerInterval);
-            timerInterval = setInterval(updateTimer, 1000);
+            clearInterval(GameState.timerInterval);
+            GameState.timerInterval = setInterval(updateTimer, 1000);
+            timerInterval = GameState.timerInterval;
             
             // Kutu durumlarını sıfırla
-            boxStates = Array(9).fill(true); // Başlangıçta tüm kutular döner
+            GameState.boxStates = Array(9).fill(true); // Başlangıçta tüm kutular döner
+            boxStates = GameState.boxStates;
             
             // Seçili kutuyu sıfırla
+            GameState.selectedBox = null;
             selectedBox = null;
             
             // Döndürmeyi yeniden başlat
             startSpinning();
             
             // Durum değişkenlerini sıfırla
+            GameState.isSpinning = true;
             isSpinning = true;
+            GameState.highlightedBoxes = [];
             highlightedBoxes = [];
             
             // Connect butonunu güncelle
@@ -1334,6 +1297,27 @@
             
             // Bağlantı çizgilerini güncelle
             setTimeout(updateConnectorLines, 100);
+            
+            console.log("Stage 2 initialized successfully");
+        }
+
+        // Tüm animasyonları temizle
+        function clearAllAnimations() {
+            console.log("Clearing all animations");
+            // Tüm kutuların animasyonlarını temizle
+            const allBoxes = document.querySelectorAll('.box');
+            allBoxes.forEach(box => {
+                box.style.animation = '';
+                box.classList.remove('glitch-effect');
+            });
+            
+            // Aşama göstergesi animasyonlarını temizle
+            stageIndicator.classList.remove('glitch-effect');
+            stageIndicator.style.color = '';
+            stageIndicator.style.animation = '';
+            
+            // Timer animasyonlarını temizle
+            timerEl.style.animation = '';
         }
         
         // Oyun kazanıldı
@@ -1343,61 +1327,474 @@
             stopSpinning();
         }
         
+        // Kutular arası mesafe değişkenini hesapla ve CSS'e ekle
+        function updateConnectorLines() {
+            const passwordBoxes = document.querySelectorAll('.password-box');
+            const codeBoxes = document.querySelectorAll('.code-row .box');
+            
+            if (passwordBoxes.length > 0 && codeBoxes.length > 0) {
+                // İlk üst kutu ve ilk alt kutu arasındaki mesafeyi hesapla
+                const passwordBox = passwordBoxes[0].getBoundingClientRect();
+                const codeBox = codeBoxes[0].getBoundingClientRect();
+                
+                // Üst kutunun altından alt kutunun üstüne olan mesafe
+                const distance = codeBox.top - passwordBox.bottom;
+                
+                // Bu mesafeyi CSS değişkeni olarak ekle
+                document.documentElement.style.setProperty('--box-spacing', distance + 'px');
+                
+                // Kilit ikonunun konumunu güncelle
+                if (window.matchMedia("(orientation: portrait)").matches) {
+                    // Dikey ekranda
+                    const lockIcon = document.querySelector('.lock-icon');
+                    if (lockIcon) {
+                        lockIcon.style.top = `calc(${passwordBox.bottom}px + ${distance/2}px - 18px)`;
+                    }
+                }
+            }
+        }
+        
+        // Kilit ikonlarının durumunu güncelle (çözülmüş kutulara göre)
+        function updateLockIconStates() {
+            const lockIcons = document.querySelectorAll('.lock-icon');
+            
+            // Her bir kilit ikonu için kontrol et
+            for (let i = 0; i < 8; i++) {
+                const lockIcon = lockIcons[i];
+                
+                // Bu kilit ikonu, i ve i+1 kutularını bağlıyor
+                // Eğer her iki kutu da çözülmüşse, kilit ikonu da çözülmüş olarak işaretle
+                if (correctBoxes.includes(i) && correctBoxes.includes(i+1)) {
+                    lockIcon.classList.remove('highlight');
+                    lockIcon.classList.add('solved');
+                } 
+                // Eğer bu kilit ikonu vurgulanmış ve onunla bağlantılı kutulardan biri seçilmişse
+                // vurguyu koru (doğru/yanlış seçim sonrası)
+                else if (highlightedBoxes.includes(i) && highlightedBoxes.includes(i+1)) {
+                    lockIcon.classList.add('highlight');
+                    lockIcon.classList.remove('solved');
+                } 
+                // Hiçbiri değilse normal görünüm
+                else {
+                    lockIcon.classList.remove('highlight', 'solved');
+                }
+            }
+        }
+        
+        // Tek bir kutuyu başlat/durdur (2. aşama için)
+        function toggleBoxSpinning(index) {
+            console.log("toggleBoxSpinning called for index:", index);
+            
+            // İşlemleri gerçekleştirmeden önce güvenlik kontrolü
+            if (GameState.currentStage !== 2) {
+                console.log("Not in stage 2, returning");
+                return; // Sadece aşama 2'de çalışmalı
+            }
+            
+            const codeBoxes = codeRowEl.querySelectorAll('.box');
+            const box = codeBoxes[index];
+            
+            // Bu kutu çözülmüş mü?
+            if (GameState.correctBoxes.includes(index)) {
+                console.log("Box is already solved, no action taken:", index);
+                return; // Çözülmüş kutuyu değiştirme
+            }
+            
+            console.log("Current selectedBox:", GameState.selectedBox, "boxStates:", GameState.boxStates);
+            
+            // 1. Senaryo: Aynı kutuya tıklanmış - durumunu değiştir (durdur/başlat)
+            if (GameState.selectedBox === index) {
+                // Kutunun mevcut durumunu tersine çevir
+                if (GameState.boxStates[index]) {
+                    // Kutu dönüyorsa durdur
+                    stopBoxSpinning(index);
+                } else {
+                    // Kutu durmuşsa başlat
+                    startBoxSpinning(index);
+                }
+            } 
+            // 2. Senaryo: Farklı bir kutuya tıklanmış
+            else {
+                // Önceki seçili kutu varsa, onu temizle
+                if (GameState.selectedBox !== null) {
+                    // Önceki seçili kutuyu seçimden kaldır
+                    resetPreviousBox();
+                }
+                
+                // Yeni kutuyu seçili olarak işaretle
+                GameState.selectedBox = index;
+                selectedBox = GameState.selectedBox;
+                box.classList.add('selected');
+                
+                // Kutu dönüyorsa durdur, durmuyorsa başlat
+                if (GameState.boxStates[index]) {
+                    stopBoxSpinning(index);
+                } else {
+                    startBoxSpinning(index);
+                }
+            }
+            
+            // Connect butonunu güncelle
+            updateConnectButton();
+        }
+        
+        // Yardımcı fonksiyon - Önceki seçili kutuyu sıfırla
+        function resetPreviousBox() {
+            if (GameState.selectedBox === null) return;
+            
+            const codeBoxes = codeRowEl.querySelectorAll('.box');
+            const prevBox = codeBoxes[GameState.selectedBox];
+            
+            // Seçim stilini kaldır
+            prevBox.classList.remove('selected');
+            
+            // Kutu durmuşsa tekrar başlat
+            if (!GameState.boxStates[GameState.selectedBox]) {
+                startBoxSpinning(GameState.selectedBox);
+            }
+        }
+        
+        // Yardımcı fonksiyon - Tek bir kutuyu durdur
+        function stopBoxSpinning(index) {
+            console.log("Stopping box", index);
+            
+            const codeBoxes = codeRowEl.querySelectorAll('.box');
+            const box = codeBoxes[index];
+            
+            // Interval'i temizle
+            if (GameState.spinningIntervals[index]) {
+                clearInterval(GameState.spinningIntervals[index]);
+                GameState.spinningIntervals[index] = null;
+                spinningIntervals = GameState.spinningIntervals;
+            }
+            
+            // Kutu durumunu güncelle
+            GameState.boxStates[index] = false;
+            boxStates = GameState.boxStates;
+            
+            // Görsel seçim belirteci ekle
+            box.classList.add('selected');
+            
+            console.log("Box", index, "stopped successfully");
+        }
+        
+        // Yardımcı fonksiyon - Tek bir kutuyu başlat
+        function startBoxSpinning(index) {
+            console.log("Starting box", index);
+            
+            const codeBoxes = codeRowEl.querySelectorAll('.box');
+            const box = codeBoxes[index];
+            const spinner = box.querySelector('.spinner');
+            
+            // İlgili karakterleri belirle
+            const upperBoxChar = GameState.passwordRow[index];
+            let charSet;
+            
+            if (!isNaN(upperBoxChar)) {
+                // Rakam ise
+                charSet = numbersOnly;
+            } else {
+                // Harf ise
+                charSet = lettersOnly;
+            }
+            
+            // Mevcut interval'i temizle
+            if (GameState.spinningIntervals[index]) {
+                clearInterval(GameState.spinningIntervals[index]);
+            }
+            
+            // Döngüyü başlat
+            const speed = GameState.boxSpeeds[index];
+            const interval = setInterval(() => {
+                GameState.charIndices[index] = (GameState.charIndices[index] + 1) % charSet.length;
+                charIndices = GameState.charIndices;
+                spinner.textContent = charSet[GameState.charIndices[index]];
+            }, speed);
+            
+            // Interval'i kaydet
+            GameState.spinningIntervals[index] = interval;
+            spinningIntervals[index] = interval;
+            
+            // Kutu durumunu güncelle
+            GameState.boxStates[index] = true;
+            boxStates[index] = true;
+            
+            console.log("Box", index, "started successfully");
+        }
+        
+        // Connect butonunun durumunu güncelle
+        function updateConnectButton() {
+            if (GameState.currentStage === 1) {
+                // Aşama 1 için CONNECT/SEARCH
+                if (GameState.isSpinning) {
+                    connectBtn.textContent = 'CONNECT';
+                    connectBtn.classList.remove('btn-active');
+                    connectBtn.classList.remove('connect-stage2');
+                } else {
+                    connectBtn.textContent = 'SEARCH';
+                    connectBtn.classList.add('btn-active');
+                    connectBtn.classList.remove('connect-stage2');
+                }
+            } else {
+                // Aşama 2 için BAĞLAN
+                connectBtn.textContent = 'BAĞLAN';
+                connectBtn.classList.add('connect-stage2');
+                
+                // Eğer seçili kutu varsa ve durdurulmuşsa butonu aktif yap
+                if (GameState.selectedBox !== null && GameState.boxStates[GameState.selectedBox] === false) {
+                    connectBtn.classList.add('btn-active');
+                } else {
+                    connectBtn.classList.remove('btn-active');
+                }
+            }
+        }
+        
+        // Connect butonu tıklaması
+        function handleConnectClick() {
+            if (GameState.currentStage === 1) {
+                // 1. aşama için yeni mantık
+                if (GameState.isSpinning) {
+                    // Döngüyü durdur
+                    stopSpinning();
+                    
+                    // Aktif kilit ikonunu seç
+                    selectActiveLock();
+                    
+                    // isSpinning durumunu güncelle
+                    GameState.isSpinning = false;
+                    isSpinning = false;
+                    
+                    // Connect butonunu güncelle
+                    updateConnectButton();
+                } else {
+                    // Start butonuna tıklandı - döngüyü yeniden başlat
+                    
+                    // Parlayan kutuları temizle
+                    clearHighlightedBoxes();
+                    
+                    // Döngüyü yeniden başlat
+                    startSpinning();
+                    
+                    // isSpinning durumunu güncelle
+                    GameState.isSpinning = true;
+                    isSpinning = true;
+                    
+                    // Connect butonunu güncelle
+                    updateConnectButton();
+                }
+            } else {
+                // 2. aşama için kutu eşleştirme kontrolü
+                checkStage2Match();
+                // Buton durumunu güncelle (eşleşme sonrası)
+                updateConnectButton();
+            }
+        }
+        
+        // Aktif kilit ikonunu seç
+        function selectActiveLock() {
+            // Onaylanmamış kilit ikonları için aday listesi oluştur
+            const candidates = [];
+            
+            // Önce doğrudan doğru kutular sayısını kontrol et, 9'dan az ise devam et
+            if (GameState.correctBoxes.length === 9) {
+                stageComplete();
+                return;
+            }
+            
+            for (let i = 0; i < 8; i++) {
+                // Bir kilit ikonu, iki kutuyu bağlar (i ve i+1)
+                // Eğer bu kilit ikonunu seçebilmek için, iki kutusundan en az birinin henüz onaylanmamış olması gerekir
+                if (!GameState.correctBoxes.includes(i) || !GameState.correctBoxes.includes(i+1)) {
+                    candidates.push(i);
+                }
+            }
+            
+            // Eğer aday yoksa ama GameState.correctBoxes 9'dan azsa, demek ki son kutu kaldı
+            if (candidates.length === 0 && GameState.correctBoxes.length < 9) {
+                // Son kutuyu manuel olarak vurgula ve doğru kutu olarak işaretle
+                GameState.highlightedBoxes = [7, 8]; // Son iki kutu (indeks 7 ve 8)
+                highlightedBoxes = GameState.highlightedBoxes;
+                GameState.correctBox = 8; // Son kutu (indeks 8)
+                correctBox = GameState.correctBox;
+                highlightLockIcon();
+                return;
+            }
+            
+            // Adaylar arasından rastgele bir kilit ikonu seç
+            const randomIndex = Math.floor(Math.random() * candidates.length);
+            const activeLockIndex = candidates[randomIndex];
+            
+            // Bu kilit ikonunun işaret ettiği iki kutu
+            GameState.highlightedBoxes = [activeLockIndex, activeLockIndex + 1];
+            highlightedBoxes = GameState.highlightedBoxes;
+            
+            // Kutulardan doğru olanı belirle
+            if (GameState.correctBoxes.includes(activeLockIndex)) {
+                // İlk kutu onaylanmışsa, ikinci kutu doğrudur
+                GameState.correctBox = activeLockIndex + 1;
+                correctBox = GameState.correctBox;
+            } else if (GameState.correctBoxes.includes(activeLockIndex + 1)) {
+                // İkinci kutu onaylanmışsa, ilk kutu doğrudur
+                GameState.correctBox = activeLockIndex;
+                correctBox = GameState.correctBox;
+            } else {
+                // İkisi de onaylanmamışsa, rastgele birini doğru belirle
+                GameState.correctBox = Math.random() < 0.5 ? activeLockIndex : activeLockIndex + 1;
+                correctBox = GameState.correctBox;
+            }
+            
+            // İlgili kilit ikonunu parlat
+            highlightLockIcon();
+            
+            console.log("Selected lock:", activeLockIndex, "highlighted boxes:", highlightedBoxes, "correct box:", correctBox);
+        }
+        
+        // Parlayan kutuları temizle
+        function clearHighlightedBoxes() {
+            const codeBoxes = codeRowEl.querySelectorAll('.box');
+            highlightedBoxes.forEach(index => {
+                codeBoxes[index].classList.remove('highlight');
+            });
+            
+            GameState.highlightedBoxes = [];
+            highlightedBoxes = [];
+            GameState.correctBox = null;
+            correctBox = null;
+            
+            // Tüm kilit ikonlarından highlight sınıfını kaldır
+            const lockIcons = document.querySelectorAll('.lock-icon');
+            lockIcons.forEach(icon => {
+                icon.classList.remove('highlight');
+            });
+        }
+        
+        // İlgili kilit ikonunu vurgula
+        function highlightLockIcon() {
+            if (highlightedBoxes.length === 2 && highlightedBoxes[0] + 1 === highlightedBoxes[1]) {
+                // Yan yana iki kutu varsa, aralarındaki kilidi vurgula
+                const lockIcons = document.querySelectorAll('.lock-icon');
+                const lockIndex = highlightedBoxes[0];
+                
+                if (lockIcons[lockIndex]) {
+                    // Diğer vurguları temizle
+                    lockIcons.forEach(icon => icon.classList.remove('highlight'));
+                    // İlgili kilidi vurgula
+                    lockIcons[lockIndex].classList.add('highlight');
+                }
+                
+                // İlgili kutuları vurgulama (1. aşamada kutuları vurgulamıyoruz artık, sadece kilit parıldıyor)
+                // 1. aşamada kutuları parıldatmak istemiyoruz, bu yüzden bu kodu kaldırıyoruz
+                // const codeBoxes = codeRowEl.querySelectorAll('.box');
+                // highlightedBoxes.forEach(index => {
+                //     codeBoxes[index].classList.add('highlight');
+                // });
+            }
+        }
+        
         // 2. aşamada kutu eşleşmesini kontrol et
         function checkStage2Match() {
+            // Hâlâ aşama 2'de olduğumuzu kontrol et
+            if (GameState.currentStage !== 2) {
+                console.log("Not in stage 2, returning");
+                return;
+            }
+            
             const codeBoxes = codeRowEl.querySelectorAll('.box');
             const passwordBoxes = passwordRowEl.querySelectorAll('.box');
             
+            console.log("Checking stage 2 match, selectedBox:", GameState.selectedBox, "boxStates:", GameState.boxStates);
+            
             // Seçili bir kutu var mı ve bu kutu durdurulmuş mu kontrol et
-            if (selectedBox !== null && boxStates[selectedBox] === false) {
+            if (GameState.selectedBox !== null && GameState.boxStates[GameState.selectedBox] === false) {
                 // Seçili kutunun o anki değerini al
-                const currentChar = codeBoxes[selectedBox].querySelector('.spinner').textContent;
+                const spinner = codeBoxes[GameState.selectedBox].querySelector('.spinner');
+                if (!spinner) {
+                    console.error("Spinner element not found for box", GameState.selectedBox);
+                    return;
+                }
+                
+                const currentChar = spinner.textContent;
+                const expectedChar = GameState.passwordRow[GameState.selectedBox];
+                
+                console.log("Current character:", currentChar, "Expected:", expectedChar);
                 
                 // Password'deki karakter ile karşılaştır
-                if (currentChar === passwordRow[selectedBox]) {
+                if (currentChar === expectedChar) {
+                    console.log("Match success!");
                     // Doğru eşleşme - görsel geri bildirim 
-                    codeBoxes[selectedBox].classList.add('success');
-                    passwordBoxes[selectedBox].classList.add('success');
+                    codeBoxes[GameState.selectedBox].classList.add('success');
+                    passwordBoxes[GameState.selectedBox].classList.add('success');
                     
                     // Hafif titreşim animasyonu
-                    codeBoxes[selectedBox].style.animation = 'pulse 0.5s';
-                    passwordBoxes[selectedBox].style.animation = 'pulse 0.5s';
+                    codeBoxes[GameState.selectedBox].style.animation = 'pulse 0.5s';
+                    passwordBoxes[GameState.selectedBox].style.animation = 'pulse 0.5s';
+                    
+                    // Geçici değişkenlerde seçili kutuyu saklayalım (setTimeout içinde kullanmak için)
+                    const selectedBoxIndex = GameState.selectedBox;
                     
                     setTimeout(() => {
-                        codeBoxes[selectedBox].style.animation = '';
-                        passwordBoxes[selectedBox].style.animation = '';
+                        // Hâlâ aşama 2'de olduğumuzu kontrol et
+                        if (GameState.currentStage !== 2) return;
+                        
+                        codeBoxes[selectedBoxIndex].style.animation = '';
+                        passwordBoxes[selectedBoxIndex].style.animation = '';
+                        
+                        // Başarı stillerini kaldır, çözüldü stili ekle
+                        codeBoxes[selectedBoxIndex].classList.remove('success');
+                        passwordBoxes[selectedBoxIndex].classList.remove('success');
+                        codeBoxes[selectedBoxIndex].classList.add('solved');
+                        passwordBoxes[selectedBoxIndex].classList.add('solved');
                     }, 500);
                     
                     // Doğru kutuları kaydet
-                    if (!correctBoxes.includes(selectedBox)) {
-                        correctBoxes.push(selectedBox);
+                    if (!GameState.correctBoxes.includes(GameState.selectedBox)) {
+                        GameState.correctBoxes.push(GameState.selectedBox);
+                        correctBoxes = GameState.correctBoxes;
+                        console.log("Added to correctBoxes, now have:", GameState.correctBoxes.length);
                     }
                     
                     // Kutunun artık seçilemeyen duruma getirilmesi
-                    codeBoxes[selectedBox].classList.remove('selected');
-                    codeBoxes[selectedBox].classList.add('solved');
-                    passwordBoxes[selectedBox].classList.add('solved');
+                    codeBoxes[GameState.selectedBox].classList.remove('selected');
                     
                     // Seçimi kaldır
+                    GameState.selectedBox = null;
                     selectedBox = null;
                     
+                    // Connect butonunu güncelle
+                    updateConnectButton();
+                    
                     // Tüm kutular doğru mu kontrol et
-                    if (correctBoxes.length === 9) {
+                    if (GameState.correctBoxes.length === 9) {
+                        console.log("All boxes matched! Starting final animation...");
                         setTimeout(finalAnimation, 500);
                     }
                 } else {
+                    console.log("Match failed");
                     // Eşleşme yok - hata göster
-                    codeBoxes[selectedBox].classList.add('error');
+                    codeBoxes[GameState.selectedBox].classList.add('error');
+                    
+                    // Geçici değişkenlerde seçili kutuyu saklayalım (setTimeout içinde kullanmak için)
+                    const selectedBoxIndex = GameState.selectedBox;
+                    
                     setTimeout(() => {
-                        codeBoxes[selectedBox].classList.remove('error');
+                        // Hâlâ aşama 2'de olduğumuzu kontrol et
+                        if (GameState.currentStage !== 2) return;
+                        
+                        codeBoxes[selectedBoxIndex].classList.remove('error');
                         // Kutuyu yeniden başlat
-                        toggleBoxSpinning(selectedBox);
+                        startBoxSpinning(selectedBoxIndex);
+                        GameState.boxStates[selectedBoxIndex] = true;
+                        boxStates = GameState.boxStates;
+                        codeBoxes[selectedBoxIndex].classList.remove('selected');
+                        GameState.selectedBox = null;
+                        selectedBox = null;
+                        updateConnectButton();
                     }, 800);
                 }
-            } else if (selectedBox === null) {
+            } else if (GameState.selectedBox === null) {
                 // Hiç kutu seçili değilse uyarı
                 alert("Lütfen önce bir kutu seçin ve durdurun!");
-            } else if (boxStates[selectedBox]) {
+            } else if (GameState.boxStates[GameState.selectedBox]) {
                 // Kutu seçili ama durdurulmamış
                 alert("Lütfen seçili kutuyu durdurmak için üzerine tıklayın!");
             }
@@ -1407,6 +1804,9 @@
         function finalAnimation() {
             // Tüm döngüleri durdur
             stopSpinning();
+            
+            // Animasyonları temizle
+            clearAllAnimations();
             
             // Aşama göstergesini değiştir
             stageIndicator.textContent = "KİLİT AÇILIYOR";
@@ -1465,58 +1865,74 @@
             });
         }
         
-        // Kutular arası mesafe değişkenini hesapla ve CSS'e ekle
-        function updateConnectorLines() {
-            const passwordBoxes = document.querySelectorAll('.password-box');
-            const codeBoxes = document.querySelectorAll('.code-row .box');
-            
-            if (passwordBoxes.length > 0 && codeBoxes.length > 0) {
-                // İlk üst kutu ve ilk alt kutu arasındaki mesafeyi hesapla
-                const passwordBox = passwordBoxes[0].getBoundingClientRect();
-                const codeBox = codeBoxes[0].getBoundingClientRect();
-                
-                // Üst kutunun altından alt kutunun üstüne olan mesafe
-                const distance = codeBox.top - passwordBox.bottom;
-                
-                // Bu mesafeyi CSS değişkeni olarak ekle
-                document.documentElement.style.setProperty('--box-spacing', distance + 'px');
-                
-                // Kilit ikonunun konumunu güncelle
-                if (window.matchMedia("(orientation: portrait)").matches) {
-                    // Dikey ekranda
-                    const lockIcon = document.querySelector('.lock-icon');
-                    if (lockIcon) {
-                        lockIcon.style.top = `calc(${passwordBox.bottom}px + ${distance/2}px - 18px)`;
-                    }
-                }
+        // Eski event listener'ları temizleme fonksiyonu
+        function cleanupEventListeners(element) {
+            if (element._clickHandler) {
+                element.removeEventListener('click', element._clickHandler);
+            }
+            if (element._touchstartHandler) {
+                element.removeEventListener('touchstart', element._touchstartHandler);
+            }
+            if (element._touchendHandler) {
+                element.removeEventListener('touchend', element._touchendHandler);
             }
         }
         
-        // Kilit ikonlarının durumunu güncelle (çözülmüş kutulara göre)
-        function updateLockIconStates() {
-            const lockIcons = document.querySelectorAll('.lock-icon');
+        // Mobil-uyumlu event'ler ekleyen fonksiyon
+        function setupMobileEvents(element, index) {
+            // Tıklama ve dokunma olaylarını ayarla
+            element._clickHandler = function(e) {
+                e.preventDefault();
+                handleBoxClick(index);
+            };
             
-            // Her bir kilit ikonu için kontrol et
-            for (let i = 0; i < 8; i++) {
-                const lockIcon = lockIcons[i];
+            // Mobil için dokunmatik olayları
+            let touchStartTime = 0;
+            let touchTimeout = null;
+            
+            element._touchstartHandler = function(e) {
+                e.preventDefault(); // Varsayılan davranışı engelle
                 
-                // Bu kilit ikonu, i ve i+1 kutularını bağlıyor
-                // Eğer her iki kutu da çözülmüşse, kilit ikonu da çözülmüş olarak işaretle
-                if (correctBoxes.includes(i) && correctBoxes.includes(i+1)) {
-                    lockIcon.classList.remove('highlight');
-                    lockIcon.classList.add('solved');
-                } 
-                // Eğer bu kilit ikonu vurgulanmış ve onunla bağlantılı kutulardan biri seçilmişse
-                // vurguyu koru (doğru/yanlış seçim sonrası)
-                else if (highlightedBoxes.includes(i) && highlightedBoxes.includes(i+1)) {
-                    lockIcon.classList.add('highlight');
-                    lockIcon.classList.remove('solved');
-                } 
-                // Hiçbiri değilse normal görünüm
-                else {
-                    lockIcon.classList.remove('highlight', 'solved');
+                // Dokunma zamanını kaydet
+                touchStartTime = Date.now();
+                
+                // Önceki zamanlayıcıyı temizle
+                if (touchTimeout) {
+                    clearTimeout(touchTimeout);
                 }
-            }
+                
+                // Hemen tepki ver - mobilde hızlı çift tıklama için
+                if (GameState.currentStage === 2) {
+                    toggleBoxSpinning(index);
+                } else {
+                    handleBoxClick(index);
+                }
+            };
+            
+            element._touchendHandler = function(e) {
+                e.preventDefault();
+            };
+            
+            // Event'leri ekle
+            element.addEventListener('click', element._clickHandler);
+            element.addEventListener('touchstart', element._touchstartHandler, { passive: false });
+            element.addEventListener('touchend', element._touchendHandler, { passive: false });
+        }
+
+        // Butonun dokunma olayını optimize et
+        function setupConnectButtonEvents() {
+            // Mevcut olayları temizle
+            cleanupEventListeners(connectBtn);
+            
+            // Yeni olayları ekle
+            connectBtn.addEventListener('click', handleConnectClick);
+            
+            // Mobil cihazlar için dokunmatik olayı
+            connectBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault(); // Varsayılan davranışı engelle
+                // Hemen yanıt ver
+                handleConnectClick();
+            }, { passive: false });
         }
         
         // Orijinal olay dinleyicileri - diğer event listenerlarınız buraya
@@ -1526,25 +1942,7 @@
             checkOrientation();
             
             // Connect butonu olayını ayarla
-            connectBtn.addEventListener('click', handleConnectClick);
-            connectBtn.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                handleConnectClick();
-            });
-            
-            // Aşama 2 için kutu tıklama olaylarını ekle
-            const codeBoxes = codeRowEl.querySelectorAll('.box');
-            codeBoxes.forEach((box, index) => {
-                box.addEventListener('click', function() {
-                    handleBoxClick(index);
-                });
-                
-                // Dokunmatik cihazlar için
-                box.addEventListener('touchstart', function(e) {
-                    e.preventDefault(); // Çift olay tetiklenmesini önle
-                    handleBoxClick(index);
-                });
-            });
+            setupConnectButtonEvents();
             
             // Klavye olaylarını dinle (Boşluk/Enter tuşları için)
             document.addEventListener('keydown', function(e) {
@@ -1579,7 +1977,7 @@
         // Kilit ikonlarını oluştur ve konumlandır
         function createLockIcons() {
             // Sadece 1. aşamada kilit ikonlarını göster
-            if (currentStage !== 1) {
+            if (GameState.currentStage !== 1) {
                 // Aşama 1 değilse tüm kilit ikonlarını gizle
                 const lockContainer = document.getElementById('lock-container');
                 lockContainer.innerHTML = '';
@@ -1639,4 +2037,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
